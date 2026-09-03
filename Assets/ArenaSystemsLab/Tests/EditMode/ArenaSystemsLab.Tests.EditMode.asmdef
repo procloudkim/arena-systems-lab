@@ -1,0 +1,21 @@
+{
+  "name": "ArenaSystemsLab.Tests.EditMode",
+  "rootNamespace": "ArenaSystemsLab.Tests.EditMode",
+  "references": [
+    "ArenaSystemsLab.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
