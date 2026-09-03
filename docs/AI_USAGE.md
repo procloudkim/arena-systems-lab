@@ -1,5 +1,7 @@
 # AI Usage Record
 
+> 이 문서는 AI 작업의 시간순 기록이다. 현재 진행 상태와 다음 작업은 [PROCESS.md](../PROCESS.md)를 따른다.
+
 ## AI가 수행한 조사
 
 - Unity 프로젝트 root와 Git 상태 확인
@@ -18,11 +20,14 @@
 ## AI가 생성하거나 수정한 파일
 
 - `AGENTS.md`: 프로젝트 작업 지침 생성
+- `PROCESS.md`: 현재 상태와 session 재개 지점의 단일 기준 생성
 - `docs/ENVIRONMENT_AUDIT.md`: 환경 감사 기록 생성
 - `docs/IMPLEMENTATION_PLAN.md`: 4일 구현 계획 생성
 - `docs/AI_USAGE.md`: 이 기록 생성
 - `.gitignore`: Unity/IDE/OS 생성물 제외 규칙 생성
 - `docs/adr/0001-commit-push-and-adr-workflow.md`: branch, ADR, commit, push 운영 결정 기록
+- `docs/adr/0002-project-naming.md`: project naming 범위와 보존 결정 기록
+- `docs/adr/0003-process-and-adr-governance.md`: PROCESS SSOT와 ADR naming governance 기록
 - `Assets/ArenaSystemsLab/Runtime/ArenaSystemsLab.Runtime.asmdef`
 - `Assets/ArenaSystemsLab/Runtime/Health.cs`
 - `Assets/ArenaSystemsLab/Runtime/ArenaGame.cs`
@@ -41,8 +46,6 @@
 ## 사람이 추후 결정하거나 확인해야 할 항목
 
 - Windows player build와 실행
-- 중첩된 프로젝트 폴더 이름을 유지할지 여부
-- initial commit 대상 검토와 commit 실행 여부
 
 ## 실행된 테스트
 
@@ -55,6 +58,7 @@
 - 두 번째 batch test: `-quit` 제거 후 exit code 0, result Passed
 - PlayMode manual verification: PASS, 사용자 확인
 - Unity Console: PASS, 사용자 확인
+- 이름 변경 후 exact Editor compilation 및 EditMode test: PASS, 5 passed / 0 failed / 0 skipped
 
 ## 미검증 항목
 
@@ -65,7 +69,7 @@
 - Input System과 Test Framework가 이미 있어 package 추가를 제안하지 않았다.
 - IL2CPP, Android, Dedicated Server는 Day 1에 필요 없어 설치하지 않았다.
 - Performance Testing API는 lock의 간접 dependency일 뿐이며 직접 dependency로 추가하지 않았다.
-- 기존 Scene과 package/Project Settings YAML을 직접 수정하지 않는다.
+- 기존 Scene과 package 파일은 수정하지 않았다. Project Settings는 사용자 승인 범위의 naming field 3개만 수정했다.
 - 최초 감사에서는 Git repository와 `.gitignore`를 자동 생성하지 않았고, 사용자 승인 후 별도 단계에서 준비했다.
 - 외부 art, networking, database, DI, tween, async helper package를 사용하지 않는다.
 
@@ -89,4 +93,18 @@
 
 사용자의 최신 지침에 따라 기존 commit/push 금지 규칙을 교체했다. 최초 기준선은 `main`에 남기고, 이후 주요 작업은 `work/<short-kebab-topic>` branch에서 진행한다. 의미 있는 변경은 ADR과 실제 검증 결과를 함께 기록하고 같은 작업 turn에서 commit과 push까지 완료한다.
 
-현재 Day 1 source, test, 환경 문서, `.gitignore`, ADR을 최초 검증 기준선으로 commit하고 `origin/main`에 push한다. 저장소 로컬 commit 작성자는 GitHub noreply identity를 사용하며 전역 Git 설정은 변경하지 않는다.
+Day 1 source, test, 환경 문서, `.gitignore`, ADR을 최초 검증 기준선 `51bd3a4`로 commit하고 `origin/main`에 push했다. 저장소 로컬 commit 작성자는 GitHub noreply identity를 사용하며 전역 Git 설정은 변경하지 않았다.
+
+## 프로젝트 이름 정리 기록
+
+`work/project-naming` branch에서 활성 project folder leaf와 PlayerSettings 이름을 `Arena Systems Lab`으로 통일했다. `metroPackageName`은 공백 없는 `ArenaSystemsLab`을 사용했다. Location container의 불완전한 `My`, `My project` 폴더는 사용자 데이터 보호를 위해 그대로 두었다.
+
+이름 변경 후 exact Editor 6000.5.1f1로 새 경로를 열어 compile failure 표식 0건과 EditMode test 5건 통과를 확인했다. Unity는 승인 범위 밖의 tracked file을 변경하지 않았고 Windows player build는 실행하지 않았다.
+
+구현 commit `20157ea`를 `origin/work/project-naming`에 push하고 local/remote SHA 일치를 확인했다.
+
+## Process SSOT 정리 기록
+
+상태 정보가 여러 문서에 흩어진 위치를 두 가지 검색으로 감사하고 `PROCESS.md`를 현재 상태의 단일 기준으로 선택했다. `AGENTS.md`와 구현 계획의 현재 상태 복사본은 참조로 교체하고, 환경 감사와 AI 기록은 역사적 문서임을 명시했다. ADR 0003에서 ADR filename, status, 필수 section, supersede, checkpoint 규칙을 확정했다.
+
+구현 commit `c6a7fb0`를 `origin/work/process-governance`에 push하고 local/remote SHA 일치를 확인했다.

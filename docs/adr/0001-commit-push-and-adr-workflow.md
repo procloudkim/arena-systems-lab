@@ -2,6 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-09-04
+- Superseded in part by: [ADR 0003](0003-process-and-adr-governance.md) for session resume source of truth
 
 ## Context
 
@@ -22,7 +23,7 @@
 
 원격 branch와 ADR만 읽어도 변경 의도, 검증 수준, 다음 작업 기준점을 확인할 수 있다. 작은 문서 수정도 작업 단위가 끝나면 commit과 push가 필요하지만, architecture 결정이 없는 경우 불필요한 새 ADR 대신 현재 관련 ADR의 기록을 갱신한다.
 
-## Initial Checkpoint Evidence
+## Validation
 
 - Unity Editor/runtime/test assembly compilation: PASS
 - EditMode tests: PASS, 5 passed / 0 failed / 0 skipped
