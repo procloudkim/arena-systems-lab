@@ -25,5 +25,5 @@ Unity Hub의 기존 project 항목은 이전 경로를 가리킬 수 있어 새 
 - EditMode tests: PASS, 5 passed / 0 failed / 0 skipped
 - ProjectSettings diff: PASS, 승인된 naming field 3개만 변경
 - Git root after folder rename: PASS
-- Remote branch: push 후 ref 확인
+- Remote branch: PASS, commit `20157ea`가 `origin/work/project-naming`과 일치
 - Windows player build: NOT RUN

@@ -96,3 +96,5 @@ Day 1 source, test, 환경 문서, `.gitignore`, ADR을 최초 검증 기준선 
 `work/project-naming` branch에서 활성 project folder leaf와 PlayerSettings 이름을 `Arena Systems Lab`으로 통일했다. `metroPackageName`은 공백 없는 `ArenaSystemsLab`을 사용했다. Location container의 불완전한 `My`, `My project` 폴더는 사용자 데이터 보호를 위해 그대로 두었다.
 
 이름 변경 후 exact Editor 6000.5.1f1로 새 경로를 열어 compile failure 표식 0건과 EditMode test 5건 통과를 확인했다. Unity는 승인 범위 밖의 tracked file을 변경하지 않았고 Windows player build는 실행하지 않았다.
+
+구현 commit `20157ea`를 `origin/work/project-naming`에 push하고 local/remote SHA 일치를 확인했다.
