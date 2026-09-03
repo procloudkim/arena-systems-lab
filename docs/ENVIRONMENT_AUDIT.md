@@ -46,14 +46,15 @@
 | 미커밋 변경사항 | 최초 기준선에 포함 | handoff 시 clean 확인 | READY | staged diff와 최종 `git status` | 변경마다 재확인 |
 | 대형 source binary | 없음 | 10 MB 초과 0건 | READY | Assets/Packages/ProjectSettings scan | LFS 불필요 |
 | 기존 코드 | 없음 | C# 0, asmdef 0, prefab 0 | READY | asset inventory | 별도 namespace/folder 사용 |
-| Product Name | 목표 이름과 다름 | `My project-2026-09-03` | CONFLICT | `ProjectSettings.asset` | 별도 승인 후 변경 |
+| Product Name | 목표 이름으로 정리 | `Arena Systems Lab` | READY | `ProjectSettings.asset`와 exact Editor 재검증 | 없음 |
+| 프로젝트 폴더 이름 | 목표 이름으로 정리 | leaf `Arena Systems Lab` | READY | filesystem/Git root probe | Hub에서 새 경로 확인 |
 | VS Code Server | 감사 중 자동 갱신 | 새 server version 생성 | CONFLICT | `code --version` 부작용 | 추가 CLI 호출·자동 rollback 금지 |
 
 ## Gate 판정
 
 **READY_WITH_GAPS**
 
-정확한 Editor, Windows Mono build support, Input System, Test Framework가 있고 compile 및 Day 1 검증을 통과했다. Git repository와 `.gitignore`도 준비됐지만 Visual Studio Unity workload, 목표 프로젝트 이름, Windows player build는 미완료다. 이 항목들은 현재 구현과 검증을 차단하지 않으므로 판정은 `READY_WITH_GAPS`를 유지한다.
+정확한 Editor, Windows Mono build support, Input System, Test Framework가 있고 compile 및 Day 1 검증을 통과했다. Git repository, `.gitignore`, 목표 프로젝트 이름도 준비됐지만 Visual Studio Unity workload와 Windows player build는 미완료다. 이 항목들은 현재 구현과 검증을 차단하지 않으므로 판정은 `READY_WITH_GAPS`를 유지한다.
 
 ## 필수 조치
 
@@ -61,9 +62,8 @@
 
 ## 선택 조치
 
-- initial commit 전에 전체 source와 `.meta` 목록을 사람이 검토한다.
 - Visual Studio를 주 IDE로 사용할 때만 Unity workload 설치를 검토한다.
-- 프로젝트 폴더 이름 정리는 Editor를 닫고 변경 이력을 확보한 뒤 별도 작업으로 수행한다.
+- Unity Hub에서 이름이 변경된 project path를 다시 열어 목록을 갱신한다.
 
 ## 확인하지 못한 사항
 
@@ -140,3 +140,15 @@ Git stage, commit, remote 설정, Git LFS 초기화는 실행하지 않았다.
 실행 시점: `2026-09-04T02:12:12+09:00`
 
 사용자의 최신 Git 운영 지침에 따라 Day 1 source, test, 환경 문서, `.gitignore`, ADR을 `main`의 최초 기준선으로 commit하고 `origin/main`에 push한다. 이 기준선의 검증 근거는 ADR 0001과 commit message에 함께 기록한다.
+
+## 프로젝트 이름 정리
+
+실행일: `2026-09-04`
+
+사용자 승인에 따라 활성 Unity project folder leaf와 PlayerSettings의 `productName`을 `Arena Systems Lab`으로 통일했다. UWP에 남아 있던 template 이름도 `metroPackageName: ArenaSystemsLab`, `metroApplicationDescription: Arena Systems Lab`로 정리했다. 같은 Location 아래의 `My`와 `My project` 잔여 폴더는 범위 밖이므로 이동하거나 삭제하지 않았다.
+
+- Exact Editor 6000.5.1f1 compilation: PASS
+- EditMode tests: 5 passed, 0 failed, 0 skipped
+- Compiler/batch failure marker: 0
+- 승인 범위 밖 tracked file 변경: 0
+- Windows player build: NOT RUN

@@ -32,6 +32,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - Performance Testing API: `3.5.0`, lock의 간접 의존성만 확인
 - Build Target: Standalone / Win64
 - Build Support: Windows Mono 사용 가능, IL2CPP 없음, WebGL 있음
+- Product Name: `Arena Systems Lab`; project folder leaf: `Arena Systems Lab`
 - Version Control Mode: Visible Meta Files
 - Asset Serialization: Force Text
 - Git 저장소의 최초 검증 기준선은 `main`에 commit/push한다. Public `origin`은 `https://github.com/procloudkim/arena-systems-lab.git`이다. Git LFS도 설치돼 있지만 현재 필요한 대형 source asset은 없다.
@@ -66,7 +67,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 
 Day 1에는 Spatial Hash, Object Pool, 정식 Enemy FSM, multiplayer, network, database, login, cloud service, Addressables, ECS/DOTS, 복잡한 animation, 외부 art, sound, save, DI, tween, async helper를 구현하지 않는다.
 
-기존 `.unity`, `.prefab`, package 파일과 Project Settings를 직접 수정하지 않는다. Scene 구성이 필요하면 기존 Scene을 보존하고 runtime 구성 또는 안전한 Editor API를 사용한다.
+명시적 사용자 승인 없이 기존 `.unity`, `.prefab`, package 파일과 Project Settings를 직접 수정하지 않는다. 승인된 naming 작업은 `productName`, `metroPackageName`, `metroApplicationDescription`에 한정한다. Scene 구성이 필요하면 기존 Scene을 보존하고 runtime 구성 또는 안전한 Editor API를 사용한다.
 
 ## 8. Coding conventions
 
