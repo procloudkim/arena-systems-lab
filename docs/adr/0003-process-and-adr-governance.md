@@ -33,4 +33,4 @@ ADR 0001의 commit/push 안전 규칙은 계속 유효하다. 다만 branch와 A
 - Required ADR metadata and sections: PASS
 - Current-status duplicate search: PASS
 - Runtime/Unity tests: NOT RUN, documentation-only change
-- Remote branch SHA: checkpoint commit에서 기록
+- Remote branch SHA: PASS, commit `c6a7fb0`가 `origin/work/process-governance`와 일치

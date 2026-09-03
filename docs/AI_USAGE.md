@@ -106,3 +106,5 @@ Day 1 source, test, 환경 문서, `.gitignore`, ADR을 최초 검증 기준선 
 ## Process SSOT 정리 기록
 
 상태 정보가 여러 문서에 흩어진 위치를 두 가지 검색으로 감사하고 `PROCESS.md`를 현재 상태의 단일 기준으로 선택했다. `AGENTS.md`와 구현 계획의 현재 상태 복사본은 참조로 교체하고, 환경 감사와 AI 기록은 역사적 문서임을 명시했다. ADR 0003에서 ADR filename, status, 필수 section, supersede, checkpoint 규칙을 확정했다.
+
+구현 commit `c6a7fb0`를 `origin/work/process-governance`에 push하고 local/remote SHA 일치를 확인했다.
