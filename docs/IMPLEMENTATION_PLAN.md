@@ -33,7 +33,7 @@ runtime bootstrap은 Scene asset 변경을 피하지만 사람의 PlayMode 확�
 
 ### 현재 상태
 
-Runtime/Test assembly compile, Health EditMode test 5건, PlayMode 수동 흐름, Console 확인을 모두 통과했다.
+현재 완료 상태와 다음 재개 지점은 [PROCESS.md](../PROCESS.md)를 따른다.
 
 ## Day 2: FSM and code structure
 

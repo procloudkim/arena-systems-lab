@@ -1,5 +1,7 @@
 # Environment Audit
 
+> 이 문서는 감사 시점의 역사적 snapshot이다. 현재 진행 상태와 다음 작업은 [PROCESS.md](../PROCESS.md)를 따른다.
+
 ## 감사 실행 시점
 
 `2026-09-03T23:43:04+09:00`

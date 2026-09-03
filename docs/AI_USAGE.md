@@ -1,5 +1,7 @@
 # AI Usage Record
 
+> 이 문서는 AI 작업의 시간순 기록이다. 현재 진행 상태와 다음 작업은 [PROCESS.md](../PROCESS.md)를 따른다.
+
 ## AI가 수행한 조사
 
 - Unity 프로젝트 root와 Git 상태 확인
@@ -18,12 +20,14 @@
 ## AI가 생성하거나 수정한 파일
 
 - `AGENTS.md`: 프로젝트 작업 지침 생성
+- `PROCESS.md`: 현재 상태와 session 재개 지점의 단일 기준 생성
 - `docs/ENVIRONMENT_AUDIT.md`: 환경 감사 기록 생성
 - `docs/IMPLEMENTATION_PLAN.md`: 4일 구현 계획 생성
 - `docs/AI_USAGE.md`: 이 기록 생성
 - `.gitignore`: Unity/IDE/OS 생성물 제외 규칙 생성
 - `docs/adr/0001-commit-push-and-adr-workflow.md`: branch, ADR, commit, push 운영 결정 기록
 - `docs/adr/0002-project-naming.md`: project naming 범위와 보존 결정 기록
+- `docs/adr/0003-process-and-adr-governance.md`: PROCESS SSOT와 ADR naming governance 기록
 - `Assets/ArenaSystemsLab/Runtime/ArenaSystemsLab.Runtime.asmdef`
 - `Assets/ArenaSystemsLab/Runtime/Health.cs`
 - `Assets/ArenaSystemsLab/Runtime/ArenaGame.cs`
@@ -98,3 +102,7 @@ Day 1 source, test, 환경 문서, `.gitignore`, ADR을 최초 검증 기준선 
 이름 변경 후 exact Editor 6000.5.1f1로 새 경로를 열어 compile failure 표식 0건과 EditMode test 5건 통과를 확인했다. Unity는 승인 범위 밖의 tracked file을 변경하지 않았고 Windows player build는 실행하지 않았다.
 
 구현 commit `20157ea`를 `origin/work/project-naming`에 push하고 local/remote SHA 일치를 확인했다.
+
+## Process SSOT 정리 기록
+
+상태 정보가 여러 문서에 흩어진 위치를 두 가지 검색으로 감사하고 `PROCESS.md`를 현재 상태의 단일 기준으로 선택했다. `AGENTS.md`와 구현 계획의 현재 상태 복사본은 참조로 교체하고, 환경 감사와 AI 기록은 역사적 문서임을 명시했다. ADR 0003에서 ADR filename, status, 필수 section, supersede, checkpoint 규칙을 확정했다.

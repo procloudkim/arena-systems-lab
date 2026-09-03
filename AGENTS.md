@@ -6,7 +6,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 
 ## 2. Current milestone
 
-현재 마일스톤은 Day 1 playable vertical slice다. 범위는 2D top-down 이동, 기본 공격, 적 1종, 추적과 생성, Health/Damage, 사망, Game Over, 재시작이다.
+현재 마일스톤, 검증 상태, 다음 재개 지점은 [PROCESS.md](PROCESS.md)에서만 관리한다. 모든 session은 구현 전에 이 문서를 읽는다.
 
 ## 3. Repository structure
 
@@ -17,6 +17,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - `Assets/ArenaSystemsLab/Tests/EditMode/`: EditMode 테스트
 - `Packages/`: Unity package 선언과 lock 파일
 - `ProjectSettings/`: Unity 프로젝트 설정
+- `PROCESS.md`: 현재 상태와 다음 재개 지점의 단일 기준
 - `docs/`: 감사, 구현 계획, AI 사용 기록
 - `docs/adr/`: 사람과 LLM이 함께 읽는 의사결정 기록
 - `.gitignore`: Unity/IDE 생성물 제외 규칙
@@ -49,6 +50,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - meta file mode: `ProjectSettings/VersionControlSettings.asset`
 - build scenes: `ProjectSettings/EditorBuildSettings.asset`
 - 입력 액션: `Assets/InputSystem_Actions.inputactions`
+- 현재 진행 상태와 checkpoint: `PROCESS.md`
 - 감사 상태: `docs/ENVIRONMENT_AUDIT.md`
 - AI 작업 기록: `docs/AI_USAGE.md`
 - 작업·구조 의사결정: `docs/adr/`
@@ -97,7 +99,7 @@ Day 1에는 Spatial Hash, Object Pool, 정식 Enemy FSM, multiplayer, network, d
 
 - 작업 전후 `git status`를 기록한다. 저장소가 아니면 그 사실을 기록한다.
 - 최초 기준선은 `main`에 남긴다. 이후 주요 작업은 `work/<short-kebab-topic>` branch에서 시작하고 해당 branch를 push한다.
-- 의미 있는 변경은 관련 ADR을 새로 만들거나 갱신하고, 실제 검증 결과를 commit message에 기록한 뒤 같은 작업 turn에서 commit과 push까지 완료한다.
+- 의미 있는 변경은 `PROCESS.md`와 관련 ADR을 갱신하고, 실제 검증 결과를 commit message에 기록한 뒤 같은 작업 turn에서 commit과 push까지 완료한다.
 - 실행하지 않은 test를 통과했다고 기록하지 않는다. 실패나 미검증 항목도 commit과 ADR에 명시한다.
 - 생성물, credential, token을 stage하지 않는다.
 - `git reset`, `git clean`, `git checkout -- .`, `git restore .`, `git stash`, `git pull`, `git rebase`, force push를 실행하지 않는다.
@@ -110,6 +112,7 @@ Day 1에는 Spatial Hash, Object Pool, 정식 Enemy FSM, multiplayer, network, d
 - AI 코드는 사람이 PlayMode 동작, Console 오류, Inspector 상태를 확인하기 전까지 완료로 간주하지 않는다.
 - AI 제안은 기존 코드, Unity 문서, compiler/test 결과와 대조한다.
 - 실패와 환경 부작용을 숨기지 않고 원인과 영향을 기록한다.
+- AI는 session 시작 시 `PROCESS.md`를 읽고 종료 전 현재 상태와 checkpoint를 갱신한다.
 
 ## 12. Definition of done
 
@@ -120,4 +123,5 @@ Day 1에는 Spatial Hash, Object Pool, 정식 Enemy FSM, multiplayer, network, d
 - 사람이 Day 1 manual flow를 확인한다.
 - package와 Project Settings에 승인되지 않은 변경이 없다.
 - 문서와 AI 사용 기록이 실제 결과와 일치한다.
+- `PROCESS.md`가 현재 상태와 다음 작업을 단독으로 설명한다.
 - 관련 ADR과 검증 근거가 commit에 포함되고 해당 branch가 remote에 push된다.
