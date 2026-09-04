@@ -225,3 +225,5 @@ Player log에는 D3D12 info queue 경고와 종료 시 Unity cleanup 진단이 �
 Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 local/remote SHA 일치를 확인했다. 당시에는 Windows player 전체 gameplay와 build Editor menu가 사람 검증 전이므로 branch를 `main`에 통합하지 않았다.
 
 이후 사용자가 Windows player standalone 8단계 checklist PASS와 오류 없음을 확인했다. 확인 시점에 player process가 아직 실행 중이므로 사람 검증 기록은 남기되 강제 종료나 branch 통합은 수행하지 않는다.
+
+사람 검증 commit `f87a0d5`를 remote branch와 대조한 뒤 generated player 창에 정상 종료 신호를 보냈고 process가 즉시 종료됐다. Unity Editor, player, crash handler와 project lock이 모두 없는 상태에서 Day 4 통합을 재개한다.

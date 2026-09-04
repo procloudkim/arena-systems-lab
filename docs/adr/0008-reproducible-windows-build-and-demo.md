@@ -43,3 +43,4 @@ Editor menu와 CI형 command line에서 동일한 build를 재현할 수 있고 
 - ADR governance: PASS, 0001~0008 sequence와 필수 section 확인
 - Glossary: PASS, version 0.5.0, 52 entries
 - Remote branch SHA: PASS, implementation commit `fca8a38`가 `origin/work/day4-build-demo`와 일치
+- Human evidence commit: PASS, `f87a0d5`가 `origin/work/day4-build-demo`와 일치

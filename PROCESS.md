@@ -6,8 +6,8 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: `work/day4-build-demo...origin/work/day4-build-demo`, clean
-- Active work: `work/day4-build-demo`, 자동·사람 검증 완료, 실행 중 player 종료 대기
-- Next task: Windows player 종료 확인 후 Day 4를 `main`에 통합하고 network security foundation branch 시작
+- Active work: `work/day4-build-demo`, 자동·사람 검증 완료, 통합 준비 완료
+- Next task: Day 4를 `main`에 통합하고 network security foundation branch 시작
 
 ## Session Start
 
@@ -86,7 +86,6 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 알려진 gap:
 
 - Windows build output과 log는 local ignored generated artifact이며 repository에 포함하지 않는다.
-- Windows player process가 아직 실행 중이므로 강제 종료, branch 전환, 통합을 보류한다.
 - Visual Studio Unity workload는 없지만 현재 작업의 차단 요소가 아니다.
 - Unreal Editor와 Native Game/C++ toolchain은 있으나 `.uproject`와 Unreal build 결과는 없다.
 - SVN client/admin과 native MySQL runtime은 확인되지 않았다. 설치·download·package 추가는 사용자 승인 전 실행하지 않는다.
@@ -106,7 +105,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260904-05` | 최소 Enemy FSM과 debug 표시 | `work/enemy-fsm` | `8539a8b`, evidence `b294fbb` | [ADR 0005](docs/adr/0005-minimal-enemy-fsm.md) | Compile PASS, EditMode 9/9, manual PASS | Integrated |
 | `CP-20260904-06` | Portfolio 필수 기술 baseline과 확장 계획 | `work/portfolio-technology-baseline` | `01cd869` | [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md) | Environment audit, document static checks PASS; runtime NOT RUN | Integrated |
 | `CP-20260904-07` | 측정 기반 Day 3 자료구조·Editor Tool | `work/day3-profiling-validation` | `86e90f4`, automated evidence `b64af42`, human evidence `f17e880` | [ADR 0007](docs/adr/0007-measured-day3-tooling.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, CLI PASS, human PASS | Integrated as `e205ccd` |
-| `CP-20260904-08` | Windows Development build·README·demo | `work/day4-build-demo` | `fca8a38` | [ADR 0008](docs/adr/0008-reproducible-windows-build-and-demo.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, build·smoke·human PASS | Ready to integrate after player close |
+| `CP-20260904-08` | Windows Development build·README·demo | `work/day4-build-demo` | `fca8a38`, human evidence `f87a0d5` | [ADR 0008](docs/adr/0008-reproducible-windows-build-and-demo.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, build·smoke·human PASS | Ready to integrate |
 
 ## ADR Index and Naming
 
