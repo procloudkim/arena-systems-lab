@@ -223,3 +223,5 @@ AI가 생성하거나 수정한 대상:
 build 중 Unity/URP가 4개 tracked asset/settings와 미추적 `SceneTemplateSettings.json`을 자동 직렬화했다. 직전 clean Git 상태와 diff로 이번 실행의 부작용임을 확인하고 해당 값만 원래 내용으로 복원했다. 최종 Scene, Prefab, Package, tracked ProjectSettings 변경은 없다.
 
 Player log에는 D3D12 info queue 경고와 종료 시 Unity cleanup 진단이 있었지만 managed exception, crash, 조기 종료는 없었다. 이 smoke 결과를 전체 gameplay PASS로 확대하지 않고 standalone 수동 checklist를 `docs/DEMO_GUIDE.md`에 남겼다.
+
+Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 local/remote SHA 일치를 확인했다. Windows player 전체 gameplay와 build Editor menu는 사람 검증 전이므로 branch를 `main`에 통합하지 않았다.

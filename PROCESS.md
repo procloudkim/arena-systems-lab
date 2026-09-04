@@ -106,6 +106,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260904-05` | 최소 Enemy FSM과 debug 표시 | `work/enemy-fsm` | `8539a8b`, evidence `b294fbb` | [ADR 0005](docs/adr/0005-minimal-enemy-fsm.md) | Compile PASS, EditMode 9/9, manual PASS | Integrated |
 | `CP-20260904-06` | Portfolio 필수 기술 baseline과 확장 계획 | `work/portfolio-technology-baseline` | `01cd869` | [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md) | Environment audit, document static checks PASS; runtime NOT RUN | Integrated |
 | `CP-20260904-07` | 측정 기반 Day 3 자료구조·Editor Tool | `work/day3-profiling-validation` | `86e90f4`, automated evidence `b64af42`, human evidence `f17e880` | [ADR 0007](docs/adr/0007-measured-day3-tooling.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, CLI PASS, human PASS | Integrated as `e205ccd` |
+| `CP-20260904-08` | Windows Development build·README·demo | `work/day4-build-demo` | `fca8a38` | [ADR 0008](docs/adr/0008-reproducible-windows-build-and-demo.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, build·smoke PASS; human player NOT RUN | Pending human validation |
 
 ## ADR Index and Naming
 
