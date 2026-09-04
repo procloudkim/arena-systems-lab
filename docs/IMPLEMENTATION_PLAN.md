@@ -166,14 +166,16 @@ server의 score를 MySQL 8.4 LTS에 영속화하고 schema, query, rollback 가�
 ### 작업 항목
 
 - 최소 `players`, `runs`, `scores` schema와 versioned migration 작성
-- parameterized query로 score 저장과 leaderboard 조회 구현
+- 모든 Game Over를 `runs`에 기록하고 player별 최고 score leaderboard와 분리
+- parameterized query로 run 저장, leaderboard와 최근 run history 조회 구현
+- client 1회 retry가 같은 run을 중복 저장하지 않도록 `runId` 또는 동등한 idempotency key 결정
 - local MySQL container와 test database 구성
 - database unavailable, duplicate request, invalid score 처리
 - schema 적용과 integration test 절차 문서화
 
 ### 완료 기준
 
-server 재시작 뒤에도 score가 유지되고 submit/query integration test가 실제 MySQL에서 통과한다. credential은 Git에 포함되지 않는다.
+server 재시작 뒤에도 score가 유지되고 submit/query integration test가 실제 MySQL에서 통과한다. 같은 player의 3점·11점 run은 history에 각각 한 번 남고 leaderboard에는 최고 11점만 표시된다. credential은 Git에 포함되지 않는다.
 
 ### 검증 방법
 
@@ -186,6 +188,8 @@ schema 적용 결과, database integration test, 재시작 후 데이터 조회,
 ### 위험 요소
 
 Docker daemon과 기존 image는 아직 확인되지 않았다. local password와 data volume의 수명 주기를 명시하고 public port 노출은 하지 않는다.
+
+protocol v1 submit은 retry 식별자가 없어 response 유실 뒤 재전송을 새 run과 구분할 수 없다. run history 구현 전에 idempotency key의 생성·보존·unique constraint를 ADR로 결정한다.
 
 ## Milestone 7: Unity network client
 

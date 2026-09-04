@@ -26,6 +26,8 @@ Unity gameplay와 standalone server가 실제 protocol로 연결되고, 서버�
 
 현재 player ID와 endpoint는 local demo용 고정값이다. 인증·score authority·TLS가 없으므로 다른 local process의 사칭을 막지 못하며 remote bind는 계속 금지한다.
 
+현재 leaderboard는 player별 최고 score 하나만 보존하므로 같은 `UnityPlayer`의 3점 뒤 11점 제출은 11점 한 항목으로 표시된다. 이는 run history가 삭제된 것이 아니라 protocol v1이 과거 run을 저장하지 않는다는 뜻이다. 모든 시도 기록은 MySQL milestone의 별도 `runs` data로 다루고 leaderboard 의미와 섞지 않는다.
+
 Unity와 .NET server가 protocol 상수를 각각 보유한다. 현재 작은 protocol에서는 양쪽 integration fixture로 drift를 검출하며, protocol 종류가 실제로 늘어나기 전에는 code generation이나 공유 package를 추가하지 않는다.
 
 ## Validation
@@ -41,4 +43,7 @@ Unity와 .NET server가 protocol 상수를 각각 보유한다. 현재 작은 pr
 - 첫 compile: FAIL, Unity API profile의 `TcpListener`가 `IDisposable`이 아니어서 test teardown을 `Stop()`으로 수정
 - 첫 두 network test runs: 중단, main-thread synchronization context를 동기 대기한 test 교착을 worker-thread 실행으로 수정
 - Server-unavailable 첫 assertion: FAIL, 환경에 따라 `connection_failed` 대신 `request_timeout`이 반환되어 두 bounded failure를 계약으로 검증
-- Actual .NET server와 Game Over 수동 flow, Unity Console 사람 검증: NOT RUN
+- Server-unavailable Game Over·restart·Unity Console 사람 검증: PASS
+- Actual .NET server Game Over submit/query: PASS, `UnityPlayer` 3점 뒤 11점으로 최고 score 갱신·중복 entry 없음
+- Actual flow Unity Console: PASS, 사용자 확인 오류 없음
+- Run history persistence: NOT IMPLEMENTED, MySQL milestone에서 retry idempotency와 함께 결정

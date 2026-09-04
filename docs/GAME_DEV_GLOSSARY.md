@@ -2,7 +2,7 @@
 
 > Arena Systems Lab 개발 중 실제로 만난 게임·Unity·물리·검증 용어를 한국어로 설명하는 생활형 백과사전이다.
 
-- Version: `0.7.0`
+- Version: `0.8.0`
 - Last updated: 2026-09-05 KST
 - Governance: [ADR 0004](adr/0004-game-development-glossary-governance.md)
 
@@ -182,6 +182,18 @@
 - 주의: test가 한 번 통과한 것만으로 모든 race가 없다고 단정하지 않고 공유 state와 synchronization 경계를 함께 검토한다.
 
 ## Data Persistence
+
+### Leaderboard (리더보드)
+
+- 정의: player들을 특정 성과 기준으로 정렬해 순위를 보여 주는 목록이며 보통 player별 대표 기록 하나를 사용한다.
+- 프로젝트 예: 현재 `LeaderboardStore`는 같은 `playerId`의 최고 score만 유지하므로 3점 뒤 11점이면 `UnityPlayer 11` 한 항목만 반환한다.
+- 주의: leaderboard는 모든 플레이 시도의 시간순 기록인 run history와 목적이 다르다.
+
+### Run History (플레이 이력)
+
+- 정의: 한 player가 수행한 각 게임 시도를 score, 시각, 식별자와 함께 개별 event로 보존한 기록이다.
+- 프로젝트 예: MySQL milestone에서 3점 run과 11점 run을 각각 저장하되 leaderboard에는 최고 11점만 사용한다.
+- 주의: network retry가 같은 run을 두 번 저장하지 않도록 idempotency key나 database unique constraint가 필요하다.
 
 ### MySQL
 
@@ -435,6 +447,7 @@
 
 | Version | Date | 변경 | ADR |
 |---|---|---|---|
+| `0.8.0` | 2026-09-05 | 사람 검증에서 확인한 leaderboard·run history 구분 2개 추가, 총 67개 | [ADR 0010](adr/0010-unity-loopback-leaderboard-client.md) |
 | `0.7.0` | 2026-09-05 | Unity network client의 cancellation·retry 용어 2개 추가, 총 65개 | [ADR 0010](adr/0010-unity-loopback-leaderboard-client.md) |
 | `0.6.0` | 2026-09-05 | network security·protocol·concurrency 용어 11개 추가, 총 63개 | [ADR 0009](adr/0009-loopback-first-bounded-tcp-protocol.md) |
 | `0.5.0` | 2026-09-04 | Day 4 build·regression·smoke 용어 4개 추가, 총 52개 | [ADR 0008](adr/0008-reproducible-windows-build-and-demo.md) |

@@ -94,6 +94,8 @@ server는 `127.0.0.1`에만 bind하며 4-byte big-endian 길이와 UTF-8 JSON을
 
 서버가 없으면 Game Over 화면에 unavailable 상태가 표시되며 restart와 gameplay는 계속 동작한다. 실제 Game Over submit·query의 사람 검증 절차는 [demo guide](docs/DEMO_GUIDE.md)에 있다.
 
+현재 leaderboard는 player별 최고 score를 하나만 유지한다. 예를 들어 `UnityPlayer`가 3점 뒤 11점을 제출하면 Top 5에는 `UnityPlayer 11`만 남는다. 모든 플레이 시도 기록은 MySQL 단계에서 leaderboard와 분리된 run history로 저장할 계획이다.
+
 ## 설계·검증 근거
 
 - 현재 상태와 다음 작업: [PROCESS.md](PROCESS.md)

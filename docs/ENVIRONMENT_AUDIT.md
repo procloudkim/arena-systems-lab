@@ -331,11 +331,24 @@ WSL의 `127.0.0.1`에서 Windows `dotnet.exe` process로 접속한 첫 cross-pro
 | PlayMode regression/profile | PASS | 1 passed / 0 failed / 0 skipped |
 | Project validator CLI | PASS | `Arena Systems Lab validation passed.` |
 | Package·Scene·Prefab·tracked ProjectSettings | UNCHANGED | hash와 Git diff 대조 |
-| Actual server Game Over·Console human verification | NOT RUN | `docs/DEMO_GUIDE.md` checklist 필요 |
+| Actual server Game Over·Console human verification | NOT RUN at automated checkpoint | 이후 사람 검증 결과는 아래에 기록 |
 
 첫 compile은 Unity API profile의 `TcpListener`가 `IDisposable`이 아니어서 실패했다. listener 종료를 `finally`의 `Stop()`으로 바꿨다. 이어진 두 test run은 Unity main-thread synchronization context를 동기 대기해 정지했으며 AI가 시작한 batch Editor와 worker PID만 종료했다. network test를 worker thread에서 시작하도록 수정한 뒤 최종 실행이 정상 종료됐다.
 
 server-unavailable 첫 assertion은 즉시 `connection_failed`만 예상했지만 실제 Windows Unity에서는 bounded `request_timeout`이 반환되어 19/20으로 실패했다. 두 결과 모두 server 미실행을 나타내는 고정 code이므로 계약을 수정했고 final 20/20을 확인했다. PlayMode가 생성한 미추적 `ProjectSettings/SceneTemplateSettings.json`은 해당 실행의 부작용임을 확인한 뒤 제거했다.
+
+### 사람 end-to-end 검증
+
+| 검증 | 결과 | 근거 |
+|---|---|---|
+| Server-unavailable Game Over | PASS | 사용자 확인, unavailable 표시 후 restart 정상 |
+| Actual server submit/query | PASS | `UnityPlayer` 3점 뒤 11점 최고 score 갱신 |
+| Duplicate player entry | PASS | 같은 player는 한 항목, 최고 11점 유지 |
+| Unity Console | PASS | 사용자 확인 Error/Exception 없음 |
+| Server stderr | PASS | 검증 session 0 byte |
+| Historical run persistence | NOT IMPLEMENTED | protocol v1은 player별 최고 score만 보존; MySQL milestone 예정 |
+
+AI가 시작한 Release server는 `127.0.0.1:7777` listening을 확인한 뒤 사람 검증에 사용했다. 검증 후 target PID만 종료하고 port가 비어 있음을 확인했다. 이 session의 종료는 graceful shutdown 검사가 아니며 graceful `Ctrl+C`는 Milestone 5 CLI smoke에서 별도로 검증됐다.
 
 최초 verification 7건은 모두 통과했지만 보안 재검토에서 서로 다른 `playerId`를 무한히 누적할 수 있는 전체 state 상한 누락을 발견했다. stored player 10,000개 제한과 capacity 검사를 추가한 뒤 final verification 8/8을 다시 실행했다.
 

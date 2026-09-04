@@ -66,10 +66,13 @@
 | Player launch smoke | PASS | 8초간 process 생존, 조기 종료·managed exception·crash 없음 |
 | Windows player 전체 gameplay | PASS | 사용자 확인, 위 8단계와 오류 없음 |
 | Unity leaderboard 자동 protocol 검사 | PASS | 정상 framing·single retry·oversized response·server unavailable 4건 |
-| Actual server Game Over flow | NOT RUN | 위 Unity leaderboard 사람 검증 필요 |
+| Server-unavailable Game Over flow | PASS | 사용자 확인, unavailable·restart·Console 오류 없음 |
+| Actual server Game Over flow | PASS | 사용자 확인, `UnityPlayer` 3점→11점 최고 score 갱신·중복 없음 |
 | Milestone 7 Windows player rebuild | NOT RUN | 사람 PlayMode 검증 후 최종 build 단계에서 실행 |
 
 Player smoke log에는 GPU 환경의 D3D12 info queue 경고와 강제 종료 시점의 Unity resource cleanup 진단이 남았다. build 실패, managed exception, crash 근거는 아니며 이후 사람 검증에서도 새 Error/Exception이 없음을 확인했다.
+
+현재 `Top 5`는 run 5개가 아니라 서로 다른 player의 최고 score 5개다. 같은 `UnityPlayer`의 이전 시도는 표시하지 않으며 과거 run 목록은 MySQL persistence 단계에서 별도 `Recent Runs`로 검증한다.
 
 ## Demo capture script
 
