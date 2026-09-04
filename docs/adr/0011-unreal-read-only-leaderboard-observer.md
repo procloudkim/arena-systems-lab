@@ -37,6 +37,7 @@ Engine 기본 `EnhancedInput`은 Editor target에서 로드되지만 observer co
 - Native socket server-unavailable: PASS, port 부재 확인 뒤 3초 bounded failure
 - Native socket actual .NET server query: PASS, 1 passed / 0 failed / 0 warnings
 - Actual server shutdown: PASS, `Ctrl+C` 후 port 7777 해제
+- Remote implementation commit: PASS, `20b0d55`가 `origin/work/unreal-arena-observer`와 일치
 - Protocol fixture: request bytes, valid response, 잘못된 정렬, fractional score, invalid ID, duplicate player, oversized payload 검사 PASS
 - Plugin 재실행 검사: Android File Server token 재생성 없음, Fab/Bridge/EOS 초기화 없음
 - Server-unavailable HUD manual verification: NOT RUN, native client 경로만 자동 PASS

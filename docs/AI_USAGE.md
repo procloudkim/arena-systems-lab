@@ -397,3 +397,5 @@ AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 
 - 두 번째 gameplay, UMG asset, Blueprint, 외부 plugin과 marketplace asset을 만들지 않았다.
 - endpoint configuration, periodic refresh, submit, retry, interface/factory를 미래 확장용으로 추가하지 않았다.
 - Engine thread pool 사용을 별도의 multithreading 성능 증거로 주장하지 않았다.
+
+구현·ADR·자동 검증 commit `20b0d55`를 `origin/work/unreal-arena-observer`에 push하고 local/remote SHA 일치를 확인했다. 사람 HUD 검증 전이므로 `main` 통합은 수행하지 않았으며 재개 지점은 `PROCESS.md`의 `CP-20260905-03`에서 관리한다.
