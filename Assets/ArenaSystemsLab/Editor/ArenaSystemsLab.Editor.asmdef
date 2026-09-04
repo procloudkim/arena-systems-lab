@@ -1,9 +1,9 @@
 {
-  "name": "ArenaSystemsLab.Tests.EditMode",
-  "rootNamespace": "ArenaSystemsLab.Tests.EditMode",
+  "name": "ArenaSystemsLab.Editor",
+  "rootNamespace": "ArenaSystemsLab.Editor",
   "references": [
     "ArenaSystemsLab.Runtime",
-    "ArenaSystemsLab.Editor"
+    "Unity.InputSystem"
   ],
   "includePlatforms": [
     "Editor"
@@ -15,8 +15,5 @@
   "autoReferenced": true,
   "defineConstraints": [],
   "versionDefines": [],
-  "noEngineReferences": false,
-  "optionalUnityReferences": [
-    "TestAssemblies"
-  ]
+  "noEngineReferences": false
 }

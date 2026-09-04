@@ -13,13 +13,16 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - `Assets/Scenes/`: 기존 Unity Scene
 - `Assets/Settings/`: 기존 URP 2D 설정
 - `Assets/InputSystem_Actions.inputactions`: 기존 Input System 액션 정의
-- `Assets/ArenaSystemsLab/Runtime/`: gameplay runtime와 최소 enemy FSM 코드
-- `Assets/ArenaSystemsLab/Tests/EditMode/`: Health와 enemy 상태 전이 EditMode 테스트
+- `Assets/ArenaSystemsLab/Runtime/`: gameplay runtime, 최소 enemy FSM, 실험용 `SpatialHash2D`
+- `Assets/ArenaSystemsLab/Editor/`: project validation Editor Tool
+- `Assets/ArenaSystemsLab/Tests/EditMode/`: runtime logic, spatial query, Editor validation 테스트
+- `Assets/ArenaSystemsLab/Tests/PlayMode/`: 자동 gameplay profiling 기준선 테스트
 - `Packages/`: Unity package 선언과 lock 파일
 - `ProjectSettings/`: Unity 프로젝트 설정
 - `PROCESS.md`: 현재 상태와 다음 재개 지점의 단일 기준
 - `docs/`: 감사, 구현 계획, AI 사용 기록
 - `docs/GAME_DEV_GLOSSARY.md`: 게임·Unity·물리·검증 용어 백과사전
+- `docs/PERFORMANCE_BASELINE.md`: 측정 조건, 수치, 최적화 채택 여부
 - `docs/adr/`: 사람과 LLM이 함께 읽는 의사결정 기록
 - `.gitignore`: Unity/IDE 생성물 제외 규칙
 
@@ -68,6 +71,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - 게임 개발 용어 정의: `docs/GAME_DEV_GLOSSARY.md`
 - 감사 상태: `docs/ENVIRONMENT_AUDIT.md`
 - AI 작업 기록: `docs/AI_USAGE.md`
+- Day 3 측정 기준선: `docs/PERFORMANCE_BASELINE.md`
 - 작업·구조 의사결정: `docs/adr/`
 - 최종 필수 기술 baseline: `docs/adr/0006-portfolio-technology-baseline.md`
 - milestone과 완료 근거 matrix: `docs/IMPLEMENTATION_PLAN.md`
@@ -117,8 +121,12 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - 자동 EditMode 명령: **Verified on 2026-09-04**. 정확히 일치하는 Editor가 닫히고 Unity process와 `Temp/UnityLockfile`이 없을 때 다음 형태로 실행한다.
   `"<UnityEditor>/Unity.exe" -batchmode -nographics -projectPath "<project-root>" -runTests -testPlatform EditMode -testFilter "ArenaSystemsLab.Tests.EditMode" -testResults "<project-root>/Logs/EditModeResults.xml" -logFile "<project-root>/Logs/EditModeTest.log"`
 - Test Framework 1.7에서는 command-line test에 `-quit`을 함께 지정하지 않는다. 설치 package source가 이 조합은 동작하지 않는다고 명시한다.
-- PlayMode 수동 검증: Day 1 흐름과 Day 2 상태 색상·전이는 **Verified on 2026-09-04**.
-- Unity Console: Day 1과 Day 2 변경 후 모두 **Verified on 2026-09-04**, 사용자 확인 오류 없음.
+- EditMode 결과: **Verified on 2026-09-04**, 16 passed / 0 failed / 0 skipped.
+- 자동 PlayMode profiling 명령: **Verified on 2026-09-04**. 위 명령에서 `-testPlatform PlayMode -testFilter "ArenaSystemsLab.Tests.PlayMode"`를 사용하며 결과는 1 passed / 0 failed / 0 skipped.
+- Project validation command-line: **Verified on 2026-09-04**. Batchmode에서 `-executeMethod ArenaSystemsLab.Editor.ArenaProjectValidator.ValidateFromCommandLine`을 사용한다.
+- Project validation Editor menu: **Verified on 2026-09-04**. 사용자가 `Tools > Arena Systems Lab > Validate Project`를 포함한 Day 3 수동 검증 완료를 확인했다.
+- PlayMode 수동 검증: Day 1 흐름, Day 2 상태 색상·전이, Day 3 변경 후 기존 gameplay 회귀를 **Verified on 2026-09-04**.
+- Unity Console: Day 1~3 변경 후 **Verified on 2026-09-04**, 사용자 확인 오류 없음.
 - Windows build 명령: **Not yet verified**.
 - Windows .NET SDK version 명령: **Verified on 2026-09-04**. Windows `dotnet.exe --version` 결과 `10.0.400`.
 - .NET server build/test: **Not yet verified**. Project가 생긴 뒤 실제 명령만 기록한다.

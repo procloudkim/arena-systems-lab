@@ -216,3 +216,25 @@ Unity, Unreal, Git, C++ toolchain과 .NET SDK는 기존 설치를 재사용할 �
 - Ubuntu의 Subversion package에는 command-line client와 `svnserve`가 포함된다: [Apache Subversion Binary Packages](https://subversion.apache.org/packages.html)
 - 권장 connector 후보와 version은 감사 시점 NuGet listing으로 확인했다: [MySqlConnector 2.6.2](https://www.nuget.org/packages/MySqlConnector)
 - 공식 provider 대안은 Oracle Connector/NET이다: [MySQL Connector/NET 9.7](https://dev.mysql.com/downloads/connector/net/9.7.html)
+
+## Day 3 측정·Editor Tool 검증
+
+실행 시점: `2026-09-04T22:58:37+09:00`
+
+exact Unity Editor 6000.5.1f1가 닫혀 있고 `Temp/UnityLockfile`이 없는 상태에서 새 runtime, Editor, EditMode, PlayMode assembly를 import하고 검증했다.
+
+| 검증 | 결과 | 근거 |
+|---|---|---|
+| Runtime/Editor/Test compilation | PASS | final batch log compiler error marker 0 |
+| EditMode tests | PASS | 16 passed / 0 failed / 0 skipped |
+| Spatial query correctness | PASS | spatial hash와 brute-force 모두 6,882 matches |
+| Spatial query measurement | RECORDED | 1.381 ms 대 73.824 ms, 단일 Editor run |
+| Project validator CLI | PASS | `Arena Systems Lab validation passed.` |
+| PlayMode profile test | PASS | 1 passed / 0 failed / 0 skipped |
+| Gameplay profile baseline | RECORDED | target 120 FPS, 1 s warm-up, 5 s sampling, 601 samples |
+| Scene/Prefab/Package/tracked ProjectSettings | UNCHANGED | Git diff 확인 |
+| Human Day 3 verification | NOT RUN | Editor menu와 기존 gameplay flow 확인 필요 |
+
+PlayMode 첫 시도는 marker recorder option 누락으로 `NotSupportedException`이 발생했다. `SumAllSamplesInFrame`을 공용 recorder 생성 지점에 추가해 해결했다. 이후 sampling 초기화를 위해 호출한 `Reset()`이 수집도 중지한다는 local Unity API 문서를 확인했고 `Start()`를 추가한 뒤 final test가 통과했다.
+
+Unity가 test 실행 중 미추적 `ProjectSettings/SceneTemplateSettings.json`을 생성했다. 승인 범위 밖 파일이므로 내용을 확인하고 test 완료 후 제거했으며 기존 tracked ProjectSettings 변경은 0건이다.

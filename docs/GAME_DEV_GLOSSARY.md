@@ -2,7 +2,7 @@
 
 > Arena Systems Lab 개발 중 실제로 만난 게임·Unity·물리·검증 용어를 한국어로 설명하는 생활형 백과사전이다.
 
-- Version: `0.3.0`
+- Version: `0.4.0`
 - Last updated: 2026-09-04 KST
 - Governance: [ADR 0004](adr/0004-game-development-glossary-governance.md)
 
@@ -201,6 +201,12 @@
 - 프로젝트 예: player 입력과 공격, enemy spawn 시간을 확인한다.
 - 주의: frame마다 collection이나 LINQ 결과를 만들면 반복적인 GC allocation이 생길 수 있다.
 
+### Main Thread (메인 스레드)
+
+- 정의: Unity player loop와 대부분의 Unity object API가 실행되는 주 실행 thread다.
+- 프로젝트 예: Day 3 baseline에서 `Main Thread` profiler counter의 frame 시간을 기록한다.
+- 주의: 측정값에는 실제 script 실행 외에 frame 대기나 Editor overhead가 포함될 수 있으며 background thread에서 Unity object를 직접 변경하면 안 된다.
+
 ## 2D Physics
 
 ### Collider2D (2D 콜라이더)
@@ -279,6 +285,24 @@
 - 프로젝트 예: Day 3에서 같은 enemy 수와 실행 시간으로 변경 전후를 비교한다.
 - 주의: 측정 조건 없이 “최적화됐다”고 주장하지 않는다.
 
+### Benchmark (벤치마크)
+
+- 정의: 고정된 입력과 실행 조건으로 구현들의 처리 시간이나 자원 사용량을 비교하는 측정이다.
+- 프로젝트 예: 같은 20,000 point와 500 query를 spatial hash와 brute-force scan에 적용한다.
+- 주의: 한 환경의 짧은 결과를 전체 gameplay 성능이나 보편적인 우위로 일반화하지 않는다.
+
+### ProfilerRecorder
+
+- 정의: Unity Profiler marker와 counter의 sample을 code에서 수집하는 runtime API다.
+- 프로젝트 예: PlayMode test가 Main Thread, frame GC allocation, GameObject count를 5초 동안 기록한다.
+- 주의: counter 이름과 option은 Unity version에 따라 검증해야 하며 recorder와 test instrumentation 자체도 측정에 영향을 준다.
+
+### Brute-Force Search (전수 탐색)
+
+- 정의: 후보를 줄이는 index 없이 모든 element를 차례로 검사해 조건에 맞는 값을 찾는 방식이다.
+- 프로젝트 예: 모든 point의 거리를 검사한 결과를 `SpatialHash2D` query correctness 기준으로 사용한다.
+- 주의: 작은 collection에는 단순하고 충분히 빠를 수 있으므로 항상 공간 분할로 교체할 필요는 없다.
+
 ### Spatial Hash (공간 해시)
 
 - 정의: 공간을 cell로 나누고 객체를 위치 기반 bucket에 넣어 가까운 후보만 조회하는 자료구조다.
@@ -286,6 +310,12 @@
 - 주의: cell 크기와 갱신 비용이 있으며 현재 gameplay에는 아직 구현하지 않았다.
 
 ## Testing and Validation
+
+### Editor Validation
+
+- 정의: 게임 실행 전에 Editor에서 project asset과 설정의 필수 조건을 자동 검사하는 개발 도구다.
+- 프로젝트 예: `ArenaProjectValidator`가 Editor version, Build Scene, Input Actions와 Move/Attack action을 확인한다.
+- 주의: 설정 검사는 실제 gameplay, physics callback, player build 검증을 대신하지 않는다.
 
 ### EditMode Test
 
@@ -303,6 +333,7 @@
 
 | Version | Date | 변경 | ADR |
 |---|---|---|---|
+| `0.4.0` | 2026-09-04 | Day 3 측정·알고리즘·Editor Tool 용어 5개 추가, 총 48개 | [ADR 0007](adr/0007-measured-day3-tooling.md) |
 | `0.3.0` | 2026-09-04 | 필수 engine, language, VCS, network, concurrency, database 용어 14개 추가, 총 43개 | [ADR 0006](adr/0006-portfolio-technology-baseline.md) |
 | `0.2.0` | 2026-09-04 | Day 2 FSM에서 사용한 Terminal State 추가, 총 29개 | [ADR 0005](adr/0005-minimal-enemy-fsm.md) |
 | `0.1.0` | 2026-09-04 | 현재 코드와 Day 2~4 계획에서 사용한 기본 용어 28개 수록 | [ADR 0004](adr/0004-game-development-glossary-governance.md) |
