@@ -6,8 +6,8 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: `main...origin/main`, clean
-- Active work: 없음
-- Next task: Day 2 enemy FSM과 상태 전이 테스트
+- Active work: `work/enemy-fsm`, 자동 검증 완료·수동 PlayMode 검증 대기
+- Next task: Day 2 상태 색상·전투 loop·Console 수동 검증 후 `main` 통합
 
 ## Session Start
 
@@ -37,20 +37,24 @@ git remote -v
 | Project naming | `Arena Systems Lab`로 정리 완료 |
 | GitHub | public `procloudkim/arena-systems-lab` |
 | Process governance | 완료, ADR 0003 적용 |
-| Game development glossary | `0.1.0`, 28개 용어, ADR 0004 적용 |
+| Game development glossary | `0.2.0`, 29개 용어, ADR 0004 적용 |
+| Day 2 enemy FSM | `Idle`, `Chase`, `Attack`, `Dead` 구현, 수동 검증 대기 |
 | Integrated branch | `main` |
-| Runtime work in progress | 없음 |
+| Runtime work in progress | `work/enemy-fsm` |
 
 Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사망, Game Over, 재시작이 포함된다. Scene과 Prefab 대신 runtime bootstrap을 사용한다.
+
+Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으로 사용한다. 상태가 바뀔 때만 적 색상과 Hierarchy 이름을 갱신하며 상태별 class 계층은 만들지 않는다.
 
 ## Validation Ledger
 
 | 검증 | 결과 | 최근 근거 |
 |---|---|---|
-| Runtime/Test assembly compilation | PASS | exact Editor 6000.5.1f1, 이름 변경 후 재검증 |
-| EditMode tests | PASS | 5 passed / 0 failed / 0 skipped |
-| PlayMode manual flow | PASS | 사용자 확인 |
-| Unity Console | PASS | 사용자 확인, 오류 없음 |
+| Runtime/Test assembly compilation | PASS | exact Editor 6000.5.1f1, Day 2 변경 후 재검증 |
+| EditMode tests | PASS | 9 passed / 0 failed / 0 skipped, FSM 4 + Health 5 |
+| Day 1 PlayMode manual flow | PASS | 사용자 확인 |
+| Day 2 PlayMode FSM flow | NOT RUN | 상태 색상·접촉 공격·Game Over·restart 확인 필요 |
+| Unity Console after Day 2 | UNKNOWN | 수동 PlayMode 검증 필요 |
 | Process/ADR static checks | PASS | link, filename, required-section, duplicate-status 검사 |
 | Glossary static checks | PASS | version, link, heading uniqueness, entry shape 검사 |
 | Windows player build | NOT RUN | Day 4 예정 |
@@ -59,7 +63,7 @@ Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사�
 
 ## Work Queue
 
-1. **Next — Day 2:** 최소 Enemy FSM, debug 표시, 상태 전이 EditMode 테스트
+1. **Next — Day 2 verification:** PlayMode에서 red `Chase`, orange `Attack`, gray `Idle`, 접촉 피해, Game Over, restart와 Console을 확인
 2. **Later — Day 3:** 측정 기반 profiling, 필요할 때만 pooling/spatial partitioning, Editor validation
 3. **Later — Day 4:** PlayMode regression, Windows Mono build·실행, `README.md`, demo 문서
 
@@ -78,6 +82,7 @@ Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사�
 | `CP-20260904-02` | Project naming | `work/project-naming` | `20157ea`, evidence `35544d5` | [ADR 0002](docs/adr/0002-project-naming.md) | Compile PASS, EditMode 5/5 | Integrated |
 | `CP-20260904-03` | Process SSOT와 ADR governance | `work/process-governance` | `c6a7fb0` | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | Static checks PASS | Integrated |
 | `CP-20260904-04` | Game development glossary `0.1.0` | `work/game-dev-glossary` | `7ac3c5d` | [ADR 0004](docs/adr/0004-game-development-glossary-governance.md) | Static checks PASS | Integrated |
+| `CP-20260904-05` | 최소 Enemy FSM과 debug 표시 | `work/enemy-fsm` | `TBD` | [ADR 0005](docs/adr/0005-minimal-enemy-fsm.md) | Compile PASS, EditMode 9/9, manual NOT RUN | Pending |
 
 ## ADR Index and Naming
 
@@ -87,6 +92,7 @@ Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사�
 | [ADR 0002](docs/adr/0002-project-naming.md) | Accepted | Unity project naming |
 | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | Accepted | 현재 상태 SSOT와 ADR naming governance |
 | [ADR 0004](docs/adr/0004-game-development-glossary-governance.md) | Accepted | 게임 개발 용어 문서와 versioning governance |
+| [ADR 0005](docs/adr/0005-minimal-enemy-fsm.md) | Accepted | enum 기반 최소 enemy FSM과 debug 표시 |
 
 ADR 파일명은 `NNNN-short-kebab-case-title.md`, checkpoint ID는 `CP-YYYYMMDD-NN` 형식을 사용한다. 전체 규칙은 ADR 0003을 따른다.
 

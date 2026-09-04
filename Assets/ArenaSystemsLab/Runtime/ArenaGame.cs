@@ -10,6 +10,7 @@ namespace ArenaSystemsLab
 
         private const int MaxEnemies = 40;
         private const string ControlsText = "Move: WASD / Arrows / Left Stick    Attack: Left Click / Enter / West Button";
+        private const string EnemyStatesText = "Enemy: Gray Idle / Red Chase / Orange Attack";
         private const string GameOverText = "GAME OVER\nPress R to restart";
 
         private Camera arenaCamera;
@@ -78,9 +79,10 @@ namespace ArenaSystemsLab
             EnsureGuiStyles();
             RefreshHudText();
 
-            GUI.Box(new Rect(12f, 12f, 430f, 72f), GUIContent.none);
-            GUI.Label(new Rect(24f, 18f, 400f, 28f), hudText, hudStyle);
-            GUI.Label(new Rect(24f, 48f, 400f, 24f), ControlsText, hudStyle);
+            GUI.Box(new Rect(12f, 12f, 530f, 96f), GUIContent.none);
+            GUI.Label(new Rect(24f, 18f, 500f, 28f), hudText, hudStyle);
+            GUI.Label(new Rect(24f, 48f, 500f, 24f), ControlsText, hudStyle);
+            GUI.Label(new Rect(24f, 72f, 500f, 24f), EnemyStatesText, hudStyle);
 
             if (isGameOver)
             {

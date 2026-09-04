@@ -112,4 +112,4 @@ Unity Profiler, `UnityEngine.Pool`, UnityEditor API만 사용한다. Performance
 
 ### 위험 요소
 
-Git repository와 `.gitignore`는 준비됐지만 아직 initial commit이 없다. commit 전 전체 source와 `.meta` 목록을 사람이 검토해야 한다.
+Windows player build 명령과 생성된 실행 파일은 아직 검증되지 않았다.

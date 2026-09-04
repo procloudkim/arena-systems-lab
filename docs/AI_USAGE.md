@@ -30,6 +30,7 @@
 - `docs/adr/0002-project-naming.md`: project naming 범위와 보존 결정 기록
 - `docs/adr/0003-process-and-adr-governance.md`: PROCESS SSOT와 ADR naming governance 기록
 - `docs/adr/0004-game-development-glossary-governance.md`: glossary 구성과 versioning governance 기록
+- `docs/adr/0005-minimal-enemy-fsm.md`: 최소 enemy FSM 구조와 전이 우선순위 기록
 - `Assets/ArenaSystemsLab/Runtime/ArenaSystemsLab.Runtime.asmdef`
 - `Assets/ArenaSystemsLab/Runtime/Health.cs`
 - `Assets/ArenaSystemsLab/Runtime/ArenaGame.cs`
@@ -37,8 +38,10 @@
 - `Assets/ArenaSystemsLab/Runtime/Projectile.cs`
 - `Assets/ArenaSystemsLab/Runtime/EnemyController.cs`
 - `Assets/ArenaSystemsLab/Runtime/EnemySpawner.cs`
+- `Assets/ArenaSystemsLab/Runtime/EnemyStateMachine.cs`
 - `Assets/ArenaSystemsLab/Tests/EditMode/ArenaSystemsLab.Tests.EditMode.asmdef`
 - `Assets/ArenaSystemsLab/Tests/EditMode/HealthTests.cs`
+- `Assets/ArenaSystemsLab/Tests/EditMode/EnemyStateMachineTests.cs`
 
 ## 사람이 확인한 항목
 
@@ -47,6 +50,7 @@
 
 ## 사람이 추후 결정하거나 확인해야 할 항목
 
+- Day 2 상태 색상·접촉 공격·Game Over·restart와 Console
 - Windows player build와 실행
 
 ## 실행된 테스트
@@ -61,9 +65,11 @@
 - PlayMode manual verification: PASS, 사용자 확인
 - Unity Console: PASS, 사용자 확인
 - 이름 변경 후 exact Editor compilation 및 EditMode test: PASS, 5 passed / 0 failed / 0 skipped
+- Day 2 exact Editor compilation 및 EditMode test: PASS, 9 passed / 0 failed / 0 skipped
 
 ## 미검증 항목
 
+- Day 2 PlayMode FSM 흐름과 Unity Console
 - Windows build
 
 ## AI 제안을 그대로 채택하지 않은 부분
@@ -116,3 +122,9 @@ Day 1 source, test, 환경 문서, `.gitignore`, ADR을 최초 검증 기준선 
 사용자의 용어 학습 요청에 따라 `docs/GAME_DEV_GLOSSARY.md` `0.1.0`을 생성했다. 현재 코드와 확정된 Day 2~4 계획에 등장한 용어만 정의하고, 각 항목에 일반 정의·프로젝트 예시·주의점을 연결했다. ADR 0004에서 semantic versioning과 지속 갱신 규칙을 확정했다.
 
 구현 commit `7ac3c5d`를 `origin/work/game-dev-glossary`에 push하고 local/remote SHA 일치를 확인했다.
+
+## Day 2 최소 Enemy FSM 기록
+
+기존 `EnemyController`의 추적·접촉 공격 흐름을 보존하면서 `Idle`, `Chase`, `Attack`, `Dead`를 `enum` 기반 `EnemyStateMachine`으로 명시했다. 상태별 interface나 class 계층은 만들지 않았으며, 사망은 되돌릴 수 없는 종료 상태로 처리한다. 적 색상과 Hierarchy 이름은 상태가 실제로 바뀔 때만 갱신한다.
+
+exact Editor 6000.5.1f1에서 runtime/test assembly compilation과 EditMode 테스트 9건이 통과했다. 성공 종료 뒤 batch log에 Mono thread 정리와 debugger-agent 종료 진단이 남았지만 compiler error, exception, test failure 표식은 없었다. PlayMode 상태 표시와 변경 후 Console은 사람이 확인하기 전까지 미검증으로 둔다.
