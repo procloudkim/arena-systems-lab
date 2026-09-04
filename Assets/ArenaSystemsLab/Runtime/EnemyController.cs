@@ -2,25 +2,37 @@ using UnityEngine;
 
 namespace ArenaSystemsLab
 {
-    [RequireComponent(typeof(Rigidbody2D), typeof(Health))]
+    [RequireComponent(typeof(Rigidbody2D), typeof(Health), typeof(SpriteRenderer))]
     public sealed class EnemyController : MonoBehaviour
     {
+        private static readonly Color IdleColor = new Color(0.5f, 0.5f, 0.55f);
+        private static readonly Color ChaseColor = new Color(1f, 0.25f, 0.3f);
+        private static readonly Color AttackColor = new Color(1f, 0.65f, 0.1f);
+        private static readonly Color DeadColor = new Color(0.15f, 0.15f, 0.15f);
+
         [SerializeField, Min(0f)] private float moveSpeed = 1.8f;
         [SerializeField, Min(1)] private int contactDamage = 10;
         [SerializeField, Min(0.1f)] private float damageInterval = 0.75f;
 
+        private readonly EnemyStateMachine stateMachine = new EnemyStateMachine();
         private Rigidbody2D body;
         private Health health;
+        private SpriteRenderer stateRenderer;
         private ArenaGame game;
         private Transform target;
         private Health targetHealth;
         private float nextDamageTime;
+        private bool hasTargetContact;
         private bool initialized;
+
+        public EnemyState CurrentState => stateMachine.CurrentState;
 
         private void Awake()
         {
             body = GetComponent<Rigidbody2D>();
             health = GetComponent<Health>();
+            stateRenderer = GetComponent<SpriteRenderer>();
+            ApplyStateDebug();
         }
 
         private void Start()
@@ -34,7 +46,8 @@ namespace ArenaSystemsLab
 
         private void FixedUpdate()
         {
-            if (game.IsGameOver || targetHealth.IsDead)
+            RefreshState();
+            if (CurrentState != EnemyState.Chase)
             {
                 body.linearVelocity = Vector2.zero;
                 return;
@@ -44,9 +57,27 @@ namespace ArenaSystemsLab
             body.MovePosition(body.position + direction * (moveSpeed * Time.fixedDeltaTime));
         }
 
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (!IsTargetCollision(collision))
+            {
+                return;
+            }
+
+            hasTargetContact = true;
+            RefreshState();
+        }
+
         private void OnCollisionStay2D(Collision2D collision)
         {
-            if (game.IsGameOver || Time.time < nextDamageTime || collision.gameObject != target.gameObject)
+            if (!IsTargetCollision(collision))
+            {
+                return;
+            }
+
+            hasTargetContact = true;
+            RefreshState();
+            if (CurrentState != EnemyState.Attack || Time.time < nextDamageTime)
             {
                 return;
             }
@@ -54,6 +85,25 @@ namespace ArenaSystemsLab
             if (targetHealth.ApplyDamage(contactDamage))
             {
                 nextDamageTime = Time.time + damageInterval;
+            }
+        }
+
+        private void OnCollisionExit2D(Collision2D collision)
+        {
+            if (!IsTargetCollision(collision))
+            {
+                return;
+            }
+
+            hasTargetContact = false;
+            RefreshState();
+        }
+
+        private void OnDisable()
+        {
+            if (body != null)
+            {
+                body.linearVelocity = Vector2.zero;
             }
         }
 
@@ -77,6 +127,8 @@ namespace ArenaSystemsLab
             {
                 Debug.LogError("EnemyController is missing the game or chase target.", this);
             }
+
+            RefreshState();
         }
 
         public void ApplyDamage(int amount)
@@ -86,8 +138,57 @@ namespace ArenaSystemsLab
 
         private void HandleDeath()
         {
-            game.RegisterEnemyDeath();
+            if (stateMachine.Evaluate(true, false, false))
+            {
+                ApplyStateDebug();
+            }
+
+            if (game != null)
+            {
+                game.RegisterEnemyDeath();
+            }
+
             Destroy(gameObject);
+        }
+
+        private bool IsTargetCollision(Collision2D collision)
+        {
+            return initialized && collision.gameObject == target.gameObject;
+        }
+
+        private void RefreshState()
+        {
+            bool isDead = health != null && health.IsDead;
+            bool canAct = initialized && !game.IsGameOver && !targetHealth.IsDead;
+            if (stateMachine.Evaluate(isDead, canAct, hasTargetContact))
+            {
+                ApplyStateDebug();
+            }
+        }
+
+        private void ApplyStateDebug()
+        {
+            gameObject.name = $"Enemy [{CurrentState}]";
+            if (stateRenderer == null)
+            {
+                return;
+            }
+
+            switch (CurrentState)
+            {
+                case EnemyState.Idle:
+                    stateRenderer.color = IdleColor;
+                    break;
+                case EnemyState.Chase:
+                    stateRenderer.color = ChaseColor;
+                    break;
+                case EnemyState.Attack:
+                    stateRenderer.color = AttackColor;
+                    break;
+                case EnemyState.Dead:
+                    stateRenderer.color = DeadColor;
+                    break;
+            }
         }
     }
 }

@@ -2,7 +2,7 @@
 
 > Arena Systems Lab 개발 중 실제로 만난 게임·Unity·물리·검증 용어를 한국어로 설명하는 생활형 백과사전이다.
 
-- Version: `0.1.0`
+- Version: `0.2.0`
 - Last updated: 2026-09-04 KST
 - Governance: [ADR 0004](adr/0004-game-development-glossary-governance.md)
 
@@ -38,6 +38,12 @@
 - 정의: 조건이 충족됐을 때 현재 상태에서 다음 상태로 바뀌는 과정이다.
 - 프로젝트 예: 플레이어가 공격 거리 안에 들어오면 `Chase → Attack`, Health가 0이면 `Any → Dead`가 된다.
 - 주의: 같은 frame에 여러 전이가 경쟁할 때 사망처럼 우선순위가 높은 조건을 먼저 처리한다.
+
+### Terminal State (종료 상태)
+
+- 정의: 한 번 진입하면 정상 흐름에서는 다른 상태로 빠져나가지 않는 마지막 상태다.
+- 프로젝트 예: `EnemyState.Dead`에 진입한 적은 이후 입력이 달라져도 살아 있는 상태로 돌아가지 않는다.
+- 주의: 종료 상태 진입 직후 객체를 제거하면 화면 표시는 매우 짧을 수 있으므로 상태 전이 테스트도 함께 둔다.
 
 ## Unity Object Model
 
@@ -205,4 +211,5 @@
 
 | Version | Date | 변경 | ADR |
 |---|---|---|---|
+| `0.2.0` | 2026-09-04 | Day 2 FSM에서 사용한 Terminal State 추가, 총 29개 | [ADR 0005](adr/0005-minimal-enemy-fsm.md) |
 | `0.1.0` | 2026-09-04 | 현재 코드와 Day 2~4 계획에서 사용한 기본 용어 28개 수록 | [ADR 0004](adr/0004-game-development-glossary-governance.md) |

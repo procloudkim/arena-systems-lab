@@ -13,8 +13,8 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - `Assets/Scenes/`: 기존 Unity Scene
 - `Assets/Settings/`: 기존 URP 2D 설정
 - `Assets/InputSystem_Actions.inputactions`: 기존 Input System 액션 정의
-- `Assets/ArenaSystemsLab/Runtime/`: Day 1 runtime 코드
-- `Assets/ArenaSystemsLab/Tests/EditMode/`: EditMode 테스트
+- `Assets/ArenaSystemsLab/Runtime/`: gameplay runtime와 최소 enemy FSM 코드
+- `Assets/ArenaSystemsLab/Tests/EditMode/`: Health와 enemy 상태 전이 EditMode 테스트
 - `Packages/`: Unity package 선언과 lock 파일
 - `ProjectSettings/`: Unity 프로젝트 설정
 - `PROCESS.md`: 현재 상태와 다음 재개 지점의 단일 기준
@@ -71,6 +71,8 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 
 Day 1에는 Spatial Hash, Object Pool, 정식 Enemy FSM, multiplayer, network, database, login, cloud service, Addressables, ECS/DOTS, 복잡한 animation, 외부 art, sound, save, DI, tween, async helper를 구현하지 않는다.
 
+Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태별 interface/class 계층은 실제로 서로 다른 행동 구현이 필요해질 때만 검토한다.
+
 명시적 사용자 승인 없이 기존 `.unity`, `.prefab`, package 파일과 Project Settings를 직접 수정하지 않는다. 승인된 naming 작업은 `productName`, `metroPackageName`, `metroApplicationDescription`에 한정한다. Scene 구성이 필요하면 기존 Scene을 보존하고 runtime 구성 또는 안전한 Editor API를 사용한다.
 
 ## 8. Coding conventions
@@ -91,8 +93,8 @@ Day 1에는 Spatial Hash, Object Pool, 정식 Enemy FSM, multiplayer, network, d
 - 자동 EditMode 명령: **Verified on 2026-09-04**. 정확히 일치하는 Editor가 닫히고 Unity process와 `Temp/UnityLockfile`이 없을 때 다음 형태로 실행한다.
   `"<UnityEditor>/Unity.exe" -batchmode -nographics -projectPath "<project-root>" -runTests -testPlatform EditMode -testFilter "ArenaSystemsLab.Tests.EditMode" -testResults "<project-root>/Logs/EditModeResults.xml" -logFile "<project-root>/Logs/EditModeTest.log"`
 - Test Framework 1.7에서는 command-line test에 `-quit`을 함께 지정하지 않는다. 설치 package source가 이 조합은 동작하지 않는다고 명시한다.
-- PlayMode 수동 검증: **Verified on 2026-09-04**. 사용자가 이동, 공격, 적 생성/추적, 사망, Game Over, 재시작을 확인했다.
-- Unity Console: **Verified on 2026-09-04**. 수동 검증 후 사용자가 error 없음을 확인했다.
+- PlayMode 수동 검증: Day 1 흐름과 Day 2 상태 색상·전이는 **Verified on 2026-09-04**.
+- Unity Console: Day 1과 Day 2 변경 후 모두 **Verified on 2026-09-04**, 사용자 확인 오류 없음.
 - Windows build 명령: **Not yet verified**.
 
 검증하지 않은 명령을 성공한 명령처럼 기록하지 않는다.
@@ -121,9 +123,9 @@ Day 1에는 Spatial Hash, Object Pool, 정식 Enemy FSM, multiplayer, network, d
 
 - 요청 범위가 실제 플레이 흐름으로 연결된다.
 - 변경된 C# 코드가 정확한 Unity Editor에서 compile된다.
-- Health EditMode 테스트가 통과한다.
+- 전체 EditMode 테스트가 통과한다.
 - Console에 이번 변경으로 생긴 error가 없다.
-- 사람이 Day 1 manual flow를 확인한다.
+- 사람이 변경된 PlayMode flow를 확인한다.
 - package와 Project Settings에 승인되지 않은 변경이 없다.
 - 문서와 AI 사용 기록이 실제 결과와 일치한다.
 - `PROCESS.md`가 현재 상태와 다음 작업을 단독으로 설명한다.
