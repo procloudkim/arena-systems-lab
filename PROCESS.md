@@ -6,8 +6,8 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: `main...origin/main`, clean
-- Active work: `work/enemy-fsm`, 자동·수동 검증 완료·Editor 종료 후 통합 대기
-- Next task: Unity Editor 종료 확인 후 Day 2를 `main`에 통합
+- Active work: 없음
+- Next task: Day 3 profiling 기준선 측정과 Editor validation
 
 ## Session Start
 
@@ -40,7 +40,7 @@ git remote -v
 | Game development glossary | `0.2.0`, 29개 용어, ADR 0004 적용 |
 | Day 2 enemy FSM | `Idle`, `Chase`, `Attack`, `Dead` 구현·수동 검증 완료 |
 | Integrated branch | `main` |
-| Runtime work in progress | `work/enemy-fsm` |
+| Runtime work in progress | 없음 |
 
 Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사망, Game Over, 재시작이 포함된다. Scene과 Prefab 대신 runtime bootstrap을 사용한다.
 
@@ -63,8 +63,8 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 ## Work Queue
 
-1. **Next — Day 2 integration:** Unity Editor 종료 후 `work/enemy-fsm`을 `main`에 병합·푸시
-2. **Later — Day 3:** 측정 기반 profiling, 필요할 때만 pooling/spatial partitioning, Editor validation
+1. **Next — Day 3:** 측정 기반 profiling과 최소 Editor validation
+2. **Conditional — Day 3:** 측정 결과가 필요성을 입증할 때만 pooling 또는 spatial partitioning
 3. **Later — Day 4:** PlayMode regression, Windows Mono build·실행, `README.md`, demo 문서
 
 알려진 gap:
@@ -82,7 +82,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260904-02` | Project naming | `work/project-naming` | `20157ea`, evidence `35544d5` | [ADR 0002](docs/adr/0002-project-naming.md) | Compile PASS, EditMode 5/5 | Integrated |
 | `CP-20260904-03` | Process SSOT와 ADR governance | `work/process-governance` | `c6a7fb0` | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | Static checks PASS | Integrated |
 | `CP-20260904-04` | Game development glossary `0.1.0` | `work/game-dev-glossary` | `7ac3c5d` | [ADR 0004](docs/adr/0004-game-development-glossary-governance.md) | Static checks PASS | Integrated |
-| `CP-20260904-05` | 최소 Enemy FSM과 debug 표시 | `work/enemy-fsm` | `8539a8b` | [ADR 0005](docs/adr/0005-minimal-enemy-fsm.md) | Compile PASS, EditMode 9/9, manual PASS | Pending Editor close |
+| `CP-20260904-05` | 최소 Enemy FSM과 debug 표시 | `work/enemy-fsm` | `8539a8b`, evidence `b294fbb` | [ADR 0005](docs/adr/0005-minimal-enemy-fsm.md) | Compile PASS, EditMode 9/9, manual PASS | Integrated |
 
 ## ADR Index and Naming
 

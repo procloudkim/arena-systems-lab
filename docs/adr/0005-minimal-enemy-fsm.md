@@ -33,3 +33,4 @@ Day 1의 `EnemyController`는 추적, 접촉 공격, 사망을 조건문으로 �
 - Scene, Prefab, Package, ProjectSettings changes: none
 - Batch shutdown diagnostics: test exit code 0 이후 Mono thread cleanup과 debugger-agent 메시지 존재, compiler/test failure 표식 없음
 - Remote branch SHA: PASS, commit `8539a8b`가 `origin/work/enemy-fsm`과 일치
+- Human validation evidence: PASS, commit `b294fbb`

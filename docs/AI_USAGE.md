@@ -133,3 +133,5 @@ exact Editor 6000.5.1f1에서 runtime/test assembly compilation과 EditMode 테�
 구현 commit `8539a8b`를 `origin/work/enemy-fsm`에 push하고 local/remote SHA 일치를 확인했다.
 
 사용자가 Day 2 상태 표시를 포함한 수동 게임 흐름 PASS와 Unity Console 오류 없음을 확인했다. 확인 시점에 Unity Editor가 실행 중이므로 사용자 작업 보호를 위해 branch 전환과 `main` 통합은 Editor 종료 뒤로 보류했다.
+
+수동 검증 근거를 commit `b294fbb`로 `origin/work/enemy-fsm`에 push했다. 이후 사용자가 Editor 종료를 알렸고, `Temp/UnityLockfile` 부재와 실행 중인 `Unity.exe` 없음도 확인했다.
