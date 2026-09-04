@@ -35,6 +35,6 @@ Day 3에는 자료구조 실험, 측정 가능한 performance baseline, 반복 �
 - Failed attempts retained: missing recorder option, then missing `Start()` after `Reset()`
 - Compiler error marker in final logs: 0
 - Scene, Prefab, Package, tracked ProjectSettings changes: none
-- Human Editor menu and gameplay verification: NOT RUN
+- Human Editor menu, existing gameplay flow, and Console checklist: PASS, 사용자 확인
 - Non-meta staged diff check: PASS; Unity-generated `.meta` empty fields use the repository's existing trailing-space format
-- Remote branch SHA: PASS, commit `86e90f4`가 `origin/work/day3-profiling-validation`과 일치
+- Automated evidence commit `b64af42`: `origin/work/day3-profiling-validation`과 일치 확인

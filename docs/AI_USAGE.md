@@ -49,6 +49,7 @@
 - Unity Console error 확인: 오류 없음
 - Day 2 enemy 상태 색상과 FSM 적용 후 전체 수동 흐름: PASS
 - Day 2 변경 후 Unity Console error 확인: 오류 없음
+- Day 3 Editor menu, 기존 gameplay 회귀, Unity Console checklist: PASS
 
 ## 사람이 추후 결정하거나 확인해야 할 항목
 
@@ -187,6 +188,6 @@ PlayMode profile은 target 120 FPS, 1초 warm-up, 5초 sampling으로 601 sample
 - `Reset()` 후 recorder를 다시 시작하지 않은 시도는 sample 0으로 FAIL했다. local Unity API 문서를 확인하고 `Start()`를 추가했다.
 - Unity가 자동 생성한 미추적 `ProjectSettings/SceneTemplateSettings.json`은 승인 범위 밖이라 검사 후 제거했다.
 
-Day 3 Editor menu와 기존 gameplay의 사람 검증은 아직 실행하지 않았다. package 설치, Scene/Prefab 수정, tracked ProjectSettings 변경은 수행하지 않았다.
+Day 3 Editor menu와 기존 gameplay 회귀, Unity Console checklist는 사용자가 완료했고 PASS로 기록했다. package 설치, Scene/Prefab 수정, tracked ProjectSettings 변경은 수행하지 않았다.
 
 Day 3 구현 commit `86e90f4`를 `origin/work/day3-profiling-validation`에 push하고 local/remote SHA 일치를 확인했다. 전체 `git diff --check`는 Unity가 생성한 새 `.meta`의 기존 형식과 같은 빈 YAML field 후행 공백을 보고했으며, `.meta`를 제외한 staged diff check는 PASS였다. 생성된 metadata를 임의로 재작성하지 않았다.

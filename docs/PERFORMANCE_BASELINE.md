@@ -63,6 +63,6 @@ Editor menu에서는 `Tools > Arena Systems Lab > Validate Project`를 사용한
 - Reset sampling attempt: FAIL, `ProfilerRecorder.Reset()` 후 `Start()` 누락
 - Final PlayMode baseline: PASS, 1 passed / 0 failed / 0 skipped
 - Compiler error marker in final logs: 0
-- Human menu and gameplay verification: NOT RUN
+- Human menu, existing gameplay flow, and Console checklist: PASS, 사용자 확인
 
 Unity가 test 실행 중 생성한 미추적 `ProjectSettings/SceneTemplateSettings.json`은 승인 범위 밖이므로 검사 후 제거해 작업 전 상태로 복원했다.

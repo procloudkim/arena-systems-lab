@@ -124,9 +124,9 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - EditMode 결과: **Verified on 2026-09-04**, 16 passed / 0 failed / 0 skipped.
 - 자동 PlayMode profiling 명령: **Verified on 2026-09-04**. 위 명령에서 `-testPlatform PlayMode -testFilter "ArenaSystemsLab.Tests.PlayMode"`를 사용하며 결과는 1 passed / 0 failed / 0 skipped.
 - Project validation command-line: **Verified on 2026-09-04**. Batchmode에서 `-executeMethod ArenaSystemsLab.Editor.ArenaProjectValidator.ValidateFromCommandLine`을 사용한다.
-- Project validation Editor menu: **Not yet human verified**. `Tools > Arena Systems Lab > Validate Project`를 사용한다.
-- PlayMode 수동 검증: Day 1 흐름과 Day 2 상태 색상·전이는 **Verified on 2026-09-04**. Day 3 변경 후 수동 검증은 아직 실행하지 않았다.
-- Unity Console: Day 1과 Day 2 변경 후 모두 **Verified on 2026-09-04**, 사용자 확인 오류 없음.
+- Project validation Editor menu: **Verified on 2026-09-04**. 사용자가 `Tools > Arena Systems Lab > Validate Project`를 포함한 Day 3 수동 검증 완료를 확인했다.
+- PlayMode 수동 검증: Day 1 흐름, Day 2 상태 색상·전이, Day 3 변경 후 기존 gameplay 회귀를 **Verified on 2026-09-04**.
+- Unity Console: Day 1~3 변경 후 **Verified on 2026-09-04**, 사용자 확인 오류 없음.
 - Windows build 명령: **Not yet verified**.
 - Windows .NET SDK version 명령: **Verified on 2026-09-04**. Windows `dotnet.exe --version` 결과 `10.0.400`.
 - .NET server build/test: **Not yet verified**. Project가 생긴 뒤 실제 명령만 기록한다.
