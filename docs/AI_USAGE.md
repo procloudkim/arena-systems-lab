@@ -348,3 +348,56 @@ Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 loc
 AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 port 7777이 비어 있음을 확인했다. stdout은 loopback listening 한 줄, stderr는 0 byte였으며 이 종료는 `Ctrl+C` graceful shutdown 검사가 아니라 target process 정리다. 서버 시작 전 첫 PowerShell wrapper는 Bash가 `$` 변수를 먼저 확장해 parser error로 실패했고 Unity나 server process를 생성하지 않았다. 변수 확장을 차단해 재실행한 뒤 exact Editor와 server를 정상 시작했다.
 
 사람 검증과 leaderboard/run-history 구분을 commit `02e472a`로 `origin/work/unity-network-client`에 push했다. 사용자가 Unity Editor 종료를 확인했고 AI도 Unity process, `Temp/UnityLockfile`, port 7777 부재와 clean remote branch를 대조했다. branch를 merge commit `b0a3f8e`에서 `main`에 통합하고 같은 SHA를 `origin/main`에 push했다.
+
+## Milestone 8 Unreal observer 기록
+
+실행일: `2026-09-05`
+
+### AI가 수행한 조사
+
+- Epic Launcher 설치 기록과 `Build.version`에서 exact Unreal Engine 5.8.0 / CL 55116800을 재확인했다.
+- `vswhere`로 Visual Studio Native Game/C++, MSVC x64와 Windows SDK component를 확인했다.
+- 설치 Engine의 `FSocket`, `ISocketSubsystem`, `FJsonSerializer`, automation command와 blank C++ template source를 직접 읽어 5.8 API를 확인했다.
+- Git clean main handoff, Unreal/Unity process 부재와 repository 내 기존 `.uproject` 부재를 확인한 뒤 work branch를 만들었다.
+
+### AI가 생성하거나 수정한 파일
+
+- `Unreal/ArenaObserver`: C++ project descriptor, 최소 config, module/target, native leaderboard client, Game Mode, HUD와 automation test
+- `.gitignore`: Unreal `Binaries`, `DerivedDataCache`, `Intermediate`, `Saved` 제외
+- `docs/adr/0011-unreal-read-only-leaderboard-observer.md`
+- README, demo guide, 구현 계획, 환경 감사, AI 기록과 glossary
+
+### 실행된 검증
+
+- Development Editor C++ build: PASS
+- Unreal Automation protocol test: PASS, 1 passed / 0 failed / 0 warnings
+- Native client server-unavailable: PASS, port 7777 부재에서 3초 bounded failure
+- Native client actual .NET server query: PASS, test 1 passed / 0 failed / 0 warnings
+- 기존 server `Ctrl+C` 종료와 port 해제: PASS
+- request frame, 정상 response, 정렬·정수·ID·중복·크기 경계: PASS
+- generated directory ignore와 Unity source/settings 비변경 검사: PASS
+- server-unavailable HUD: PASS, 사용자가 `Connection I/O error` unavailable 상태를 확인
+- actual-server HUD: PASS, 사용자가 `ObserverFixture 42`와 연결 상태를 확인
+- Unreal project error 확인: PASS, 실행 log에 `ArenaObserver` Error/Fatal/ensure 없음
+
+### 실패와 수정
+
+- WSL에서 `Build.bat`를 직접 실행한 시도와 잘못 quoting한 `cmd.exe` 시도는 build가 시작되지 않아 FAIL로 분류했다. Windows PowerShell에서 batch를 호출해 해결했다.
+- 첫 compile은 중첩 test source가 module root header를 찾지 못해 FAIL했다. test source를 module root로 옮겼다.
+- source 이동 직후 incremental build는 이전 경로를 가진 UBT makefile cache 때문에 FAIL했다. `-NoUBTMakefiles`로 source를 재수집한 뒤 final build가 통과했다.
+- 첫 Editor automation 실행이 Android File Server 설정과 token, 91줄 input config를 자동 생성했다. token section을 제거하고 해당 plugin 및 Fab/Bridge를 project에서 비활성화했으며, input config는 자동 rewrite를 막는 3줄만 유지했다. 재실행에서 token과 Fab/Bridge/EOS 초기화가 없음을 확인했다.
+- automation 시작 시 Engine 5.8 자체 `UnifiedErrorTests.cpp`가 의도적으로 생성하는 `LogAutomationTest: Error: Condition failed` 15줄이 있다. project test report는 errors 0이고 해당 source 위치를 local Engine에서 대조했으므로 project 오류로 재분류하지 않았다.
+
+### 사람이 확인한 항목
+
+- server가 없을 때 `Connection I/O error`가 unavailable 상태로 표시되고 Editor가 응답함을 확인했다.
+- local server에 `ObserverFixture 42`가 있는 상태에서 연결 문구와 Top 5 row가 표시됨을 확인했다.
+- AI가 실행 log에서 `ArenaObserver` Error/Fatal/ensure가 없음을 재확인했고 사용자가 화면 검증을 PASS로 판정했다.
+
+### AI 제안을 그대로 채택하지 않은 부분
+
+- 두 번째 gameplay, UMG asset, Blueprint, 외부 plugin과 marketplace asset을 만들지 않았다.
+- endpoint configuration, periodic refresh, submit, retry, interface/factory를 미래 확장용으로 추가하지 않았다.
+- Engine thread pool 사용을 별도의 multithreading 성능 증거로 주장하지 않았다.
+
+구현·ADR·자동 검증 commit `20b0d55`를 `origin/work/unreal-arena-observer`에 push하고 local/remote SHA 일치를 확인했다. 이후 exact Unreal 5.8 Editor에서 사람이 두 HUD 경로를 검증했다. actual-server 화면의 data는 Unity가 새 session에서 제출한 것으로 가장하지 않고, 고정 protocol로 주입한 ephemeral `ObserverFixture 42`로 기록한다. Unity actual-server submit/query 사람 검증은 Milestone 7에 별도 근거가 있다.

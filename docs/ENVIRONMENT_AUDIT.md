@@ -353,3 +353,52 @@ AI가 시작한 Release server는 `127.0.0.1:7777` listening을 확인한 뒤 �
 최초 verification 7건은 모두 통과했지만 보안 재검토에서 서로 다른 `playerId`를 무한히 누적할 수 있는 전체 state 상한 누락을 발견했다. stored player 10,000개 제한과 capacity 검사를 추가한 뒤 final verification 8/8을 다시 실행했다.
 
 첫 Windows PowerShell inline client 명령은 Bash와 PowerShell 사이 JSON quote가 손실되어 parser error로 종료됐고 network request는 전송되지 않았다. `ConvertTo-Json`으로 quote 경계를 제거한 다음 동일 Windows host에서 재실행해 health response를 확인했다.
+
+## Milestone 8 Unreal C++ 후속 감사와 자동 검증
+
+실행 시점: `2026-09-05`
+
+Milestone 7 통합 뒤 clean `main`에서 Unreal project 유무, exact Engine, C++ build toolchain과 실행 중 Editor를 다시 읽기 전용으로 확인했다. 기존 `.uproject`는 없었고 Unreal/Unity process도 실행 중이 아니어서 `work/unreal-arena-observer` branch에서 새 경로만 사용했다.
+
+| 항목 | 감지 결과 | 버전/설정 | 상태 | 근거 | 필요한 조치 |
+|---|---|---|---|---|---|
+| Unreal Engine | 기존 설치 재사용 | 5.8.0 / CL 55116800 | READY | Launcher 설치 기록, `Build.version`, executable | 자동 upgrade 금지 |
+| Unreal C++ toolchain | 기존 Visual Studio 재사용 | Community 18.9.1, MSVC 14.50 | READY | `vswhere`, 실제 UBT compile | 없음 |
+| Windows SDK | 실제 compile에 선택됨 | 10.0.26100.0 | READY | UBT toolchain output | 없음 |
+| Engine APIs | local header 확인 | `Sockets`, `Json`, `AHUD`, Automation | READY | 설치 Engine source와 실제 link | 외부 plugin 불필요 |
+| Unreal project | 새 최소 C++ observer | `Unreal/ArenaObserver` | READY | Development Editor build·사람 HUD 검증 | 없음 |
+| Wire protocol | server v1 재사용 | big-endian 4 byte, UTF-8, 최대 16 KiB | READY | C++ fixture 1/1·actual server HUD PASS | 없음 |
+| Network boundary | loopback query only | `127.0.0.1:7777`, 3초 deadline | READY | server 없음·actual server native test | remote 공개 금지 |
+| Generated artifacts | Git 제외 확인 | Binaries/Intermediate/Saved/DDC | READY | `git check-ignore` | source/config만 추적 |
+| Android File Server token | 첫 Editor 실행에서 자동 생성 후 제거 | project plugin disabled | READY | config 재실행 검사 | token commit 금지 |
+| Runtime HUD | exact Editor 사람 검증 | server 없음/정상 두 경로 | READY | unavailable·`ObserverFixture 42` 표시 PASS | 없음 |
+| Unreal project log | project 오류 없음 | Error/Fatal/ensure 0 | READY | 실행 log와 사용자 PASS | Engine self-test 진단과 구분 |
+
+### Gate 판정
+
+**READY_WITH_GAPS**
+
+정확한 Engine과 native toolchain으로 C++ build, protocol automation, server-unavailable 및 actual-server HUD 사람 검증이 통과했다. 외부 dependency나 project upgrade는 필요하지 않다. 전체 portfolio gate는 승인 대기 중인 MySQL·SVN 때문에 `READY_WITH_GAPS`를 유지한다.
+
+### 실행한 명령과 결과
+
+| 명령 종류 | 목적 | 결과 |
+|---|---|---|
+| Git status/log와 bounded `.uproject` search | clean handoff와 기존 Unreal 충돌 확인 | `main...origin/main` clean, 기존 project 없음 |
+| Launcher record·`Build.version`·Engine executable probe | exact Engine 확인 | 5.8.0 / CL 55116800 READY |
+| `vswhere -requires` | Native Game/C++, x64 compiler, SDK 확인 | VS Community 18.9.1 READY |
+| local Engine header/template 조회 | 5.8 socket, JSON, target/build API 확인 | 필요한 built-in API 존재 |
+| `Build.bat ArenaObserverEditor Win64 Development` | C++ compile·link | final PASS |
+| `UnrealEditor-Cmd` Automation | protocol fixture | 1 passed / 0 failed / 0 warnings |
+| port 확인 후 `-ArenaObserverExpectNoServer` automation | native failure 경로 | PASS, 3초 bounded unavailable |
+| 기존 .NET server와 `-ArenaObserverExpectServer` automation | native socket end-to-end | PASS, 1/1 |
+| exact Unreal Editor와 server 미실행 Play | unavailable HUD | 사용자 PASS, Editor 응답 유지 |
+| ephemeral `ObserverFixture 42` 제출 후 Play 재시작 | actual-server HUD | 사용자 PASS, Top 5 row 표시 |
+| server console `Ctrl+C`와 port probe | 검증 process 정리 | graceful stop, port 7777 free |
+| automation report·log·Git diff 검사 | test 결과, generated 설정과 source 경계 확인 | report errors 0, Unity 변경 0 |
+
+첫 두 build command는 WSL이 batch를 Bash로 해석하거나 `cmd.exe` quote를 잘못 전달해 build를 시작하지 못했다. PowerShell이 batch를 명시 호출한 final command만 compile 근거로 사용했다.
+
+첫 actual compile은 test source include 경로로 실패했고 source 이동 직후에는 UBT makefile cache가 이전 경로를 참조했다. test를 module root로 옮기고 `-NoUBTMakefiles`로 한 번 재수집한 뒤 일반 incremental build도 통과했다.
+
+Automation startup의 Engine `UnifiedErrorTests.cpp`가 의도적으로 출력하는 error test 15줄은 project test 시작 전 발생했다. exported report의 `ArenaSystemsLab.ArenaObserver.Protocol`은 success, warnings 0, errors 0이며 project fatal/assert/ensure는 없었다. 이 Engine 진단과 사람 HUD 검증을 구분했고, actual-server 화면과 실행 log의 project 오류 없음도 확인했다.

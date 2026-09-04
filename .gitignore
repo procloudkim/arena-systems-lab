@@ -34,3 +34,9 @@
 Thumbs.db
 
 # Keep Assets and their .meta files under version control.
+
+# Unreal-generated directories
+Unreal/**/Binaries/
+Unreal/**/DerivedDataCache/
+Unreal/**/Intermediate/
+Unreal/**/Saved/

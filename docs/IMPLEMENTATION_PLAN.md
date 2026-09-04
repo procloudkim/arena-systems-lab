@@ -283,12 +283,12 @@ Git과 SVN을 같은 source-of-truth로 운영하지 않는다. local lab 외의
 | 필수 기술 | 구현 위치 | 완료 근거 | 현재 상태 |
 |---|---|---|---|
 | Unity | 현재 arena game | compile, EditMode, PlayMode, Windows build | 부분 완료 |
-| Unreal Engine | `Unreal/ArenaObserver` 예정 | C++ build, server 연결, 수동 실행 | 미구현 |
+| Unreal Engine | `Unreal/ArenaObserver` | C++ build, protocol automation, server 연결·수동 실행 | 완료 |
 | Git | repository 전체 | branch, ADR, commit, push, remote SHA | 완료 |
 | SVN | local isolated lab 예정 | revision, branch, merge, conflict log | 도구 MISSING |
 | MySQL | `Database/`와 server persistence 예정 | migration, integration test, restart persistence | runtime MISSING |
-| Network Programming | .NET server와 두 engine client | loopback end-to-end test | server foundation 완료, engine client 미구현 |
-| Socket Programming | 공통 TCP framing | fragmentation/malformed message test | .NET server·verification 완료 |
+| Network Programming | .NET server와 두 engine client | loopback end-to-end test | in-memory 범위 완료 |
+| Socket Programming | 공통 TCP framing | fragmentation/malformed message test | .NET server·Unity·Unreal fixture 완료 |
 | Multithreading | concurrent server shared state | actual-thread consistency test | 8-thread store 검증 완료 |
 | OOP | Unity runtime, 이후 server/client | 책임 분리된 code와 test | Unity 범위 완료 |
 
