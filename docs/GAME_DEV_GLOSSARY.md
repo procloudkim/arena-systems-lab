@@ -2,7 +2,7 @@
 
 > Arena Systems Lab 개발 중 실제로 만난 게임·Unity·물리·검증 용어를 한국어로 설명하는 생활형 백과사전이다.
 
-- Version: `0.4.0`
+- Version: `0.5.0`
 - Last updated: 2026-09-04 KST
 - Governance: [ADR 0004](adr/0004-game-development-glossary-governance.md)
 
@@ -329,10 +329,35 @@
 - 프로젝트 예: 향후 Game Over와 restart 같은 여러 component의 통합 흐름을 검증한다.
 - 주의: EditMode test보다 느리고 Scene·frame timing의 영향을 받는다.
 
+### Player Build
+
+- 정의: Unity Editor 밖에서 독립적으로 실행할 수 있도록 Scene, script, engine runtime과 asset을 platform별 application으로 묶은 결과물이다.
+- 프로젝트 예: `Builds/Windows/ArenaSystemsLab.exe`와 동반 data file을 Windows x86-64 player로 생성한다.
+- 주의: Editor PlayMode 성공이 player build의 compile, graphics, input과 실행 성공을 자동으로 보장하지 않는다.
+
+### Development Build
+
+- 정의: profiler 연결과 개발 진단 정보를 포함해 debugging·profiling하기 쉽게 만든 player build다.
+- 프로젝트 예: Day 4 `ArenaWindowsBuilder`가 `BuildOptions.Development`로 Windows Mono build를 생성한다.
+- 주의: release build보다 크고 느릴 수 있으므로 배포 성능 수치로 일반화하지 않는다.
+
+### Regression Test (회귀 테스트)
+
+- 정의: 새 변경이 이전에 정상 동작하던 기능을 깨뜨리지 않았는지 반복 확인하는 테스트다.
+- 프로젝트 예: Day 4에 전체 EditMode 16건과 PlayMode 1건을 다시 실행한다.
+- 주의: 기존 test가 다루지 않는 player input과 화면 흐름은 별도 수동 검증이 필요하다.
+
+### Smoke Test (스모크 테스트)
+
+- 정의: 세부 기능 전체보다 application이 시작되고 즉시 치명적으로 실패하지 않는지를 짧게 확인하는 첫 실행 검사다.
+- 프로젝트 예: 생성된 Windows player를 8초 실행해 process 생존과 log의 managed exception·crash를 확인한다.
+- 주의: smoke PASS는 전투, Game Over, restart 전체가 정상이라는 뜻이 아니다.
+
 ## Version History
 
 | Version | Date | 변경 | ADR |
 |---|---|---|---|
+| `0.5.0` | 2026-09-04 | Day 4 build·regression·smoke 용어 4개 추가, 총 52개 | [ADR 0008](adr/0008-reproducible-windows-build-and-demo.md) |
 | `0.4.0` | 2026-09-04 | Day 3 측정·알고리즘·Editor Tool 용어 5개 추가, 총 48개 | [ADR 0007](adr/0007-measured-day3-tooling.md) |
 | `0.3.0` | 2026-09-04 | 필수 engine, language, VCS, network, concurrency, database 용어 14개 추가, 총 43개 | [ADR 0006](adr/0006-portfolio-technology-baseline.md) |
 | `0.2.0` | 2026-09-04 | Day 2 FSM에서 사용한 Terminal State 추가, 총 29개 | [ADR 0005](adr/0005-minimal-enemy-fsm.md) |

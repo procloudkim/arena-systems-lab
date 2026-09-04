@@ -233,8 +233,46 @@ exact Unity Editor 6000.5.1f1가 닫혀 있고 `Temp/UnityLockfile`이 없는 �
 | PlayMode profile test | PASS | 1 passed / 0 failed / 0 skipped |
 | Gameplay profile baseline | RECORDED | target 120 FPS, 1 s warm-up, 5 s sampling, 601 samples |
 | Scene/Prefab/Package/tracked ProjectSettings | UNCHANGED | Git diff 확인 |
-| Human Day 3 verification | NOT RUN | Editor menu와 기존 gameplay flow 확인 필요 |
+| Human Day 3 verification | PASS | 사용자 확인, Editor menu·기존 gameplay·Console checklist 완료 |
 
 PlayMode 첫 시도는 marker recorder option 누락으로 `NotSupportedException`이 발생했다. `SumAllSamplesInFrame`을 공용 recorder 생성 지점에 추가해 해결했다. 이후 sampling 초기화를 위해 호출한 `Reset()`이 수집도 중지한다는 local Unity API 문서를 확인했고 `Start()`를 추가한 뒤 final test가 통과했다.
 
 Unity가 test 실행 중 미추적 `ProjectSettings/SceneTemplateSettings.json`을 생성했다. 승인 범위 밖 파일이므로 내용을 확인하고 test 완료 후 제거했으며 기존 tracked ProjectSettings 변경은 0건이다.
+
+## Day 4 Windows build·demo 검증
+
+실행 시점: `2026-09-04T23:19:12+09:00`
+
+exact Unity Editor가 닫혀 있고 project lock이 없는 상태에서 전체 regression, project validation, Windows Mono Development build와 player launch smoke를 순서대로 실행했다.
+
+| 검증 | 결과 | 근거 |
+|---|---|---|
+| Runtime/Editor/Test compilation | PASS | Day 4 EditMode import와 compile, compiler error marker 0 |
+| EditMode regression | PASS | 16 passed / 0 failed / 0 skipped |
+| PlayMode regression/profile | PASS | 1 passed / 0 failed / 0 skipped |
+| Project validator CLI | PASS | validation success log |
+| Windows Mono Development build | PASS | build result Success, 64.697초 |
+| Player artifact | PASS | PE32+ GUI x86-64, local output 약 166 MB |
+| Player launch smoke | PASS | 8초 process 생존 후 해당 process 종료 |
+| Player log | PASS_WITH_WARNINGS | managed exception·crash 없음; D3D12 info queue와 shutdown cleanup 진단 존재 |
+| Windows player full gameplay | NOT RUN | 사람의 standalone checklist 필요 |
+| Package/Scene/Prefab final diff | UNCHANGED | Git diff 확인 |
+| Tracked ProjectSettings final diff | UNCHANGED | build 자동 직렬화분 복원 후 Git diff 확인 |
+
+첫 test 명령은 설치 위치를 `C:` 기본 경로로 추정해 executable을 찾지 못했으므로 테스트가 실행되지 않았다. 이전 log와 일반 설치 경로에서 감사된 실제 `D:` Editor를 확인해 이후 명령에 재사용했다.
+
+Unity/URP는 build 중 `DefaultVolumeProfile.asset`, `UniversalRP.asset`, `UniversalRenderPipelineGlobalSettings.asset`, `ProjectSettings.asset`과 미추적 `SceneTemplateSettings.json`을 자동 직렬화했다. 작업 전 clean 상태와 diff를 대조해 이번 실행이 만든 변경만 복원했으며 build output과 log는 기존 `.gitignore` 규칙으로 제외했다.
+
+### 실행한 명령과 결과
+
+| 명령 종류 | 목적 | 결과 |
+|---|---|---|
+| exact Editor EditMode `-runTests` | 전체 logic·Editor regression | PASS, 16/16 |
+| exact Editor PlayMode `-runTests` | gameplay profile regression | PASS, 1/1 |
+| `ArenaProjectValidator.ValidateFromCommandLine` | project preflight | PASS |
+| `ArenaWindowsBuilder.BuildWindowsFromCommandLine` | Windows Development player 생성 | PASS |
+| Windows `Start-Process`, targeted close | 생성 player 시작 확인 | PASS, 8초 생존 |
+| `file`, `sha256sum`, output inventory | artifact 형식과 존재 확인 | x86-64 PE, SHA-256 기록 |
+| `git diff`, `git status` | Unity 자동 변경과 최종 source 경계 확인 | 승인 범위 밖 최종 diff 0 |
+
+설치, package 추가, download, Unity Editor upgrade는 수행하지 않았다.
