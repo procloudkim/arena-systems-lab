@@ -151,6 +151,12 @@ Unity와 Unreal이 공통으로 사용할 수 있는 최소 leaderboard 경계�
 
 network input은 신뢰 경계다. message 길이 제한과 validation을 생략하지 않으며 최초 범위는 loopback으로 제한한다.
 
+### 현재 상태
+
+2026-09-05에 server foundation을 구현했다. `127.0.0.1` bind, 4-byte big-endian frame, 엄격한 JSON schema, bounded in-memory leaderboard, timeout·동시 client 제한을 적용했다. Release build 경고 0·오류 0, package 없는 verification executable 8/8이 통과했다. 세부 위협 모델과 remote exposure gate는 [Network Security Baseline](NETWORK_SECURITY.md)과 [ADR 0009](adr/0009-loopback-first-bounded-tcp-protocol.md)을 따른다.
+
+Unity와 Unreal client를 연결하는 end-to-end network flow는 Milestone 7·8에 남아 있다. TLS, authentication과 server-authoritative score는 remote exposure 전에 필요한 별도 범위이며 현재 구현으로 완료됐다고 주장하지 않는다.
+
 ## Milestone 6: MySQL persistence
 
 ### 목적
@@ -277,9 +283,9 @@ Git과 SVN을 같은 source-of-truth로 운영하지 않는다. local lab 외의
 | Git | repository 전체 | branch, ADR, commit, push, remote SHA | 완료 |
 | SVN | local isolated lab 예정 | revision, branch, merge, conflict log | 도구 MISSING |
 | MySQL | `Database/`와 server persistence 예정 | migration, integration test, restart persistence | runtime MISSING |
-| Network Programming | .NET server와 두 engine client 예정 | loopback end-to-end test | 미구현 |
-| Socket Programming | 공통 TCP framing 예정 | fragmentation/malformed message test | 미구현 |
-| Multithreading | concurrent server request 처리 예정 | stress test와 thread-safety 근거 | 미구현 |
+| Network Programming | .NET server와 두 engine client | loopback end-to-end test | server foundation 완료, engine client 미구현 |
+| Socket Programming | 공통 TCP framing | fragmentation/malformed message test | .NET server·verification 완료 |
+| Multithreading | concurrent server shared state | actual-thread consistency test | 8-thread store 검증 완료 |
 | OOP | Unity runtime, 이후 server/client | 책임 분리된 code와 test | Unity 범위 완료 |
 
 최종 `DONE`은 표의 모든 행이 완료 근거를 가진 뒤에만 선언한다. 실제 협업과 live-service 대응은 사용자 결정에 따라 이 matrix에서 제외한다.

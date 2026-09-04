@@ -2,8 +2,8 @@
 
 > Arena Systems Lab 개발 중 실제로 만난 게임·Unity·물리·검증 용어를 한국어로 설명하는 생활형 백과사전이다.
 
-- Version: `0.5.0`
-- Last updated: 2026-09-04 KST
+- Version: `0.6.0`
+- Last updated: 2026-09-05 KST
 - Governance: [ADR 0004](adr/0004-game-development-glossary-governance.md)
 
 ## 사용 방법
@@ -36,7 +36,7 @@
 ### C# (C Sharp)
 
 - 정의: .NET type system과 garbage collection을 사용하는 managed programming language다.
-- 프로젝트 예: Unity gameplay code와 계획된 standalone leaderboard server에 사용한다.
+- 프로젝트 예: Unity gameplay code와 standalone `ArenaSystemsLab.Server`에 사용한다.
 - 주의: Unity의 C# runtime과 별도 .NET application의 target framework·사용 가능 API는 같다고 가정하지 않는다.
 
 ### C++
@@ -70,7 +70,7 @@
 ### Network Programming
 
 - 정의: 서로 다른 process나 machine이 protocol을 통해 data를 교환하도록 연결, timeout, 오류, 보안을 다루는 개발 영역이다.
-- 프로젝트 예: Unity와 Unreal client가 C# leaderboard server에 score를 보내거나 조회한다.
+- 프로젝트 예: C# leaderboard server가 loopback client의 score 제출과 조회를 처리하며 Unity와 Unreal client가 후속 연결된다.
 - 주의: 정상 연결뿐 아니라 disconnect, timeout, malformed input과 partial read를 처리해야 한다.
 
 ### Client-Server Architecture
@@ -82,7 +82,7 @@
 ### Socket
 
 - 정의: process가 network protocol endpoint를 통해 byte를 송수신하는 operating-system resource와 programming interface다.
-- 프로젝트 예: .NET server의 `TcpListener`/`TcpClient`와 Unreal native socket이 연결된다.
+- 프로젝트 예: .NET server의 `TcpListener`, verification client의 `TcpClient`와 향후 Unreal native socket이 연결된다.
 - 주의: 한 번의 read가 한 message 전체를 반환한다고 가정하지 않고 close와 timeout을 항상 처리한다.
 
 ### Transmission Control Protocol (TCP)
@@ -91,17 +91,83 @@
 - 프로젝트 예: leaderboard message를 4-byte length prefix와 UTF-8 JSON payload로 framing한다.
 - 주의: TCP는 message 경계를 보존하지 않으므로 application protocol이 길이와 최대 크기를 정의해야 한다.
 
+### Application Protocol (애플리케이션 프로토콜)
+
+- 정의: transport 위에서 message 형식, 순서, 의미와 오류 처리를 application끼리 합의한 규칙이다.
+- 프로젝트 예: protocol v1이 `health`, `submit_score`, `get_leaderboard` JSON request와 response를 정의한다.
+- 주의: TCP 연결 성공은 protocol version이나 payload 의미가 올바르다는 뜻이 아니다.
+
+### Message Framing / Length Prefix (메시지 프레이밍 / 길이 접두사)
+
+- 정의: 경계가 없는 byte stream에서 message 시작과 끝을 구분하는 규칙이며, length prefix는 앞부분에 payload byte 수를 기록한다.
+- 프로젝트 예: `WireProtocol`이 4-byte 길이를 먼저 읽고 그 수만큼 UTF-8 JSON을 정확히 읽는다.
+- 주의: 길이를 검증하기 전에 그 크기로 memory를 할당하면 resource exhaustion 공격에 취약하다.
+
+### Network Byte Order / Big-Endian (네트워크 바이트 순서 / 빅 엔디언)
+
+- 정의: 여러 byte로 된 정수의 가장 큰 자리 byte를 먼저 전송하는 network 표현 순서다.
+- 프로젝트 예: frame 길이는 `BinaryPrimitives.ReadInt32BigEndian`과 `WriteInt32BigEndian`으로 인코딩한다.
+- 주의: client와 server가 byte order를 다르게 해석하면 같은 4 byte가 전혀 다른 길이가 된다.
+
+### Loopback (루프백)
+
+- 정의: network packet이 외부 interface로 나가지 않고 같은 host 안의 process로 돌아오는 주소 범위다.
+- 프로젝트 예: server는 IPv4 `127.0.0.1`에만 bind해 local integration으로 노출을 제한한다.
+- 주의: local process라면 접속할 수 있으므로 loopback은 authentication이 아니다.
+
+### Trust Boundary (신뢰 경계)
+
+- 정의: data나 control이 서로 다른 신뢰 수준의 영역 사이를 통과하는 지점이다.
+- 프로젝트 예: `NetworkStream`에서 받은 frame이 server parser로 들어오는 socket 경계에서 모든 값을 다시 검증한다.
+- 주의: 공식 client나 같은 PC에서 왔다는 이유로 경계를 없애면 안 된다.
+
+### Input Validation (입력 검증)
+
+- 정의: 외부 입력의 구조, type, 길이, 문자 집합과 의미 범위가 허용 규칙에 맞는지 확인하는 작업이다.
+- 프로젝트 예: protocol version과 정확한 property 집합, `playerId`, score, query limit를 server가 검사한다.
+- 주의: client-side 검사는 사용자 경험용일 뿐 server-side 보안 검사를 대신하지 않는다.
+
+### Resource Exhaustion / Denial of Service (자원 고갈 / 서비스 거부)
+
+- 정의: memory, CPU, thread, socket, storage 같은 제한 자원을 과도하게 소비시켜 정상 처리를 방해하는 실패 또는 공격이다.
+- 프로젝트 예: frame 16 KiB, client 16개, timeout 5초, stored player 10,000개 상한을 둔다.
+- 주의: 요청 하나만 제한해도 반복 요청이나 누적 state가 무제한이면 전체 자원은 계속 증가할 수 있다.
+
+### Transport Layer Security (TLS, 전송 계층 보안)
+
+- 정의: network 연결의 기밀성, 무결성과 endpoint 인증을 제공하는 cryptographic protocol이다.
+- 프로젝트 예: 현재 loopback server에는 없으며 remote exposure 승인 시 .NET `SslStream` 적용이 필수 gate다.
+- 주의: TLS는 client가 제출한 gameplay score 자체가 정당하다는 사실까지 보장하지 않는다.
+
+### Authentication (인증)
+
+- 정의: 접속자나 service가 주장한 identity가 실제로 맞는지 확인하는 절차다.
+- 프로젝트 예: 현재 protocol에는 인증이 없어 `playerId`는 표시용 입력일 뿐 보안 identity가 아니다.
+- 주의: authorization과 구분하며, IP 주소나 client application 이름만으로 인증됐다고 판단하지 않는다.
+
+### Asynchronous I/O (비동기 입출력)
+
+- 정의: 입출력 완료를 기다리는 동안 호출 thread를 계속 점유하지 않고 나중에 완료를 이어가는 실행 방식이다.
+- 프로젝트 예: server는 accept, frame read/write에 `async`/`await`와 cancellation을 사용한다.
+- 주의: 비동기 I/O 자체는 여러 CPU thread가 병렬로 shared state를 실행했다는 증거가 아니다.
+
 ### Multithreading (멀티스레딩)
 
 - 정의: 한 process에서 여러 execution thread가 작업을 동시에 또는 병렬로 진행하는 방식이다.
-- 프로젝트 예: 계획된 server가 제한된 수의 client request를 동시에 처리하고 stress test로 검증한다.
+- 프로젝트 예: verification executable이 실제 `Thread` 8개로 같은 `LeaderboardStore`를 동시에 갱신한다.
 - 주의: asynchronous I/O 자체를 multithreading과 동일시하지 않고 thread scheduling과 shared state 접근을 별도로 확인한다.
 
 ### Thread Safety (스레드 안전성)
 
 - 정의: 여러 thread가 같은 state에 접근해도 race condition이나 손상된 결과가 생기지 않는 성질이다.
-- 프로젝트 예: concurrent score submit과 leaderboard query가 일관된 결과를 내는지 자동 test한다.
+- 프로젝트 예: `LeaderboardStore`의 score 갱신과 조회를 하나의 `lock`으로 보호하고 concurrent test로 확인한다.
 - 주의: 무조건 큰 global lock을 두기보다 먼저 공유 범위를 줄이고 필요한 최소 synchronization을 사용한다.
+
+### Race Condition (경쟁 상태)
+
+- 정의: 여러 execution 흐름의 접근 순서에 따라 결과가 달라지는 timing-dependent 오류다.
+- 프로젝트 예: 같은 player의 최고 score를 여러 thread가 갱신해도 더 낮은 값으로 되돌아가지 않아야 한다.
+- 주의: test가 한 번 통과한 것만으로 모든 race가 없다고 단정하지 않고 공유 state와 synchronization 경계를 함께 검토한다.
 
 ## Data Persistence
 
@@ -357,6 +423,7 @@
 
 | Version | Date | 변경 | ADR |
 |---|---|---|---|
+| `0.6.0` | 2026-09-05 | network security·protocol·concurrency 용어 11개 추가, 총 63개 | [ADR 0009](adr/0009-loopback-first-bounded-tcp-protocol.md) |
 | `0.5.0` | 2026-09-04 | Day 4 build·regression·smoke 용어 4개 추가, 총 52개 | [ADR 0008](adr/0008-reproducible-windows-build-and-demo.md) |
 | `0.4.0` | 2026-09-04 | Day 3 측정·알고리즘·Editor Tool 용어 5개 추가, 총 48개 | [ADR 0007](adr/0007-measured-day3-tooling.md) |
 | `0.3.0` | 2026-09-04 | 필수 engine, language, VCS, network, concurrency, database 용어 14개 추가, 총 43개 | [ADR 0006](adr/0006-portfolio-technology-baseline.md) |
