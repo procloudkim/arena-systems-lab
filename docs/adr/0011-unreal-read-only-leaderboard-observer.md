@@ -40,9 +40,10 @@ Engine 기본 `EnhancedInput`은 Editor target에서 로드되지만 observer co
 - Remote implementation commit: PASS, `20b0d55`가 `origin/work/unreal-arena-observer`와 일치
 - Protocol fixture: request bytes, valid response, 잘못된 정렬, fractional score, invalid ID, duplicate player, oversized payload 검사 PASS
 - Plugin 재실행 검사: Android File Server token 재생성 없음, Fab/Bridge/EOS 초기화 없음
-- Server-unavailable HUD manual verification: NOT RUN, native client 경로만 자동 PASS
-- Actual server leaderboard HUD manual verification: NOT RUN
-- Unreal Editor Console human verification: NOT RUN
+- Server-unavailable HUD manual verification: PASS, `Connection I/O error`가 unavailable 상태로 표시되고 Editor 응답 유지
+- Actual server leaderboard HUD manual verification: PASS, ephemeral `ObserverFixture 42` 표시
+- Unreal Editor project error human verification: PASS, `ArenaObserver` Error/Fatal/ensure 없음
+- Cross-engine evidence: Milestone 7의 Unity actual-server submit/query PASS와 이번 actual-server Unreal HUD PASS를 조합해 양쪽 protocol 경계를 확인했다. 같은 server session의 Unity 제출값을 Unreal에서 연속 시연한 것으로 주장하지 않는다.
 - 첫 shell build 호출 2회: FAIL, Windows batch를 Bash 또는 잘못된 `cmd.exe` quoting으로 호출한 환경 오류
 - 첫 C++ build: FAIL, 중첩 test source의 module header include 경로 오류; test를 module root로 옮긴 뒤 해결
 - 이동 직후 incremental build: FAIL, 이전 source 경로를 가진 UBT makefile cache; `-NoUBTMakefiles`로 재수집 후 해결

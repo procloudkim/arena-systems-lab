@@ -6,8 +6,8 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: `work/unreal-arena-observer...origin/work/unreal-arena-observer`, clean
-- Active work: Milestone 8 Unreal observer 구현·build·native socket 자동 검증 완료, 사람 화면 검증 대기
-- Next task: `docs/DEMO_GUIDE.md`의 Unreal observer 수동 체크리스트 수행
+- Active work: Milestone 8 Unreal observer 구현·자동·사람 검증 완료, `main` 통합 대기
+- Next task: 검증 근거 commit·push 후 `main` 통합
 
 ## Session Start
 
@@ -44,7 +44,7 @@ git remote -v
 | Network security baseline | 공식 자료 fact check, local threat model, remote exposure gate 기록 |
 | Milestone 5 server foundation | BCL-only protocol·loopback server·bounded store, verification 8/8 PASS |
 | Milestone 7 Unity network client | Game Over submit·상위 5개 조회 구현, 자동 검사와 server 없음·실제 server 사람 검증 PASS |
-| Milestone 8 Unreal observer | C++ Top 5 HUD, protocol fixture, server 없음·actual server native test PASS; 화면 사람 검증 대기 |
+| Milestone 8 Unreal observer | C++ Top 5 HUD, protocol fixture, server 없음·actual server 자동·사람 검증 PASS |
 | Portfolio technology baseline | 9개 필수 기술과 연결 구조 확정, ADR 0006 적용 |
 | Reusable extension tools | Unreal 5.8, VS Native Game/C++, Windows .NET SDK 10.0.400 |
 | Approval-gated gaps | SVN MISSING, MySQL runtime MISSING, Docker image UNKNOWN |
@@ -85,7 +85,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | Unreal protocol automation | PASS | request/response 경계, 1 passed / 0 failed / 0 warnings |
 | Unreal server-unavailable native path | PASS | port 부재 확인, 3초 bounded failure |
 | Unreal ↔ actual .NET server native path | PASS | query 1/1, server graceful shutdown·port 해제 |
-| Unreal observer HUD·Output Log human flow | NOT RUN | [수동 체크리스트](docs/DEMO_GUIDE.md) 필요 |
+| Unreal observer HUD·project log human flow | PASS | 사용자 확인, unavailable·`ObserverFixture 42` 표시와 project 오류 없음 |
 | Process/ADR static checks | PASS | Markdown link 0건 누락, ADR 0001~0011 sequence·필수 section 검사 |
 | Glossary static checks | PASS | version 0.9.0, 75개 heading 검사 |
 | Portfolio baseline document checks | PASS | link 0건 누락, ADR 1~6 sequence/schema, forbidden Unity source/settings 변경 0건 |
@@ -95,7 +95,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 ## Work Queue
 
-1. **Next — Milestone 8:** Unreal observer의 server 없음·populated actual server HUD와 Output Log를 사람이 검증
+1. **Next:** Milestone 8 검증 근거를 commit·push하고 `main`에 통합
 2. **Approval-gated — Milestone 6:** 모든 run history와 player별 최고 score를 MySQL에 영속화
 3. **Approval-gated — Milestone 9:** isolated SVN workflow lab
 
@@ -103,10 +103,10 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 - Windows build output과 log는 local ignored generated artifact이며 repository에 포함하지 않는다.
 - Visual Studio Unity workload는 없지만 현재 작업의 차단 요소가 아니다.
-- Unreal source·build·native socket test는 완료됐지만 실제 화면과 Output Log 사람 검증은 남아 있다.
+- Unreal source·build·native socket test와 실제 HUD 사람 검증은 완료됐다.
 - SVN client/admin과 native MySQL runtime은 확인되지 않았다. 설치·download·package 추가는 사용자 승인 전 실행하지 않는다.
 - Docker client는 있으나 daemon이 꺼져 기존 `mysql:8.4` image는 확인하지 못했다.
-- server-side foundation, Unity Game Over와 Unreal native query까지 연결됐지만 populated Top 5의 Unreal 화면 확인은 남아 있다.
+- Unity Game Over submit/query와 Unreal actual-server Top 5는 각각 사람 검증했다. 동일 server session을 연속 시연하는 최종 demo capture는 남아 있다.
 - 현재 leaderboard는 player별 최고 score만 보존한다. 과거 run 이력은 MySQL milestone에서 별도 `runs` data로 구현하며 retry 중복 방지 key가 필요하다.
 - server는 loopback 전용이며 TLS, authentication, rate limiting과 server-authoritative score가 없다. remote interface 공개는 금지한다.
 - `companyName`과 application identifier는 ADR 0002에 따라 별도 branding 결정 전까지 유지한다.
@@ -126,7 +126,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260904-08` | Windows Development build·README·demo | `work/day4-build-demo` | `fca8a38`, human evidence `f87a0d5` | [ADR 0008](docs/adr/0008-reproducible-windows-build-and-demo.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, build·smoke·human PASS | Integrated as `75151b9` |
 | `CP-20260905-01` | Security-first loopback TCP server foundation | `work/network-security-foundation` | `3909f6b` | [ADR 0009](docs/adr/0009-loopback-first-bounded-tcp-protocol.md) | .NET Release PASS, verification 8/8, CLI smoke PASS | Integrated as `bb3a24e` |
 | `CP-20260905-02` | Unity Game Over leaderboard client | `work/unity-network-client` | `ac1f24a`, human evidence `02e472a` | [ADR 0010](docs/adr/0010-unity-loopback-leaderboard-client.md) | Compile PASS, EditMode 20/20, PlayMode 1/1, validator·server 없음·actual server·Console PASS | Integrated as `b0a3f8e` |
-| `CP-20260905-03` | Unreal C++ read-only leaderboard observer | `work/unreal-arena-observer` | `20b0d55` | [ADR 0011](docs/adr/0011-unreal-read-only-leaderboard-observer.md) | Development Editor build, protocol·server 없음·actual server native test PASS; human HUD NOT RUN | Remote work branch, human validation pending |
+| `CP-20260905-03` | Unreal C++ read-only leaderboard observer | `work/unreal-arena-observer` | `20b0d55` | [ADR 0011](docs/adr/0011-unreal-read-only-leaderboard-observer.md) | Development Editor build, protocol·server 없음·actual server 자동·사람 검증 PASS | Remote work branch, merge pending |
 
 ## ADR Index and Naming
 

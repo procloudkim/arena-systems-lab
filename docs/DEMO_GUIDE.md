@@ -87,12 +87,14 @@
 | Unreal protocol automation | PASS | 1 passed / 0 failed / 0 warnings |
 | Unreal native socket server-unavailable | PASS | port 7777 부재 확인, 3초 bounded failure |
 | Unreal native socket actual server | PASS | 기존 .NET server query, test 1/1, graceful shutdown 후 port 해제 |
-| Unreal server-unavailable 화면 | NOT RUN | 위 수동 체크리스트 1~2 필요 |
-| Unreal actual-server Top 5 화면 | NOT RUN | 위 수동 체크리스트 3~5 필요 |
+| Unreal server-unavailable 화면 | PASS | 사용자 확인, `Connection I/O error`가 unavailable 상태로 표시되고 Editor 응답 유지 |
+| Unreal actual-server Top 5 화면 | PASS | 사용자 확인, `ObserverFixture 42` 표시·project 오류 없음 |
 
 Player smoke log에는 GPU 환경의 D3D12 info queue 경고와 강제 종료 시점의 Unity resource cleanup 진단이 남았다. build 실패, managed exception, crash 근거는 아니며 이후 사람 검증에서도 새 Error/Exception이 없음을 확인했다.
 
 현재 `Top 5`는 run 5개가 아니라 서로 다른 player의 최고 score 5개다. 같은 `UnityPlayer`의 이전 시도는 표시하지 않으며 과거 run 목록은 MySQL persistence 단계에서 별도 `Recent Runs`로 검증한다.
+
+Unreal 화면 검증의 `ObserverFixture 42`는 새 in-memory server session에 protocol v1로 넣은 일회성 검증 data다. Unity의 실제 submit/query는 Milestone 7에서 별도로 사람 검증했으며, 두 경로를 같은 Unity play session에서 연속 시연하는 것은 최종 demo capture 때 수행한다.
 
 ## Demo capture script
 

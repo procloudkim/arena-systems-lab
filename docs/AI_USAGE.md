@@ -376,7 +376,9 @@ AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 
 - 기존 server `Ctrl+C` 종료와 port 해제: PASS
 - request frame, 정상 response, 정렬·정수·ID·중복·크기 경계: PASS
 - generated directory ignore와 Unity source/settings 비변경 검사: PASS
-- server-unavailable/actual-server HUD와 Unreal Console 사람 검증: NOT RUN
+- server-unavailable HUD: PASS, 사용자가 `Connection I/O error` unavailable 상태를 확인
+- actual-server HUD: PASS, 사용자가 `ObserverFixture 42`와 연결 상태를 확인
+- Unreal project error 확인: PASS, 실행 log에 `ArenaObserver` Error/Fatal/ensure 없음
 
 ### 실패와 수정
 
@@ -386,11 +388,11 @@ AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 
 - 첫 Editor automation 실행이 Android File Server 설정과 token, 91줄 input config를 자동 생성했다. token section을 제거하고 해당 plugin 및 Fab/Bridge를 project에서 비활성화했으며, input config는 자동 rewrite를 막는 3줄만 유지했다. 재실행에서 token과 Fab/Bridge/EOS 초기화가 없음을 확인했다.
 - automation 시작 시 Engine 5.8 자체 `UnifiedErrorTests.cpp`가 의도적으로 생성하는 `LogAutomationTest: Error: Condition failed` 15줄이 있다. project test report는 errors 0이고 해당 source 위치를 local Engine에서 대조했으므로 project 오류로 재분류하지 않았다.
 
-### 사람이 확인해야 할 항목
+### 사람이 확인한 항목
 
-- server가 없을 때 최대 3초 뒤 unavailable 화면이 표시되고 Editor가 응답하는지 확인한다.
-- local server에 score가 있는 상태에서 연결 문구와 Top 5가 Unity 결과와 일치하는지 확인한다.
-- Unreal Output Log와 Message Log에 project C++ Error/Fatal/ensure가 없는지 확인한다.
+- server가 없을 때 `Connection I/O error`가 unavailable 상태로 표시되고 Editor가 응답함을 확인했다.
+- local server에 `ObserverFixture 42`가 있는 상태에서 연결 문구와 Top 5 row가 표시됨을 확인했다.
+- AI가 실행 log에서 `ArenaObserver` Error/Fatal/ensure가 없음을 재확인했고 사용자가 화면 검증을 PASS로 판정했다.
 
 ### AI 제안을 그대로 채택하지 않은 부분
 
@@ -398,4 +400,4 @@ AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 
 - endpoint configuration, periodic refresh, submit, retry, interface/factory를 미래 확장용으로 추가하지 않았다.
 - Engine thread pool 사용을 별도의 multithreading 성능 증거로 주장하지 않았다.
 
-구현·ADR·자동 검증 commit `20b0d55`를 `origin/work/unreal-arena-observer`에 push하고 local/remote SHA 일치를 확인했다. 사람 HUD 검증 전이므로 `main` 통합은 수행하지 않았으며 재개 지점은 `PROCESS.md`의 `CP-20260905-03`에서 관리한다.
+구현·ADR·자동 검증 commit `20b0d55`를 `origin/work/unreal-arena-observer`에 push하고 local/remote SHA 일치를 확인했다. 이후 exact Unreal 5.8 Editor에서 사람이 두 HUD 경로를 검증했다. actual-server 화면의 data는 Unity가 새 session에서 제출한 것으로 가장하지 않고, 고정 protocol로 주입한 ephemeral `ObserverFixture 42`로 기록한다. Unity actual-server submit/query 사람 검증은 Milestone 7에 별도 근거가 있다.
