@@ -43,3 +43,4 @@ client 구현 전에 언어와 engine이 공유할 수 있는 작은 protocol �
 - Actual CLI process and Windows PowerShell health client: PASS, port 7777 response 후 graceful shutdown
 - Unity Scene, Prefab, Package, ProjectSettings changes: none
 - Remote TLS/authentication and score authority: NOT IMPLEMENTED, remote exposure forbidden
+- Remote branch SHA: PASS, implementation commit `3909f6b`가 `origin/work/network-security-foundation`과 일치

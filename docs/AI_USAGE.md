@@ -289,3 +289,5 @@ Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 loc
 첫 `dotnet restore`에서 Windows .NET CLI가 ASP.NET Core HTTPS development certificate를 자동 생성했다고 보고했다. 이 인증서는 server에서 사용하지 않으며 repository 밖 certificate store를 승인 없이 수정하지 않았다. 이후 .NET 명령은 process 범위 telemetry opt-out과 first-time-experience skip을 적용했다.
 
 실제 server CLI smoke에서 WSL Python client의 `127.0.0.1` 연결은 `ConnectionRefused`로 실패했다. Windows process와 같은 host namespace의 PowerShell `TcpClient`로 재검사해 health response를 확인했으며, 첫 결과는 환경 차이에 의한 실패 시도로 그대로 기록했다.
+
+구현·문서 commit `3909f6b`를 `origin/work/network-security-foundation`에 push하고 local/remote SHA 일치를 확인했다. 다음 통합 여부와 재개 지점은 `PROCESS.md`의 `CP-20260905-01`에서 관리한다.
