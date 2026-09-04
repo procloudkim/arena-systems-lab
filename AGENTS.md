@@ -93,8 +93,8 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - 자동 EditMode 명령: **Verified on 2026-09-04**. 정확히 일치하는 Editor가 닫히고 Unity process와 `Temp/UnityLockfile`이 없을 때 다음 형태로 실행한다.
   `"<UnityEditor>/Unity.exe" -batchmode -nographics -projectPath "<project-root>" -runTests -testPlatform EditMode -testFilter "ArenaSystemsLab.Tests.EditMode" -testResults "<project-root>/Logs/EditModeResults.xml" -logFile "<project-root>/Logs/EditModeTest.log"`
 - Test Framework 1.7에서는 command-line test에 `-quit`을 함께 지정하지 않는다. 설치 package source가 이 조합은 동작하지 않는다고 명시한다.
-- PlayMode 수동 검증: Day 1 흐름은 **Verified on 2026-09-04**. Day 2 상태 색상과 전이는 **Not yet verified**.
-- Unity Console: Day 1은 **Verified on 2026-09-04**. Day 2 변경 후 상태는 **Not yet verified**.
+- PlayMode 수동 검증: Day 1 흐름과 Day 2 상태 색상·전이는 **Verified on 2026-09-04**.
+- Unity Console: Day 1과 Day 2 변경 후 모두 **Verified on 2026-09-04**, 사용자 확인 오류 없음.
 - Windows build 명령: **Not yet verified**.
 
 검증하지 않은 명령을 성공한 명령처럼 기록하지 않는다.

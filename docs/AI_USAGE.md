@@ -47,10 +47,11 @@
 
 - PlayMode에서 이동, 공격, spawn, chase, death, Game Over, restart: PASS
 - Unity Console error 확인: 오류 없음
+- Day 2 enemy 상태 색상과 FSM 적용 후 전체 수동 흐름: PASS
+- Day 2 변경 후 Unity Console error 확인: 오류 없음
 
 ## 사람이 추후 결정하거나 확인해야 할 항목
 
-- Day 2 상태 색상·접촉 공격·Game Over·restart와 Console
 - Windows player build와 실행
 
 ## 실행된 테스트
@@ -66,10 +67,10 @@
 - Unity Console: PASS, 사용자 확인
 - 이름 변경 후 exact Editor compilation 및 EditMode test: PASS, 5 passed / 0 failed / 0 skipped
 - Day 2 exact Editor compilation 및 EditMode test: PASS, 9 passed / 0 failed / 0 skipped
+- Day 2 PlayMode FSM 흐름과 Unity Console: PASS, 사용자 확인
 
 ## 미검증 항목
 
-- Day 2 PlayMode FSM 흐름과 Unity Console
 - Windows build
 
 ## AI 제안을 그대로 채택하지 않은 부분
@@ -130,3 +131,5 @@ Day 1 source, test, 환경 문서, `.gitignore`, ADR을 최초 검증 기준선 
 exact Editor 6000.5.1f1에서 runtime/test assembly compilation과 EditMode 테스트 9건이 통과했다. 성공 종료 뒤 batch log에 Mono thread 정리와 debugger-agent 종료 진단이 남았지만 compiler error, exception, test failure 표식은 없었다. PlayMode 상태 표시와 변경 후 Console은 사람이 확인하기 전까지 미검증으로 둔다.
 
 구현 commit `8539a8b`를 `origin/work/enemy-fsm`에 push하고 local/remote SHA 일치를 확인했다.
+
+사용자가 Day 2 상태 표시를 포함한 수동 게임 흐름 PASS와 Unity Console 오류 없음을 확인했다. 확인 시점에 Unity Editor가 실행 중이므로 사용자 작업 보호를 위해 branch 전환과 `main` 통합은 Editor 종료 뒤로 보류했다.

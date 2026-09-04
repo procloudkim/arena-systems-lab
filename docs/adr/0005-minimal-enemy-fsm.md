@@ -28,8 +28,8 @@ Day 1의 `EnemyController`는 추적, 접촉 공격, 사망을 조건문으로 �
 - EditMode tests: PASS, 9 passed / 0 failed / 0 skipped
 - Enemy state transition tests: PASS, 4 passed
 - Existing Health regression tests: PASS, 5 passed
-- PlayMode FSM flow: NOT RUN, human verification required
-- Unity Console after PlayMode: UNKNOWN
+- PlayMode FSM flow: PASS, human verification
+- Unity Console after PlayMode: PASS, human verification with no errors
 - Scene, Prefab, Package, ProjectSettings changes: none
 - Batch shutdown diagnostics: test exit code 0 이후 Mono thread cleanup과 debugger-agent 메시지 존재, compiler/test failure 표식 없음
 - Remote branch SHA: PASS, commit `8539a8b`가 `origin/work/enemy-fsm`과 일치
