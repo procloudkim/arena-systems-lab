@@ -9,6 +9,7 @@
 - 실행 전 `git status --short --branch`로 예상하지 않은 변경이 없는지 확인
 - Unity가 다른 process에서 이 project를 열고 있지 않음
 - leaderboard 시연 시 Windows PowerShell에서 아래 local server를 먼저 실행
+- Unreal observer 시연 시 exact Unreal Engine `5.8.0`과 Development Editor build 준비
 
 ```powershell
 & "<dotnet>" run --project Server/ArenaSystemsLab.Server/ArenaSystemsLab.Server.csproj --configuration Release --no-build --no-restore -- --port 7777
@@ -40,6 +41,19 @@
 | 6 | Unity Console과 server log 확인 | Unity Error/Exception 없음, server는 고정 상태 log만 출력 | payload/player ID/stack trace 노출 또는 error |
 | 7 | Play 종료 후 server에서 `Ctrl+C` | server가 정상 종료되고 Unity도 PlayMode를 빠져나옴 | 종료 불가 또는 남은 process |
 
+## Unreal observer 수동 체크리스트
+
+준비: Unity와 Unreal Editor가 이 저장소 project를 열고 있지 않은 상태에서 README의 `ArenaObserverEditor` build가 PASS했는지 확인한다. observer는 시작 시 한 번만 조회하므로 상태를 새로 읽으려면 Play를 재시작한다.
+
+| 단계 | 실행 | 기대 결과 | 실패 판정 |
+|---:|---|---|---|
+| 1 | port 7777 server가 없는지 확인하고 exact Unreal 5.8로 `Unreal/ArenaObserver/ArenaObserver.uproject`를 연다 | Engine 기본 map이 열리고 project module load 오류가 없음 | version 변환 요구, module load 실패 |
+| 2 | Play를 누르고 최대 3초 기다린다 | `ARENA OBSERVER`, `Leaderboard unavailable`이 표시되고 Editor가 멈추지 않음 | freeze, crash, 화면 미표시 |
+| 3 | Play를 종료하고 local leaderboard server를 실행한다 | server가 `127.0.0.1:7777` protocol v1로 대기 | 다른 interface bind, 즉시 종료 |
+| 4 | 필요하면 Unity에서 score를 한 번 제출한 뒤 Unreal에서 Play를 다시 누른다 | `Connected to 127.0.0.1:7777`과 score 내림차순 Top 5 표시 | 연결 실패, 순서·score 불일치 |
+| 5 | Unreal Output Log와 Message Log를 확인한다 | `ArenaObserver` C++ Error/Fatal/ensure 없음 | project code의 Error, crash, ensure |
+| 6 | Play와 Editor를 종료하고 server에서 `Ctrl+C`를 누른다 | 관련 process가 모두 종료되고 port 7777이 해제됨 | 남은 Editor/server process |
+
 ## Windows player 수동 체크리스트
 
 준비: `Tools > Arena Systems Lab > Build Windows Development`를 실행하거나 README의 command-line build를 사용한다. 생성물은 `Builds/Windows/ArenaSystemsLab.exe`다.
@@ -69,6 +83,12 @@
 | Server-unavailable Game Over flow | PASS | 사용자 확인, unavailable·restart·Console 오류 없음 |
 | Actual server Game Over flow | PASS | 사용자 확인, `UnityPlayer` 3점→11점 최고 score 갱신·중복 없음 |
 | Milestone 7 Windows player rebuild | NOT RUN | 사람 PlayMode 검증 후 최종 build 단계에서 실행 |
+| Unreal Development Editor build | PASS | exact Engine 5.8.0, MSVC 14.50, Windows SDK 10.0.26100 |
+| Unreal protocol automation | PASS | 1 passed / 0 failed / 0 warnings |
+| Unreal native socket server-unavailable | PASS | port 7777 부재 확인, 3초 bounded failure |
+| Unreal native socket actual server | PASS | 기존 .NET server query, test 1/1, graceful shutdown 후 port 해제 |
+| Unreal server-unavailable 화면 | NOT RUN | 위 수동 체크리스트 1~2 필요 |
+| Unreal actual-server Top 5 화면 | NOT RUN | 위 수동 체크리스트 3~5 필요 |
 
 Player smoke log에는 GPU 환경의 D3D12 info queue 경고와 강제 종료 시점의 Unity resource cleanup 진단이 남았다. build 실패, managed exception, crash 근거는 아니며 이후 사람 검증에서도 새 Error/Exception이 없음을 확인했다.
 

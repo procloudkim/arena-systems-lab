@@ -2,7 +2,7 @@
 
 > Arena Systems Lab 개발 중 실제로 만난 게임·Unity·물리·검증 용어를 한국어로 설명하는 생활형 백과사전이다.
 
-- Version: `0.8.0`
+- Version: `0.9.0`
 - Last updated: 2026-09-05 KST
 - Governance: [ADR 0004](adr/0004-game-development-glossary-governance.md)
 
@@ -30,7 +30,7 @@
 ### Unreal Engine
 
 - 정의: Actor와 Component, C++, Blueprint, Editor를 제공하는 real-time game engine이다.
-- 프로젝트 예: 계획된 `ArenaObserver`가 C++ native socket으로 같은 leaderboard server를 조회한다.
+- 프로젝트 예: `ArenaObserver`가 C++ native socket으로 같은 leaderboard server의 Top 5를 조회한다.
 - 주의: Unity 기능을 그대로 복제하지 않고 Engine 5.8의 최소 read-only client로 범위를 제한한다.
 
 ### C# (C Sharp)
@@ -42,7 +42,7 @@
 ### C++
 
 - 정의: memory와 object lifetime을 세밀하게 제어할 수 있는 native compiled programming language다.
-- 프로젝트 예: 계획된 Unreal `ArenaObserver` module을 구현하는 언어다.
+- 프로젝트 예: Unreal `ArenaObserver` module의 socket client, Game Mode와 HUD를 구현한다.
 - 주의: Unreal의 reflection·garbage collection 대상 object와 일반 C++ object의 lifetime 규칙을 구분한다.
 
 ### Object-Oriented Programming (OOP, 객체지향 프로그래밍)
@@ -50,6 +50,42 @@
 - 정의: data와 behavior를 object로 묶고 책임, encapsulation, composition을 통해 system을 구성하는 방식이다.
 - 프로젝트 예: `Health`, `EnemyController`, `EnemyStateMachine`, `EnemySpawner`가 서로 다른 책임을 가진다.
 - 주의: class 수나 inheritance 깊이가 OOP 품질을 뜻하지 않는다. 한 구현뿐인 interface는 실제 교체 이유가 생길 때까지 만들지 않는다.
+
+### Actor (액터)
+
+- 정의: Unreal World에 배치되거나 spawn되어 위치, 수명과 gameplay 동작을 가질 수 있는 기본 object다.
+- 프로젝트 예: `AArenaObserverHUD`는 player controller가 소유하는 `AHUD` 계열 Actor로서 화면을 그린다.
+- 주의: 모든 일반 C++ 객체가 Actor는 아니며 `FArenaLeaderboardClient`처럼 World 수명이 필요 없는 logic은 Actor로 만들지 않는다.
+
+### Game Mode (게임 모드)
+
+- 정의: 한 level의 game rule과 기본 player controller, pawn, HUD class 등을 정하는 Unreal server-side framework Actor다.
+- 프로젝트 예: `AArenaObserverGameMode`는 pawn 없이 `AArenaObserverHUD`를 기본 HUD로 지정한다.
+- 주의: Game Mode는 각 client에 복제되는 shared state가 아니며 multiplayer data에는 Game State 같은 별도 역할이 있다.
+
+### HUD (Heads-Up Display)
+
+- 정의: gameplay 중 화면 위에 상태, 점수와 안내를 표시하는 user interface 층이다.
+- 프로젝트 예: `DrawHUD`가 observer 연결 상태와 Top 5를 asset 없이 그린다.
+- 주의: 매 frame 호출되므로 변하지 않는 문자열을 매번 조립하지 않고 response 수신 시 cache한다.
+
+### Unreal Module (언리얼 모듈)
+
+- 정의: source와 dependency를 하나의 build 단위로 묶는 Unreal C++ 구성 요소다.
+- 프로젝트 예: `ArenaObserver.Build.cs`가 `Core`, `Engine`, `Json`, `Sockets` 의존성만 선언한다.
+- 주의: Engine plugin과 module은 같은 말이 아니며 불필요한 module 선언은 build 시간과 결합도를 늘린다.
+
+### Unreal Build Tool (UBT)
+
+- 정의: `.Target.cs`, `.Build.cs`와 project descriptor를 읽어 Unreal C++ target의 compile·link 작업을 구성하는 build tool이다.
+- 프로젝트 예: `Build.bat ArenaObserverEditor Win64 Development`가 Development Editor DLL을 생성한다.
+- 주의: 이전 source 경로가 makefile cache에 남을 수 있으며 source 이동 후에는 재수집 결과를 확인한다.
+
+### Unreal Header Tool (UHT)
+
+- 정의: C++ compile 전에 `UCLASS`, `USTRUCT`, `UFUNCTION` 같은 reflection macro를 읽어 필요한 glue code를 생성하는 도구다.
+- 프로젝트 예: `AArenaObserverGameMode`와 `AArenaObserverHUD`의 `GENERATED_BODY()`를 처리한다.
+- 주의: `.generated.h`는 해당 header의 마지막 include여야 하며 생성물을 직접 수정하거나 Git에 넣지 않는다.
 
 ## Version Control
 
@@ -82,7 +118,7 @@
 ### Socket
 
 - 정의: process가 network protocol endpoint를 통해 byte를 송수신하는 operating-system resource와 programming interface다.
-- 프로젝트 예: .NET server의 `TcpListener`, verification client의 `TcpClient`와 향후 Unreal native socket이 연결된다.
+- 프로젝트 예: .NET server의 `TcpListener`, Unity의 `TcpClient`, Unreal의 `FSocket`이 같은 protocol로 연결된다.
 - 주의: 한 번의 read가 한 message 전체를 반환한다고 가정하지 않고 close와 timeout을 항상 처리한다.
 
 ### Transmission Control Protocol (TCP)
@@ -150,6 +186,12 @@
 - 정의: 입출력 완료를 기다리는 동안 호출 thread를 계속 점유하지 않고 나중에 완료를 이어가는 실행 방식이다.
 - 프로젝트 예: server는 accept, frame read/write에 `async`/`await`와 cancellation을 사용한다.
 - 주의: 비동기 I/O 자체는 여러 CPU thread가 병렬로 shared state를 실행했다는 증거가 아니다.
+
+### Thread Pool (스레드 풀)
+
+- 정의: 짧은 background 작업에 재사용할 worker thread 집합을 runtime이 관리하는 방식이다.
+- 프로젝트 예: Unreal observer가 socket 대기를 Engine thread pool로 보내 game thread 정지를 피한다.
+- 주의: 오래 막히는 작업을 무제한 제출하면 pool 고갈이 생길 수 있으므로 이 client는 시작 시 한 번, 3초 deadline으로 제한한다.
 
 ### Cancellation Token (취소 토큰)
 
@@ -401,6 +443,12 @@
 
 ## Testing and Validation
 
+### Unreal Automation Test
+
+- 정의: Unreal Editor나 target에서 C++ logic을 반복 실행하고 assertion 결과를 report로 남기는 자동 테스트다.
+- 프로젝트 예: `ArenaSystemsLab.ArenaObserver.Protocol`이 request frame과 정상·악성 response fixture를 검사한다.
+- 주의: protocol test PASS는 실제 HUD 배치나 사람 눈으로 보는 화면 검증을 대신하지 않는다.
+
 ### Editor Validation
 
 - 정의: 게임 실행 전에 Editor에서 project asset과 설정의 필수 조건을 자동 검사하는 개발 도구다.
@@ -447,6 +495,7 @@
 
 | Version | Date | 변경 | ADR |
 |---|---|---|---|
+| `0.9.0` | 2026-09-05 | Unreal C++ 구현에서 확인한 Actor·Game Mode·HUD·module·UBT·UHT·thread pool·automation 8개 추가, 총 75개 | [ADR 0011](adr/0011-unreal-read-only-leaderboard-observer.md) |
 | `0.8.0` | 2026-09-05 | 사람 검증에서 확인한 leaderboard·run history 구분 2개 추가, 총 67개 | [ADR 0010](adr/0010-unity-loopback-leaderboard-client.md) |
 | `0.7.0` | 2026-09-05 | Unity network client의 cancellation·retry 용어 2개 추가, 총 65개 | [ADR 0010](adr/0010-unity-loopback-leaderboard-client.md) |
 | `0.6.0` | 2026-09-05 | network security·protocol·concurrency 용어 11개 추가, 총 63개 | [ADR 0009](adr/0009-loopback-first-bounded-tcp-protocol.md) |

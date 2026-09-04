@@ -20,6 +20,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - `Server/ArenaSystemsLab.Server/`: BCL-only loopback TCP leaderboard server
 - `Server/ArenaSystemsLab.Server.Verification/`: package 없는 protocol·security·threading 검증 executable
 - `Server/NuGet.Config`: server restore에서 외부 package source를 사용하지 않는 기준
+- `Unreal/ArenaObserver/`: Unreal Engine 5.8 C++ read-only leaderboard observer와 protocol automation
 - `Packages/`: Unity package 선언과 lock 파일
 - `ProjectSettings/`: Unity 프로젝트 설정
 - `README.md`: 프로젝트 소개, 실행, 검증, build entry point
@@ -30,15 +31,14 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - `docs/DEMO_GUIDE.md`: 3~5분 demo flow와 Windows player 수동 checklist
 - `docs/NETWORK_SECURITY.md`: network threat model, protocol limits, remote exposure gate
 - `docs/adr/`: 사람과 LLM이 함께 읽는 의사결정 기록
-- `.gitignore`: Unity/IDE 생성물 제외 규칙
+- `.gitignore`: Unity/Unreal/IDE 생성물 제외 규칙
 
 다음 디렉터리는 [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md)에 따라 필요한 milestone에서만 만든다. 아직 없으면 생성됐다고 가정하지 않는다.
 
 - `Database/`: planned MySQL schema와 migration
-- `Unreal/`: planned Unreal Engine C++ `ArenaObserver`
 - `docs/evidence/`: planned 재현 가능한 검증 evidence
 
-`Library/`, `Temp/`, `Logs/`, `UserSettings/`는 생성 결과이며 소스의 기준이 아니다.
+`Library/`, `Temp/`, `Logs/`, `UserSettings/`와 Unreal의 `Binaries/`, `Intermediate/`, `Saved/`, `DerivedDataCache/`는 생성 결과이며 소스의 기준이 아니다.
 
 ## 4. Verified development environment
 
@@ -54,8 +54,8 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - Asset Serialization: Force Text
 - Git 저장소의 최초 검증 기준선은 `main`에 commit/push한다. Public `origin`은 `https://github.com/procloudkim/arena-systems-lab.git`이다. Git LFS도 설치돼 있지만 현재 필요한 대형 source asset은 없다.
 - Visual Studio는 설치돼 있으나 Unity workload/component는 확인되지 않았다.
-- Unreal Engine: `5.8.0`, Editor executable 확인
-- Visual Studio Native Game workload와 C++ x64 tool component: 확인됨
+- Unreal Engine: `5.8.0` / CL `55116800`, Development Editor build 확인
+- Visual Studio Native Game workload, MSVC `14.50`, C++ x64 tool과 Windows SDK `10.0.26100.0`: 실제 Unreal build로 확인됨
 - Windows .NET SDK: `10.0.400`, 전체 Windows executable 경로로 사용 가능
 - Apache Subversion client/admin: 확인된 command·표준 설치·registry가 없어 `MISSING`
 - MySQL client/server/service: 확인된 command·표준 설치·registry가 없어 `MISSING`
@@ -82,6 +82,9 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - network protocol과 보안 경계: `docs/NETWORK_SECURITY.md`
 - standalone server build 기준: `Server/ArenaSystemsLab.Server/ArenaSystemsLab.Server.csproj`
 - standalone server verification 기준: `Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj`
+- Unreal project와 Engine association: `Unreal/ArenaObserver/ArenaObserver.uproject`
+- Unreal module dependency: `Unreal/ArenaObserver/Source/ArenaObserver/ArenaObserver.Build.cs`
+- Unreal observer 수동 검증: `docs/DEMO_GUIDE.md`
 - 작업·구조 의사결정: `docs/adr/`
 - 최종 필수 기술 baseline: `docs/adr/0006-portfolio-technology-baseline.md`
 - milestone과 완료 근거 matrix: `docs/IMPLEMENTATION_PLAN.md`
@@ -91,6 +94,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 
 - 제3자 package 추가에는 사용자의 명시적 승인이 필요하다.
 - 기존 Unity package와 built-in API를 먼저 재사용한다.
+- Unreal은 설치된 Engine module과 native API를 먼저 재사용하고 외부 plugin이나 marketplace asset을 추가하지 않는다.
 - 승인 없이 `Packages/manifest.json` 또는 `Packages/packages-lock.json`을 수정하지 않는다.
 - Unity Editor를 자동 업그레이드하지 않는다.
 - Day 1~4 Unity MVP 동안 networking, database, ECS, DI, tweening, async helper, behavior tree, asset framework package를 설치하지 않는다.
@@ -124,6 +128,8 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - loopback을 authentication으로 간주하지 않는다. server는 frame 16 KiB, JSON depth 8, client 16개, request 5초, player 10,000개 상한을 유지한다.
 - TLS, authentication, abuse control과 server-authoritative score 검증 전에는 server를 LAN/public interface에 bind하지 않는다.
 - raw network payload, credential, player-controlled 문자열과 stack trace를 운영 log에 남기지 않는다.
+- Unreal socket wait는 game thread 밖에서 수행하고 결과로 UObject를 바꿀 때는 game thread로 돌아온다.
+- Unreal `DrawHUD`에서는 매 frame 변하지 않는 문자열이나 collection을 새로 만들지 않는다.
 - asynchronous I/O와 multithreading을 같은 것으로 기록하지 않는다. concurrent test와 shared-state 안전성 근거가 있어야 multithreading 완료로 표시한다.
 - credential, connection string, local database volume, generated engine cache를 commit하지 않는다.
 
@@ -151,8 +157,11 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
   - `"<dotnet>" run --project Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configuration Release --no-build --no-restore`
 - .NET Release build: **PASS**, warnings 0 / errors 0. Verification executable: **PASS**, 8 passed / 0 failed.
 - .NET server CLI smoke: **PASS on 2026-09-05**, port 7777에서 Windows PowerShell client `health` response와 `Ctrl+C` 정상 종료 확인.
-- Unity leaderboard client automated checks: **PASS on 2026-09-05**, 4 passed / 0 failed. Actual .NET server Game Over flow와 Console 사람 검증은 **Not yet verified**.
-- Unreal C++ build/run: **Not yet verified**. `ArenaObserver` project가 생긴 뒤 exact Engine 5.8로 확인한다.
+- Unity leaderboard client automated checks: **PASS on 2026-09-05**, 4 passed / 0 failed. Actual .NET server Game Over flow와 Console도 사용자가 **PASS**로 확인했다.
+- Unreal Development Editor build: **Verified on 2026-09-05**. `"<UnrealEngine>/Engine/Build/BatchFiles/Build.bat" ArenaObserverEditor Win64 Development "<project-root>/Unreal/ArenaObserver/ArenaObserver.uproject" -WaitMutex -NoHotReloadFromIDE`
+- Unreal protocol automation: **Verified on 2026-09-05**, 1 passed / 0 failed / 0 warnings. `"<UnrealEngine>/Engine/Binaries/Win64/UnrealEditor-Cmd.exe" "<project-root>/Unreal/ArenaObserver/ArenaObserver.uproject" -unattended -nop4 -NullRHI -NoSplash -NoSound -ExecCmds="Automation RunTests ArenaSystemsLab.ArenaObserver; Quit" -ReportExportPath="<project-root>/Unreal/ArenaObserver/Saved/Automation"`
+- Unreal native socket paths: **Verified on 2026-09-05**. port 7777 부재에서는 위 command에 `-ArenaObserverExpectNoServer`, 실제 local server에서는 `-ArenaObserverExpectServer`를 추가하며 각각 1/1 PASS했다.
+- Unreal server-unavailable, actual-server HUD와 Console 사람 검증: **Not yet verified**. `docs/DEMO_GUIDE.md` checklist를 사용한다.
 - SVN workflow와 MySQL integration: **Not yet verified**. 필요한 도구와 dependency가 승인·준비된 뒤 실행한다.
 
 검증하지 않은 명령을 성공한 명령처럼 기록하지 않는다.
@@ -172,7 +181,7 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 ## 11. AI-assisted development policy
 
 - AI가 조사한 근거, 생성·수정 파일, 실행한 검증과 미검증 항목을 `docs/AI_USAGE.md`에 기록한다.
-- AI 코드는 사람이 PlayMode 동작, Console 오류, Inspector 상태를 확인하기 전까지 완료로 간주하지 않는다.
+- AI 코드는 사람이 Unity/Unreal 화면 동작과 Console/Output Log 오류를 확인하기 전까지 runtime 완료로 간주하지 않는다.
 - AI 제안은 기존 코드, Unity 문서, compiler/test 결과와 대조한다.
 - 실패와 환경 부작용을 숨기지 않고 원인과 영향을 기록한다.
 - AI는 session 시작 시 `PROCESS.md`를 읽고 종료 전 현재 상태와 checkpoint를 갱신한다.
@@ -182,6 +191,7 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 
 - 요청 범위가 실제 플레이 흐름으로 연결된다.
 - 변경된 C# 코드가 정확한 Unity Editor에서 compile된다.
+- 변경된 Unreal C++ 코드가 정확한 Unreal Engine에서 compile된다.
 - 전체 EditMode 테스트가 통과한다.
 - Console에 이번 변경으로 생긴 error가 없다.
 - 사람이 변경된 PlayMode flow를 확인한다.

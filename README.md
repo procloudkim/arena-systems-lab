@@ -52,6 +52,7 @@ Scene과 Prefab을 직접 바꾸지 않고 `ArenaGame` runtime bootstrap이 기�
 | `WireProtocol` | 길이 기반 TCP frame과 엄격한 JSON request 검증 |
 | `LeaderboardServer` | loopback socket 수명, timeout, 동시 client 제한 |
 | `LeaderboardStore` | 최고 score 규칙과 thread-safe bounded state |
+| `ArenaObserver` | Unreal C++ native socket 조회와 read-only HUD |
 
 ## 자동 검증
 
@@ -96,6 +97,20 @@ server는 `127.0.0.1`에만 bind하며 4-byte big-endian 길이와 UTF-8 JSON을
 
 현재 leaderboard는 player별 최고 score를 하나만 유지한다. 예를 들어 `UnityPlayer`가 3점 뒤 11점을 제출하면 Top 5에는 `UnityPlayer 11`만 남는다. 모든 플레이 시도 기록은 MySQL 단계에서 leaderboard와 분리된 run history로 저장할 계획이다.
 
+## Unreal Arena Observer
+
+`Unreal/ArenaObserver`는 같은 protocol의 Top 5를 읽는 Unreal Engine 5.8 C++ application이다. Unity gameplay를 복제하지 않으며 Engine 기본 map과 `AHUD`만 사용한다.
+
+정확한 Unreal Engine `5.8.0`과 Visual Studio Native Game/C++ workload가 필요하다. PowerShell에서 `<UnrealEngine>`과 `<project-root>`를 실제 경로로 바꿔 실행한다.
+
+```powershell
+& "<UnrealEngine>\Engine\Build\BatchFiles\Build.bat" ArenaObserverEditor Win64 Development "<project-root>\Unreal\ArenaObserver\ArenaObserver.uproject" -WaitMutex -NoHotReloadFromIDE
+
+& "<UnrealEngine>\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" "<project-root>\Unreal\ArenaObserver\ArenaObserver.uproject" -unattended -nop4 -NullRHI -NoSplash -NoSound -ExecCmds="Automation RunTests ArenaSystemsLab.ArenaObserver; Quit" -ReportExportPath="<project-root>\Unreal\ArenaObserver\Saved\Automation"
+```
+
+Development Editor build, protocol automation, server 부재의 3초 제한과 실제 .NET server native socket 조회는 통과했다. 화면 검증은 server 실행 여부에 따라 `Leaderboard unavailable` 또는 연결 상태와 Top 5를 확인하며, 정확한 절차는 [demo guide](docs/DEMO_GUIDE.md)에 있다.
+
 ## 설계·검증 근거
 
 - 현재 상태와 다음 작업: [PROCESS.md](PROCESS.md)
@@ -111,6 +126,6 @@ server는 `127.0.0.1`에만 bind하며 4-byte big-endian 길이와 UTF-8 JSON을
 
 - 도형과 IMGUI만 사용한 system prototype이며 외부 art, animation, sound가 없다.
 - object pooling은 병목 근거가 없어 적용하지 않았고 `SpatialHash2D`도 실제 neighbor query가 생기기 전까지 gameplay에 연결하지 않는다.
-- Day 4 Unity MVP, loopback TCP server foundation과 Unity client 자동 검증까지 완료했다. 실제 server와의 Game Over 사람 검증, MySQL persistence, Unreal C++ observer, isolated SVN workflow는 후속 단계다.
+- Day 4 Unity MVP, loopback TCP server, Unity client와 Unreal C++ observer의 자동 검증까지 완료했다. Unreal 화면 사람 검증, MySQL persistence와 isolated SVN workflow는 후속 단계다.
 - 현재 TCP server는 인증·TLS·server-authoritative score가 없는 local lab이다. LAN이나 public interface에 노출하지 않는다.
 - 실제 협업·live-service 경험을 수행했다고 주장하지 않는다.
