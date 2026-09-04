@@ -19,6 +19,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - `ProjectSettings/`: Unity 프로젝트 설정
 - `PROCESS.md`: 현재 상태와 다음 재개 지점의 단일 기준
 - `docs/`: 감사, 구현 계획, AI 사용 기록
+- `docs/GAME_DEV_GLOSSARY.md`: 게임·Unity·물리·검증 용어 백과사전
 - `docs/adr/`: 사람과 LLM이 함께 읽는 의사결정 기록
 - `.gitignore`: Unity/IDE 생성물 제외 규칙
 
@@ -51,6 +52,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - build scenes: `ProjectSettings/EditorBuildSettings.asset`
 - 입력 액션: `Assets/InputSystem_Actions.inputactions`
 - 현재 진행 상태와 checkpoint: `PROCESS.md`
+- 게임 개발 용어 정의: `docs/GAME_DEV_GLOSSARY.md`
 - 감사 상태: `docs/ENVIRONMENT_AUDIT.md`
 - AI 작업 기록: `docs/AI_USAGE.md`
 - 작업·구조 의사결정: `docs/adr/`
@@ -113,6 +115,7 @@ Day 1에는 Spatial Hash, Object Pool, 정식 Enemy FSM, multiplayer, network, d
 - AI 제안은 기존 코드, Unity 문서, compiler/test 결과와 대조한다.
 - 실패와 환경 부작용을 숨기지 않고 원인과 영향을 기록한다.
 - AI는 session 시작 시 `PROCESS.md`를 읽고 종료 전 현재 상태와 checkpoint를 갱신한다.
+- 새 게임·Unity·물리·검증 용어가 처음 등장하면 같은 checkpoint에서 `docs/GAME_DEV_GLOSSARY.md`와 version history를 갱신한다.
 
 ## 12. Definition of done
 
@@ -124,4 +127,5 @@ Day 1에는 Spatial Hash, Object Pool, 정식 Enemy FSM, multiplayer, network, d
 - package와 Project Settings에 승인되지 않은 변경이 없다.
 - 문서와 AI 사용 기록이 실제 결과와 일치한다.
 - `PROCESS.md`가 현재 상태와 다음 작업을 단독으로 설명한다.
+- 새로 사용한 전문 용어가 glossary에 정의되거나 기존 항목을 참조한다.
 - 관련 ADR과 검증 근거가 commit에 포함되고 해당 branch가 remote에 push된다.

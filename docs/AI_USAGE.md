@@ -21,6 +21,7 @@
 
 - `AGENTS.md`: 프로젝트 작업 지침 생성
 - `PROCESS.md`: 현재 상태와 session 재개 지점의 단일 기준 생성
+- `docs/GAME_DEV_GLOSSARY.md`: 개발 중 등장한 게임·Unity·물리·검증 용어 백과사전 생성
 - `docs/ENVIRONMENT_AUDIT.md`: 환경 감사 기록 생성
 - `docs/IMPLEMENTATION_PLAN.md`: 4일 구현 계획 생성
 - `docs/AI_USAGE.md`: 이 기록 생성
@@ -28,6 +29,7 @@
 - `docs/adr/0001-commit-push-and-adr-workflow.md`: branch, ADR, commit, push 운영 결정 기록
 - `docs/adr/0002-project-naming.md`: project naming 범위와 보존 결정 기록
 - `docs/adr/0003-process-and-adr-governance.md`: PROCESS SSOT와 ADR naming governance 기록
+- `docs/adr/0004-game-development-glossary-governance.md`: glossary 구성과 versioning governance 기록
 - `Assets/ArenaSystemsLab/Runtime/ArenaSystemsLab.Runtime.asmdef`
 - `Assets/ArenaSystemsLab/Runtime/Health.cs`
 - `Assets/ArenaSystemsLab/Runtime/ArenaGame.cs`
@@ -108,3 +110,7 @@ Day 1 source, test, 환경 문서, `.gitignore`, ADR을 최초 검증 기준선 
 상태 정보가 여러 문서에 흩어진 위치를 두 가지 검색으로 감사하고 `PROCESS.md`를 현재 상태의 단일 기준으로 선택했다. `AGENTS.md`와 구현 계획의 현재 상태 복사본은 참조로 교체하고, 환경 감사와 AI 기록은 역사적 문서임을 명시했다. ADR 0003에서 ADR filename, status, 필수 section, supersede, checkpoint 규칙을 확정했다.
 
 구현 commit `c6a7fb0`를 `origin/work/process-governance`에 push하고 local/remote SHA 일치를 확인했다.
+
+## 게임 개발 용어 백과사전 기록
+
+사용자의 용어 학습 요청에 따라 `docs/GAME_DEV_GLOSSARY.md` `0.1.0`을 생성했다. 현재 코드와 확정된 Day 2~4 계획에 등장한 용어만 정의하고, 각 항목에 일반 정의·프로젝트 예시·주의점을 연결했다. ADR 0004에서 semantic versioning과 지속 갱신 규칙을 확정했다.
