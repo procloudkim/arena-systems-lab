@@ -72,7 +72,7 @@ Editor에서는 `Tools > Arena Systems Lab > Build Windows Development`를 사�
 
 빌드는 기존 활성 Scene과 Standalone Mono 설정만 사용한다. 설정이 다르면 자동 전환하지 않고 실패한다. 결과는 `Builds/Windows/ArenaSystemsLab.exe`이며 `Builds/`와 `Logs/`는 Git 추적 대상이 아니다.
 
-Day 4 자동 검증에서 Windows x86-64 Development build와 8초 player launch smoke test가 통과했다. 독립 실행 파일의 전체 gameplay 수동 검증은 [demo guide](docs/DEMO_GUIDE.md)의 체크리스트로 남아 있다.
+Day 4 자동 검증에서 Windows x86-64 Development build와 8초 player launch smoke test가 통과했다. 이어서 사용자가 [demo guide](docs/DEMO_GUIDE.md)의 독립 실행 파일 gameplay checklist PASS와 오류 없음을 확인했다.
 
 ## 설계·검증 근거
 

@@ -255,7 +255,7 @@ exact Unity Editor가 닫혀 있고 project lock이 없는 상태에서 전체 r
 | Player artifact | PASS | PE32+ GUI x86-64, local output 약 166 MB |
 | Player launch smoke | PASS | 8초 process 생존 후 해당 process 종료 |
 | Player log | PASS_WITH_WARNINGS | managed exception·crash 없음; D3D12 info queue와 shutdown cleanup 진단 존재 |
-| Windows player full gameplay | NOT RUN | 사람의 standalone checklist 필요 |
+| Windows player full gameplay | PASS | 사용자 확인, standalone 8단계와 오류 없음 |
 | Package/Scene/Prefab final diff | UNCHANGED | Git diff 확인 |
 | Tracked ProjectSettings final diff | UNCHANGED | build 자동 직렬화분 복원 후 Git diff 확인 |
 

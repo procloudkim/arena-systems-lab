@@ -6,8 +6,8 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: `work/day4-build-demo...origin/work/day4-build-demo`, clean
-- Active work: `work/day4-build-demo`, 자동 build·smoke 완료, Windows player 사람 검증 대기
-- Next task: `docs/DEMO_GUIDE.md`의 Windows player 수동 checklist 후 Day 4를 `main`에 통합
+- Active work: `work/day4-build-demo`, 자동·사람 검증 완료, 실행 중 player 종료 대기
+- Next task: Windows player 종료 확인 후 Day 4를 `main`에 통합하고 network security foundation branch 시작
 
 ## Session Start
 
@@ -40,7 +40,7 @@ git remote -v
 | Game development glossary | `0.5.0`, 52개 용어, ADR 0004 적용 |
 | Day 2 enemy FSM | `Idle`, `Chase`, `Attack`, `Dead` 구현·수동 검증 완료 |
 | Day 3 measured tooling | `SpatialHash2D` 실험, profile 기준선, project validator 자동·사람 검증 완료 |
-| Day 4 build and demo | Windows Mono Development build·launch smoke PASS, README·demo guide 작성 |
+| Day 4 build and demo | Windows Mono Development build·launch smoke·standalone 수동 flow PASS |
 | Portfolio technology baseline | 9개 필수 기술과 연결 구조 확정, ADR 0006 적용 |
 | Reusable extension tools | Unreal 5.8, VS Native Game/C++, Windows .NET SDK 10.0.400 |
 | Approval-gated gaps | SVN MISSING, MySQL runtime MISSING, Docker image UNKNOWN |
@@ -68,7 +68,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | Unity Console after Day 3 | PASS | 사용자 확인, 오류 없음 |
 | Windows Mono Development build | PASS | x86-64 player, build result Success, 64.697초 |
 | Windows player launch smoke | PASS | 8초 process 생존, managed exception·crash 없음 |
-| Windows player full manual flow | NOT RUN | [standalone checklist](docs/DEMO_GUIDE.md) 사람 검증 필요 |
+| Windows player full manual flow | PASS | 사용자 확인, [standalone checklist](docs/DEMO_GUIDE.md)와 오류 없음 |
 | Process/ADR static checks | PASS | Markdown link 0건 누락, ADR 0001~0008 sequence·필수 section 검사 |
 | Glossary static checks | PASS | version 0.5.0, 52개 heading 검사 |
 | Portfolio baseline document checks | PASS | link 0건 누락, ADR 1~6 sequence/schema, forbidden Unity source/settings 변경 0건 |
@@ -78,15 +78,15 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 ## Work Queue
 
-1. **Next — Day 4 human validation:** Windows player에서 이동·공격·FSM·Game Over·restart와 error 없음 확인
-2. **Then — Day 4 integration:** Editor와 player 종료 뒤 branch를 `main`에 merge·push
+1. **Next — Day 4 integration:** 실행 중 Windows player 종료 뒤 branch를 `main`에 merge·push
+2. **Security research:** 공식 자료 기반 loopback TCP threat model과 protocol limits 확정
 3. **Required extension — Milestone 5·7·8:** TCP server, Unity network client, Unreal C++ `ArenaObserver`
 4. **Approval-gated — Milestone 6·9:** MySQL persistence와 isolated SVN workflow lab
 
 알려진 gap:
 
 - Windows build output과 log는 local ignored generated artifact이며 repository에 포함하지 않는다.
-- Windows player의 8단계 전체 gameplay 수동 checklist는 아직 실행하지 않았다.
+- Windows player process가 아직 실행 중이므로 강제 종료, branch 전환, 통합을 보류한다.
 - Visual Studio Unity workload는 없지만 현재 작업의 차단 요소가 아니다.
 - Unreal Editor와 Native Game/C++ toolchain은 있으나 `.uproject`와 Unreal build 결과는 없다.
 - SVN client/admin과 native MySQL runtime은 확인되지 않았다. 설치·download·package 추가는 사용자 승인 전 실행하지 않는다.
@@ -106,7 +106,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260904-05` | 최소 Enemy FSM과 debug 표시 | `work/enemy-fsm` | `8539a8b`, evidence `b294fbb` | [ADR 0005](docs/adr/0005-minimal-enemy-fsm.md) | Compile PASS, EditMode 9/9, manual PASS | Integrated |
 | `CP-20260904-06` | Portfolio 필수 기술 baseline과 확장 계획 | `work/portfolio-technology-baseline` | `01cd869` | [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md) | Environment audit, document static checks PASS; runtime NOT RUN | Integrated |
 | `CP-20260904-07` | 측정 기반 Day 3 자료구조·Editor Tool | `work/day3-profiling-validation` | `86e90f4`, automated evidence `b64af42`, human evidence `f17e880` | [ADR 0007](docs/adr/0007-measured-day3-tooling.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, CLI PASS, human PASS | Integrated as `e205ccd` |
-| `CP-20260904-08` | Windows Development build·README·demo | `work/day4-build-demo` | `fca8a38` | [ADR 0008](docs/adr/0008-reproducible-windows-build-and-demo.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, build·smoke PASS; human player NOT RUN | Pending human validation |
+| `CP-20260904-08` | Windows Development build·README·demo | `work/day4-build-demo` | `fca8a38` | [ADR 0008](docs/adr/0008-reproducible-windows-build-and-demo.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, build·smoke·human PASS | Ready to integrate after player close |
 
 ## ADR Index and Naming
 

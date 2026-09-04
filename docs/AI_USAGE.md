@@ -53,7 +53,6 @@
 
 ## 사람이 추후 결정하거나 확인해야 할 항목
 
-- 생성된 Windows player의 이동·공격·FSM·Game Over·restart 전체 checklist
 - Windows build Editor menu 동작
 
 ## 실행된 테스트
@@ -73,7 +72,6 @@
 
 ## 미검증 항목
 
-- Windows player 전체 gameplay 수동 검증
 - Windows build Editor menu 수동 실행
 
 ## AI 제안을 그대로 채택하지 않은 부분
@@ -216,7 +214,7 @@ AI가 생성하거나 수정한 대상:
 - Windows Mono Development build: PASS, 64.697초
 - Player artifact: PASS, PE32+ GUI x86-64, local output 약 166 MB
 - Player launch smoke: PASS, 8초 생존 후 target process 종료
-- Player full gameplay: NOT RUN, 사람 확인 필요
+- Player full gameplay: PASS, 사용자 확인 및 오류 없음
 
 첫 test invocation은 감사되지 않은 `C:` 기본 Editor 경로를 사용해 executable을 찾지 못했고 test가 실행되지 않았다. 기존 Day 3 log와 제한된 일반 설치 경로 탐색으로 실제 `D:` 설치를 확인한 뒤 exact Editor를 재사용했다.
 
@@ -224,4 +222,6 @@ build 중 Unity/URP가 4개 tracked asset/settings와 미추적 `SceneTemplateSe
 
 Player log에는 D3D12 info queue 경고와 종료 시 Unity cleanup 진단이 있었지만 managed exception, crash, 조기 종료는 없었다. 이 smoke 결과를 전체 gameplay PASS로 확대하지 않고 standalone 수동 checklist를 `docs/DEMO_GUIDE.md`에 남겼다.
 
-Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 local/remote SHA 일치를 확인했다. Windows player 전체 gameplay와 build Editor menu는 사람 검증 전이므로 branch를 `main`에 통합하지 않았다.
+Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 local/remote SHA 일치를 확인했다. 당시에는 Windows player 전체 gameplay와 build Editor menu가 사람 검증 전이므로 branch를 `main`에 통합하지 않았다.
+
+이후 사용자가 Windows player standalone 8단계 checklist PASS와 오류 없음을 확인했다. 확인 시점에 player process가 아직 실행 중이므로 사람 검증 기록은 남기되 강제 종료나 branch 통합은 수행하지 않는다.

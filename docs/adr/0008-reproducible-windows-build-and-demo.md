@@ -36,7 +36,7 @@ Editor menu와 CI형 command line에서 동일한 build를 재현할 수 있고 
 - Executable SHA-256 for this local build: `6fade785e5b76fc6848554611ba9e78af06c522cc80e05e6a22087c603da04f7`
 - Player launch smoke: PASS, 8 seconds alive then target process closed
 - Player log: early exit, managed exception, crash 없음; D3D12 info queue와 shutdown cleanup 진단 존재
-- Windows player full gameplay checklist: NOT RUN, human verification required
+- Windows player full gameplay checklist: PASS, 사용자 확인 및 오류 없음
 - First test invocation with an assumed `C:` Editor path: NOT RUN, executable missing; actual audited `D:` installation reused
 - Scene, Prefab, Package, tracked ProjectSettings final changes: none
 - Markdown links: PASS, missing 0

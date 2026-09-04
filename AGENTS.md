@@ -134,7 +134,7 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - Windows Mono Development build command-line: **Verified on 2026-09-04**. Batchmode에서 `-executeMethod ArenaSystemsLab.Editor.ArenaWindowsBuilder.BuildWindowsFromCommandLine`을 사용하며 output은 `Builds/Windows/ArenaSystemsLab.exe`다.
 - Windows build Editor menu: **Not yet human verified**. `Tools > Arena Systems Lab > Build Windows Development`를 사용한다.
 - Windows player launch smoke: **Verified on 2026-09-04**. 생성된 x86-64 player가 8초 동안 생존했고 managed exception·crash 없이 종료됐다.
-- Windows player 전체 gameplay 수동 검증: **Not yet verified**. `docs/DEMO_GUIDE.md`의 standalone checklist를 사용한다.
+- Windows player 전체 gameplay 수동 검증: **Verified on 2026-09-04**. 사용자가 `docs/DEMO_GUIDE.md`의 이동·공격·FSM·Game Over·restart checklist PASS와 오류 없음을 확인했다.
 - Windows .NET SDK version 명령: **Verified on 2026-09-04**. Windows `dotnet.exe --version` 결과 `10.0.400`.
 - .NET server build/test: **Not yet verified**. Project가 생긴 뒤 실제 명령만 기록한다.
 - Unreal C++ build/run: **Not yet verified**. `ArenaObserver` project가 생긴 뒤 exact Engine 5.8로 확인한다.
