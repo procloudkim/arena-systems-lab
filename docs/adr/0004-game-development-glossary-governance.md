@@ -31,4 +31,4 @@
 - Markdown links and heading uniqueness: PASS
 - Term count: 28
 - Runtime/Unity tests: NOT RUN, documentation-only change
-- Remote branch SHA: checkpoint commit에서 기록
+- Remote branch SHA: PASS, commit `7ac3c5d`가 `origin/work/game-dev-glossary`와 일치

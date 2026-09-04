@@ -114,3 +114,5 @@ Day 1 source, test, 환경 문서, `.gitignore`, ADR을 최초 검증 기준선 
 ## 게임 개발 용어 백과사전 기록
 
 사용자의 용어 학습 요청에 따라 `docs/GAME_DEV_GLOSSARY.md` `0.1.0`을 생성했다. 현재 코드와 확정된 Day 2~4 계획에 등장한 용어만 정의하고, 각 항목에 일반 정의·프로젝트 예시·주의점을 연결했다. ADR 0004에서 semantic versioning과 지속 갱신 규칙을 확정했다.
+
+구현 commit `7ac3c5d`를 `origin/work/game-dev-glossary`에 push하고 local/remote SHA 일치를 확인했다.
