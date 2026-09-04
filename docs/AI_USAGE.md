@@ -401,3 +401,5 @@ AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 
 - Engine thread pool 사용을 별도의 multithreading 성능 증거로 주장하지 않았다.
 
 구현·ADR·자동 검증 commit `20b0d55`를 `origin/work/unreal-arena-observer`에 push하고 local/remote SHA 일치를 확인했다. 이후 exact Unreal 5.8 Editor에서 사람이 두 HUD 경로를 검증했다. actual-server 화면의 data는 Unity가 새 session에서 제출한 것으로 가장하지 않고, 고정 protocol로 주입한 ephemeral `ObserverFixture 42`로 기록한다. Unity actual-server submit/query 사람 검증은 Milestone 7에 별도 근거가 있다.
+
+사람 검증 근거 commit `724a094`를 remote work branch와 대조한 뒤 merge commit `b57db33`으로 `main`에 통합하고 push했다. Editor와 server는 정상 종료됐고 port 7777 listener와 관련 process가 남지 않았으며, 다음 MySQL·SVN 단계는 설치·download 승인을 받기 전 시작하지 않는다.
