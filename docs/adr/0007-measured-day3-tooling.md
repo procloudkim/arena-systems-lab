@@ -36,4 +36,5 @@ Day 3에는 자료구조 실험, 측정 가능한 performance baseline, 반복 �
 - Compiler error marker in final logs: 0
 - Scene, Prefab, Package, tracked ProjectSettings changes: none
 - Human Editor menu and gameplay verification: NOT RUN
-- Remote branch SHA: first push 후 기록
+- Non-meta staged diff check: PASS; Unity-generated `.meta` empty fields use the repository's existing trailing-space format
+- Remote branch SHA: PASS, commit `86e90f4`가 `origin/work/day3-profiling-validation`과 일치
