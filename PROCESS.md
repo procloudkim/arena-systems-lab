@@ -37,6 +37,7 @@ git remote -v
 | Project naming | `Arena Systems Lab`로 정리 완료 |
 | GitHub | public `procloudkim/arena-systems-lab` |
 | Process governance | 완료, ADR 0003 적용 |
+| Game development glossary | `0.1.0`, 28개 용어, ADR 0004 적용 |
 | Integrated branch | `main` |
 | Runtime work in progress | 없음 |
 
@@ -51,6 +52,7 @@ Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사�
 | PlayMode manual flow | PASS | 사용자 확인 |
 | Unity Console | PASS | 사용자 확인, 오류 없음 |
 | Process/ADR static checks | PASS | link, filename, required-section, duplicate-status 검사 |
+| Glossary static checks | PASS | version, link, heading uniqueness, entry shape 검사 |
 | Windows player build | NOT RUN | Day 4 예정 |
 
 검증 세부 이력은 [환경 감사](docs/ENVIRONMENT_AUDIT.md)와 각 ADR에 보존한다.
@@ -75,6 +77,7 @@ Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사�
 | `CP-20260904-01` | Day 1 기준선 | `main` | `51bd3a4` | [ADR 0001](docs/adr/0001-commit-push-and-adr-workflow.md) | Compile PASS, EditMode 5/5, manual PASS | Integrated |
 | `CP-20260904-02` | Project naming | `work/project-naming` | `20157ea`, evidence `35544d5` | [ADR 0002](docs/adr/0002-project-naming.md) | Compile PASS, EditMode 5/5 | Integrated |
 | `CP-20260904-03` | Process SSOT와 ADR governance | `work/process-governance` | `c6a7fb0` | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | Static checks PASS | Integrated |
+| `CP-20260904-04` | Game development glossary `0.1.0` | `work/game-dev-glossary` | `7ac3c5d` | [ADR 0004](docs/adr/0004-game-development-glossary-governance.md) | Static checks PASS | Integrated |
 
 ## ADR Index and Naming
 
@@ -83,6 +86,7 @@ Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사�
 | [ADR 0001](docs/adr/0001-commit-push-and-adr-workflow.md) | Accepted, partially superseded | commit/push와 검증 기록 workflow |
 | [ADR 0002](docs/adr/0002-project-naming.md) | Accepted | Unity project naming |
 | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | Accepted | 현재 상태 SSOT와 ADR naming governance |
+| [ADR 0004](docs/adr/0004-game-development-glossary-governance.md) | Accepted | 게임 개발 용어 문서와 versioning governance |
 
 ADR 파일명은 `NNNN-short-kebab-case-title.md`, checkpoint ID는 `CP-YYYYMMDD-NN` 형식을 사용한다. 전체 규칙은 ADR 0003을 따른다.
 
@@ -91,10 +95,11 @@ ADR 파일명은 `NNNN-short-kebab-case-title.md`, checkpoint ID는 `CP-YYYYMMDD
 1. 실제로 실행한 검증과 `NOT RUN` 항목을 구분한다.
 2. 현재 상태, work queue, checkpoint를 이 문서에서 갱신한다.
 3. 의사결정이 있으면 새 ADR을 만들거나 기존 관련 ADR을 갱신한다.
-4. AI 작업이면 [AI 사용 기록](docs/AI_USAGE.md)을 갱신한다.
-5. staged diff를 검토하고 검증 결과가 포함된 message로 commit한다.
-6. 현재 branch를 push하고 local/remote SHA를 비교한다.
-7. 승인된 통합 작업이면 `main`에 merge·push하고 최종 clean 상태를 확인한다.
+4. 새 전문 용어가 등장했다면 [용어 백과사전](docs/GAME_DEV_GLOSSARY.md)과 version history를 갱신한다.
+5. AI 작업이면 [AI 사용 기록](docs/AI_USAGE.md)을 갱신한다.
+6. staged diff를 검토하고 검증 결과가 포함된 message로 commit한다.
+7. 현재 branch를 push하고 local/remote SHA를 비교한다.
+8. 승인된 통합 작업이면 `main`에 merge·push하고 최종 clean 상태를 확인한다.
 
 ## Document Ownership
 
@@ -105,4 +110,5 @@ ADR 파일명은 `NNNN-short-kebab-case-title.md`, checkpoint ID는 `CP-YYYYMMDD
 | `docs/IMPLEMENTATION_PLAN.md` | 4일 목표와 계획 |
 | `docs/ENVIRONMENT_AUDIT.md` | 날짜가 고정된 환경·검증 증거 |
 | `docs/AI_USAGE.md` | AI 작업의 시간순 기록 |
+| `docs/GAME_DEV_GLOSSARY.md` | 게임·Unity·물리·검증 용어와 project example |
 | `docs/adr/` | 결정의 이유, 영향, 검증 |
