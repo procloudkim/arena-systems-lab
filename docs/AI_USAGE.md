@@ -128,3 +128,5 @@ Day 1 source, test, 환경 문서, `.gitignore`, ADR을 최초 검증 기준선 
 기존 `EnemyController`의 추적·접촉 공격 흐름을 보존하면서 `Idle`, `Chase`, `Attack`, `Dead`를 `enum` 기반 `EnemyStateMachine`으로 명시했다. 상태별 interface나 class 계층은 만들지 않았으며, 사망은 되돌릴 수 없는 종료 상태로 처리한다. 적 색상과 Hierarchy 이름은 상태가 실제로 바뀔 때만 갱신한다.
 
 exact Editor 6000.5.1f1에서 runtime/test assembly compilation과 EditMode 테스트 9건이 통과했다. 성공 종료 뒤 batch log에 Mono thread 정리와 debugger-agent 종료 진단이 남았지만 compiler error, exception, test failure 표식은 없었다. PlayMode 상태 표시와 변경 후 Console은 사람이 확인하기 전까지 미검증으로 둔다.
+
+구현 commit `8539a8b`를 `origin/work/enemy-fsm`에 push하고 local/remote SHA 일치를 확인했다.
