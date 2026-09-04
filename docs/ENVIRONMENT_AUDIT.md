@@ -154,3 +154,65 @@ Git stage, commit, remote 설정, Git LFS 초기화는 실행하지 않았다.
 - Compiler/batch failure marker: 0
 - 승인 범위 밖 tracked file 변경: 0
 - Windows player build: NOT RUN
+
+## 필수 기술 baseline 후속 감사
+
+실행 시점: `2026-09-04T22:20:56+09:00`
+
+사용자가 최종 portfolio 하한으로 지정한 Unity, Unreal Engine, Git, SVN, MySQL, network programming, socket programming, multithreading, OOP를 대상으로 기존 설치와 repository 구현 상태를 읽기 전용으로 다시 확인했다. program 탐색은 command lookup, Windows registry, 일반 설치 경로로 제한했고 drive나 home 전체를 검색하지 않았다.
+
+| 항목 | 감지 결과 | 버전/설정 | 상태 | 근거 | 필요한 조치 |
+|---|---|---|---|---|---|
+| Unity | 현재 playable project | Editor 6000.5.1f1 exact match | READY | 기존 compile/test/manual evidence | Day 3~4 계속 진행 |
+| Unreal Editor | 일반 설치 경로에서 executable 확인 | 5.8.0 / CL 55116800 | READY | `Build.version`, executable metadata | exact version으로 새 project 검증 |
+| Unreal project | repository에 없음 | `.uproject` 0개, depth 4 | MISSING | bounded repository search | Milestone 8에서 최소 C++ observer 생성 |
+| Visual Studio Native Game | workload와 x64 C++ component 확인 | VS Community 18.9.1 | READY | `vswhere -requires` 2종 | 기존 toolchain 재사용 |
+| Git | local/remote 동기화 | 2.43.0, public origin | READY | version, status, remote ref | 기존 workflow 유지 |
+| SVN | command·일반 설치·registry 없음 | Ubuntu candidate 1.14.3-1build4 | MISSING | `command -v`, `where.exe`, path/registry, `apt-cache policy` | 설치 승인 필요 |
+| MySQL | client·service·일반 설치·registry 없음 | native server version 없음 | MISSING | command, service, path/registry probe | runtime 준비 승인 필요 |
+| Docker Desktop client | Windows executable 확인 | client 29.7.2 | READY | `docker.exe version` client result | 기존 설치 재사용 |
+| Docker daemon/MySQL image | daemon 응답 없음 | image list 조회 불가 | UNKNOWN | server version·named pipe 없음 | 사용자가 Desktop 시작 후 재감사 |
+| .NET SDK | Windows executable 확인 | 10.0.400 | READY | `dotnet.exe --version`, SDK list | BCL 기반 server에 재사용 |
+| Network programming | source 없음 | 구현 0건 | MISSING | repository code search | Milestone 5·7·8 구현 |
+| Socket programming | source 없음 | 구현 0건 | MISSING | repository code search | 공통 TCP protocol 구현 |
+| Multithreading | source 없음 | 구현 0건 | MISSING | repository code search | concurrent server와 test 구현 |
+| OOP | Unity runtime 책임 분리 | Health/controller/FSM/spawner | READY | source와 EditMode test | server/client에서도 유지 |
+
+### 후속 Gate 판정
+
+**READY_WITH_GAPS**
+
+Unity, Unreal, Git, C++ toolchain과 .NET SDK는 기존 설치를 재사용할 수 있어 승인 없는 영역부터 진행 가능하다. SVN과 MySQL runtime은 충분한 근거로 `MISSING`이고 Docker image는 `UNKNOWN`이므로 해당 milestone은 승인 전 실행하지 않는다. 현재 repository source와 package에는 충돌이 없다.
+
+### 승인 전에 실행하지 않은 제안
+
+| 제안 | 필요성 | 영향 | 대안 | rollback 방법 |
+|---|---|---|---|---|
+| WSL Ubuntu `subversion` package 설치 | SVN lab의 `svn`, `svnadmin` 필요 | 관리자 권한, package download, WSL system 변경 | Windows용 공식 binary provider를 사용자가 선택 | 설치 방식에 맞춰 package 제거; lab data는 별도 확인 후 삭제 |
+| Docker Desktop 시작 후 `mysql:8.4` image download | MySQL 8.4 LTS integration test 필요 | daemon 실행, image download, local container와 data volume 생성 | native MySQL server 설치 요청 | container/image 제거; data volume 삭제는 별도 명시 승인 |
+| `.NET` project에 `MySqlConnector` 2.6.2 추가 | BCL에는 MySQL provider가 없음 | third-party NuGet dependency와 lock/asset 변경 | Oracle `MySql.Data` 9.7.0 | `dotnet remove package MySqlConnector`와 code rollback |
+
+승인된 설치·download·package 추가는 아직 하나도 실행하지 않았다.
+
+### 실행한 명령과 결과
+
+| 명령 종류 | 목적 | 결과 |
+|---|---|---|
+| `git status`, branch/ref probe | 변경 전 Git 기준선과 branch 충돌 확인 | `main...origin/main` clean, 대상 branch 없음 |
+| bounded `.uproject` search | 기존 Unreal project 확인 | 없음 |
+| Unreal `Build.version`와 executable metadata 조회 | 설치 Engine exact version 확인 | 5.8.0 / CL 55116800 |
+| `vswhere -requires` C++/NativeGame | Unreal C++ build toolchain 확인 | VS Community 18.9.1 반환 |
+| WSL/Windows command lookup, 일반 경로, registry probe | SVN 설치 확인 | 발견되지 않음 |
+| `apt-cache policy subversion` | 설치 상태와 repository candidate 확인 | installed 없음, candidate 1.14.3-1build4 |
+| command/service/일반 경로/registry probe | MySQL 설치·service 확인 | 발견되지 않음 |
+| Windows Docker client/version probe | 기존 Docker 재사용 가능성 확인 | client 29.7.2, daemon 응답 없음 |
+| Windows `dotnet.exe --version`, `--list-sdks` | C# server SDK 확인 | 10.0.400 |
+| repository `rg` source search | network/socket/thread 구현 여부 확인 | 구현 없음 |
+
+### 외부 기준 확인
+
+- MySQL 8.4는 공식 LTS series다: [MySQL Release Model](https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html)
+- Docker Official Image에는 rolling `mysql:8.4` tag가 제공된다: [Docker Hub MySQL Official Image](https://hub.docker.com/_/mysql)
+- Ubuntu의 Subversion package에는 command-line client와 `svnserve`가 포함된다: [Apache Subversion Binary Packages](https://subversion.apache.org/packages.html)
+- 권장 connector 후보와 version은 감사 시점 NuGet listing으로 확인했다: [MySqlConnector 2.6.2](https://www.nuget.org/packages/MySqlConnector)
+- 공식 provider 대안은 Oracle Connector/NET이다: [MySQL Connector/NET 9.7](https://dev.mysql.com/downloads/connector/net/9.7.html)
