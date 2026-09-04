@@ -1,13 +1,10 @@
 {
-  "name": "ArenaSystemsLab.Tests.EditMode",
-  "rootNamespace": "ArenaSystemsLab.Tests.EditMode",
+  "name": "ArenaSystemsLab.Tests.PlayMode",
+  "rootNamespace": "ArenaSystemsLab.Tests.PlayMode",
   "references": [
-    "ArenaSystemsLab.Runtime",
-    "ArenaSystemsLab.Editor"
+    "ArenaSystemsLab.Runtime"
   ],
-  "includePlatforms": [
-    "Editor"
-  ],
+  "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": false,

@@ -163,3 +163,28 @@ AI 제안 중 채택하지 않은 부분:
 - asynchronous I/O만으로 multithreading 경험을 주장하지 않도록 별도 concurrent test gate를 두었다.
 
 baseline 문서 구현 commit `01cd869`를 `origin/work/portfolio-technology-baseline`에 push하고 local/remote SHA 일치를 확인했다. Markdown link, ADR 0001~0006 sequence와 section, glossary 0.3.0의 43개 entry shape, 변경 경계 검사는 PASS다. runtime test는 documentation-only checkpoint이므로 실행하지 않았다.
+
+## Day 3 측정·Editor Tool 기록
+
+AI는 기존 gameplay에 neighbor query가 없음을 확인하고 `SpatialHash2D<T>`를 correctness와 비용 비교용 독립 자료구조로 구현했다. runtime enemy flow에는 연결하지 않았고 object pooling도 추가하지 않았다.
+
+생성·수정 대상:
+
+- `Assets/ArenaSystemsLab/Runtime/SpatialHash2D.cs`
+- `Assets/ArenaSystemsLab/Editor/ArenaProjectValidator.cs`와 Editor assembly
+- EditMode spatial hash·validator tests와 PlayMode profile test
+- `docs/PERFORMANCE_BASELINE.md`
+- ADR 0007, glossary 0.4.0, 환경·AI·process 기록
+
+exact Editor에서 EditMode 16건과 final PlayMode 1건이 통과했고 validator command-line entry도 PASS였다. 알고리즘 실험은 20,000 point, 500 query에서 두 방식 모두 6,882 matches를 반환했으며 spatial hash 1.381 ms, brute-force 73.824 ms를 기록했다.
+
+PlayMode profile은 target 120 FPS, 1초 warm-up, 5초 sampling으로 601 sample을 수집했다. Main Thread 평균/최대는 8.317/13.756 ms, frame GC allocation 평균/최대는 211,689/273,180 bytes, GameObject 평균/최대는 11.3/14였다. Editor와 Test Runner overhead가 포함되므로 최적화 성과나 player build 성능으로 표현하지 않는다.
+
+실패와 수정:
+
+- 최초 PlayMode test는 marker recorder option 누락으로 FAIL했다. `SumAllSamplesInFrame`을 추가했다.
+- 짧은 frame-count sampling은 0.055초라 gameplay 기준선에서 제외했다.
+- `Reset()` 후 recorder를 다시 시작하지 않은 시도는 sample 0으로 FAIL했다. local Unity API 문서를 확인하고 `Start()`를 추가했다.
+- Unity가 자동 생성한 미추적 `ProjectSettings/SceneTemplateSettings.json`은 승인 범위 밖이라 검사 후 제거했다.
+
+Day 3 Editor menu와 기존 gameplay의 사람 검증은 아직 실행하지 않았다. package 설치, Scene/Prefab 수정, tracked ProjectSettings 변경은 수행하지 않았다.
