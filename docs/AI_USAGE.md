@@ -135,3 +135,31 @@ exact Editor 6000.5.1f1에서 runtime/test assembly compilation과 EditMode 테�
 사용자가 Day 2 상태 표시를 포함한 수동 게임 흐름 PASS와 Unity Console 오류 없음을 확인했다. 확인 시점에 Unity Editor가 실행 중이므로 사용자 작업 보호를 위해 branch 전환과 `main` 통합은 Editor 종료 뒤로 보류했다.
 
 수동 검증 근거를 commit `b294fbb`로 `origin/work/enemy-fsm`에 push했다. 이후 사용자가 Editor 종료를 알렸고, `Temp/UnityLockfile` 부재와 실행 중인 `Unity.exe` 없음도 확인했다.
+
+## 필수 기술 baseline 확장 기록
+
+사용자가 실제 협업·live-service 대응을 제외하고 Unity, Unreal Engine, Git, SVN, MySQL, network programming, socket programming, multithreading, OOP를 최종 project 하한으로 지정했다.
+
+AI는 source를 수정하기 전에 기존 Git 상태, exact Unity 환경, Unreal Engine과 Visual Studio C++ toolchain, Windows .NET SDK, SVN, MySQL, Docker, repository 구현 여부를 읽기 전용으로 감사했다. Unity 6000.5.1f1, Unreal 5.8.0, Visual Studio Native Game/C++ component, .NET SDK 10.0.400, Git은 재사용 가능하다. SVN과 native MySQL은 발견되지 않았으며 Docker client 29.7.2는 있지만 daemon이 꺼져 기존 MySQL image는 확인하지 못했다.
+
+AI는 ADR 0006에서 하나의 연결된 최소 구조를 선택했다. 현재 Unity arena가 score를 C#/.NET TCP server에 제출하고 MySQL에 저장하며 Unreal C++ `ArenaObserver`가 같은 leaderboard를 읽는다. SVN은 Git source-of-truth와 섞지 않는 isolated workflow lab으로 제한한다.
+
+이번 checkpoint에서 변경한 대상은 `AGENTS.md`, `PROCESS.md`, 구현 계획, 환경 감사, AI 기록, glossary, ADR 0006이다. runtime source, Unity Scene/Prefab, package manifest/lock, Project Settings는 변경하지 않았다.
+
+사람이 승인하거나 확인해야 하는 항목:
+
+- WSL `subversion` package 설치
+- Docker Desktop 시작 후 기존 image 재감사와 필요 시 `mysql:8.4` download
+- .NET MySQL connector 선택과 package 추가
+- 이후 구현될 .NET server, MySQL, Unity network client, Unreal observer, SVN lab의 실행 결과
+
+이번 checkpoint에서는 Unity, .NET, Unreal runtime test와 build를 다시 실행하지 않았다. 문서와 environment 사실만 갱신했으며 승인 없는 install, package 추가, image download, external script 실행은 하지 않았다.
+
+AI 제안 중 채택하지 않은 부분:
+
+- 필수 기술마다 무관한 demo project를 별도로 만들지 않았다.
+- MySQL wire protocol을 직접 구현하지 않았다.
+- Unreal에서 두 번째 arena game을 만들지 않고 read-only observer로 범위를 제한했다.
+- asynchronous I/O만으로 multithreading 경험을 주장하지 않도록 별도 concurrent test gate를 두었다.
+
+baseline 문서 구현 commit `01cd869`를 `origin/work/portfolio-technology-baseline`에 push하고 local/remote SHA 일치를 확인했다. Markdown link, ADR 0001~0006 sequence와 section, glossary 0.3.0의 43개 entry shape, 변경 경계 검사는 PASS다. runtime test는 documentation-only checkpoint이므로 실행하지 않았다.

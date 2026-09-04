@@ -2,7 +2,7 @@
 
 ## 1. Project objective
 
-Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설계, 알고리즘 적용, 디버깅, 성능 측정, Editor Tool, 테스트, AI 생성 코드의 사람 검증 기록을 포트폴리오로 남긴다.
+Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설계, 알고리즘 적용, 디버깅, 성능 측정, Editor Tool, 테스트, AI 생성 코드의 사람 검증 기록을 포트폴리오로 남긴다. 최종 완료 하한은 Unity, Unreal Engine, Git, Apache Subversion(SVN), MySQL, network programming, socket programming, multithreading, OOP의 실제 구현·검증 근거다.
 
 ## 2. Current milestone
 
@@ -23,6 +23,13 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - `docs/adr/`: 사람과 LLM이 함께 읽는 의사결정 기록
 - `.gitignore`: Unity/IDE 생성물 제외 규칙
 
+다음 디렉터리는 [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md)에 따라 필요한 milestone에서만 만든다. 아직 없으면 생성됐다고 가정하지 않는다.
+
+- `Server/`: planned C#/.NET TCP leaderboard server와 test
+- `Database/`: planned MySQL schema와 migration
+- `Unreal/`: planned Unreal Engine C++ `ArenaObserver`
+- `docs/evidence/`: planned 재현 가능한 검증 evidence
+
 `Library/`, `Temp/`, `Logs/`, `UserSettings/`는 생성 결과이며 소스의 기준이 아니다.
 
 ## 4. Verified development environment
@@ -39,6 +46,12 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - Asset Serialization: Force Text
 - Git 저장소의 최초 검증 기준선은 `main`에 commit/push한다. Public `origin`은 `https://github.com/procloudkim/arena-systems-lab.git`이다. Git LFS도 설치돼 있지만 현재 필요한 대형 source asset은 없다.
 - Visual Studio는 설치돼 있으나 Unity workload/component는 확인되지 않았다.
+- Unreal Engine: `5.8.0`, Editor executable 확인
+- Visual Studio Native Game workload와 C++ x64 tool component: 확인됨
+- Windows .NET SDK: `10.0.400`, 전체 Windows executable 경로로 사용 가능
+- Apache Subversion client/admin: 확인된 command·표준 설치·registry가 없어 `MISSING`
+- MySQL client/server/service: 확인된 command·표준 설치·registry가 없어 `MISSING`
+- Docker Desktop client: `29.7.2`; daemon은 실행되지 않아 기존 MySQL image는 `UNKNOWN`
 - VS Code는 설치돼 있다. 감사 중 WSL Server 자동 갱신이 발생했으므로 추가 `code` CLI 호출을 피한다.
 
 ## 5. Source-of-truth files
@@ -56,6 +69,8 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - 감사 상태: `docs/ENVIRONMENT_AUDIT.md`
 - AI 작업 기록: `docs/AI_USAGE.md`
 - 작업·구조 의사결정: `docs/adr/`
+- 최종 필수 기술 baseline: `docs/adr/0006-portfolio-technology-baseline.md`
+- milestone과 완료 근거 matrix: `docs/IMPLEMENTATION_PLAN.md`
 - 생성물 제외 정책: `.gitignore`
 
 ## 6. Dependency policy
@@ -64,7 +79,9 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - 기존 Unity package와 built-in API를 먼저 재사용한다.
 - 승인 없이 `Packages/manifest.json` 또는 `Packages/packages-lock.json`을 수정하지 않는다.
 - Unity Editor를 자동 업그레이드하지 않는다.
-- MVP 동안 networking, database, ECS, DI, tweening, async helper, behavior tree, asset framework package를 설치하지 않는다.
+- Day 1~4 Unity MVP 동안 networking, database, ECS, DI, tweening, async helper, behavior tree, asset framework package를 설치하지 않는다.
+- ADR 0006의 post-MVP server/database 확장은 승인된 dependency만 사용한다. Unity package는 추가하지 않는다.
+- MySQL wire protocol을 직접 구현하지 않는다. connector가 필요하면 승인 요청에 package, exact version, license, 영향, 대안, rollback을 포함한다.
 - 의존성 추가를 요청하기 전에 이유, 버전, 영향, rollback 방법을 기록한다.
 
 ## 7. Scope restrictions
@@ -72,6 +89,10 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 Day 1에는 Spatial Hash, Object Pool, 정식 Enemy FSM, multiplayer, network, database, login, cloud service, Addressables, ECS/DOTS, 복잡한 animation, 외부 art, sound, save, DI, tween, async helper를 구현하지 않는다.
 
 Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태별 interface/class 계층은 실제로 서로 다른 행동 구현이 필요해질 때만 검토한다.
+
+최종 portfolio 확장은 ADR 0006 범위로 제한한다. Unity arena client, C#/.NET TCP leaderboard server, MySQL persistence, Unreal C++ read-only observer, isolated SVN workflow evidence만 만든다. multiplayer simulation, public deployment, authentication, cloud service, 별도 Unreal game은 만들지 않는다.
+
+실제 다직군 협업과 live-service 대응 경험은 사용자의 현재 결정에 따라 완료 기준과 포트폴리오 주장에 포함하지 않는다.
 
 명시적 사용자 승인 없이 기존 `.unity`, `.prefab`, package 파일과 Project Settings를 직접 수정하지 않는다. 승인된 naming 작업은 `productName`, `metroPackageName`, `metroApplicationDescription`에 한정한다. Scene 구성이 필요하면 기존 Scene을 보존하고 runtime 구성 또는 안전한 Editor API를 사용한다.
 
@@ -85,6 +106,9 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - 매 frame LINQ, boxing, 새 collection 생성 등 불필요한 allocation을 만들지 않는다.
 - 측정하지 않은 성능 향상을 주장하지 않는다.
 - 한 구현뿐인 interface, factory, service locator, DI container를 만들지 않는다.
+- network payload는 크기와 값 범위를 검증하고 최초 통합은 loopback으로 제한한다.
+- asynchronous I/O와 multithreading을 같은 것으로 기록하지 않는다. concurrent test와 shared-state 안전성 근거가 있어야 multithreading 완료로 표시한다.
+- credential, connection string, local database volume, generated engine cache를 commit하지 않는다.
 
 ## 9. Testing and validation commands
 
@@ -96,6 +120,10 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - PlayMode 수동 검증: Day 1 흐름과 Day 2 상태 색상·전이는 **Verified on 2026-09-04**.
 - Unity Console: Day 1과 Day 2 변경 후 모두 **Verified on 2026-09-04**, 사용자 확인 오류 없음.
 - Windows build 명령: **Not yet verified**.
+- Windows .NET SDK version 명령: **Verified on 2026-09-04**. Windows `dotnet.exe --version` 결과 `10.0.400`.
+- .NET server build/test: **Not yet verified**. Project가 생긴 뒤 실제 명령만 기록한다.
+- Unreal C++ build/run: **Not yet verified**. `ArenaObserver` project가 생긴 뒤 exact Engine 5.8로 확인한다.
+- SVN workflow와 MySQL integration: **Not yet verified**. 필요한 도구와 dependency가 승인·준비된 뒤 실행한다.
 
 검증하지 않은 명령을 성공한 명령처럼 기록하지 않는다.
 
@@ -131,3 +159,6 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - `PROCESS.md`가 현재 상태와 다음 작업을 단독으로 설명한다.
 - 새로 사용한 전문 용어가 glossary에 정의되거나 기존 항목을 참조한다.
 - 관련 ADR과 검증 근거가 commit에 포함되고 해당 branch가 remote에 push된다.
+- Unity, Unreal Engine, Git, SVN, MySQL, network programming, socket programming, multithreading, OOP 각각에 source와 재현 가능한 검증 근거가 있다.
+- Git만 canonical VCS로 사용하고 SVN metadata는 active Git working tree에 섞지 않는다.
+- 실제 협업·live-service 대응을 수행했다고 주장하지 않는다.

@@ -2,7 +2,7 @@
 
 > Arena Systems Lab 개발 중 실제로 만난 게임·Unity·물리·검증 용어를 한국어로 설명하는 생활형 백과사전이다.
 
-- Version: `0.2.0`
+- Version: `0.3.0`
 - Last updated: 2026-09-04 KST
 - Governance: [ADR 0004](adr/0004-game-development-glossary-governance.md)
 
@@ -18,6 +18,98 @@
 - `MAJOR`: 분류나 항목 형식이 호환되지 않게 바뀔 때 증가한다.
 - `MINOR`: 새 용어나 새 분류를 추가할 때 증가한다.
 - `PATCH`: 정의, 예시, 오탈자, 링크만 바로잡을 때 증가한다.
+
+## Engines and Object-Oriented Design
+
+### Unity
+
+- 정의: GameObject와 Component 중심 구조, C# scripting, Editor를 제공하는 real-time game engine이다.
+- 프로젝트 예: 현재 2D arena game의 이동, 전투, 물리, UI, test와 Windows build를 담당한다.
+- 주의: Unity package와 Editor version은 별도이므로 프로젝트가 요구하는 exact Editor를 확인한다.
+
+### Unreal Engine
+
+- 정의: Actor와 Component, C++, Blueprint, Editor를 제공하는 real-time game engine이다.
+- 프로젝트 예: 계획된 `ArenaObserver`가 C++ native socket으로 같은 leaderboard server를 조회한다.
+- 주의: Unity 기능을 그대로 복제하지 않고 Engine 5.8의 최소 read-only client로 범위를 제한한다.
+
+### C# (C Sharp)
+
+- 정의: .NET type system과 garbage collection을 사용하는 managed programming language다.
+- 프로젝트 예: Unity gameplay code와 계획된 standalone leaderboard server에 사용한다.
+- 주의: Unity의 C# runtime과 별도 .NET application의 target framework·사용 가능 API는 같다고 가정하지 않는다.
+
+### C++
+
+- 정의: memory와 object lifetime을 세밀하게 제어할 수 있는 native compiled programming language다.
+- 프로젝트 예: 계획된 Unreal `ArenaObserver` module을 구현하는 언어다.
+- 주의: Unreal의 reflection·garbage collection 대상 object와 일반 C++ object의 lifetime 규칙을 구분한다.
+
+### Object-Oriented Programming (OOP, 객체지향 프로그래밍)
+
+- 정의: data와 behavior를 object로 묶고 책임, encapsulation, composition을 통해 system을 구성하는 방식이다.
+- 프로젝트 예: `Health`, `EnemyController`, `EnemyStateMachine`, `EnemySpawner`가 서로 다른 책임을 가진다.
+- 주의: class 수나 inheritance 깊이가 OOP 품질을 뜻하지 않는다. 한 구현뿐인 interface는 실제 교체 이유가 생길 때까지 만들지 않는다.
+
+## Version Control
+
+### Git
+
+- 정의: 각 working copy가 전체 history를 가지는 distributed version control system이다.
+- 프로젝트 예: work branch, ADR, commit, push와 remote SHA로 모든 변경을 추적한다.
+- 주의: generated file, credential, 다른 VCS metadata를 commit하지 않고 Git을 이 저장소의 canonical VCS로 유지한다.
+
+### Apache Subversion (SVN)
+
+- 정의: 중앙 repository의 revision을 기준으로 checkout, commit, branch, merge를 수행하는 centralized version control system이다.
+- 프로젝트 예: 계획된 isolated local lab에서 `trunk/branches/tags`, merge와 conflict resolution을 재현한다.
+- 주의: Git working tree 안에 active `.svn` metadata를 섞거나 두 VCS를 동시에 source-of-truth로 사용하지 않는다.
+
+## Networking and Concurrency
+
+### Network Programming
+
+- 정의: 서로 다른 process나 machine이 protocol을 통해 data를 교환하도록 연결, timeout, 오류, 보안을 다루는 개발 영역이다.
+- 프로젝트 예: Unity와 Unreal client가 C# leaderboard server에 score를 보내거나 조회한다.
+- 주의: 정상 연결뿐 아니라 disconnect, timeout, malformed input과 partial read를 처리해야 한다.
+
+### Client-Server Architecture
+
+- 정의: client가 request를 보내고 server가 규칙과 shared data를 관리해 response하는 책임 분리 구조다.
+- 프로젝트 예: 두 game engine은 client이고 .NET application은 score 저장·조회 server다.
+- 주의: client가 보낸 score를 신뢰하지 않으며 최초 범위는 public service가 아닌 loopback demo다.
+
+### Socket
+
+- 정의: process가 network protocol endpoint를 통해 byte를 송수신하는 operating-system resource와 programming interface다.
+- 프로젝트 예: .NET server의 `TcpListener`/`TcpClient`와 Unreal native socket이 연결된다.
+- 주의: 한 번의 read가 한 message 전체를 반환한다고 가정하지 않고 close와 timeout을 항상 처리한다.
+
+### Transmission Control Protocol (TCP)
+
+- 정의: 순서와 전달을 보장하는 connection-oriented byte-stream transport protocol이다.
+- 프로젝트 예: leaderboard message를 4-byte length prefix와 UTF-8 JSON payload로 framing한다.
+- 주의: TCP는 message 경계를 보존하지 않으므로 application protocol이 길이와 최대 크기를 정의해야 한다.
+
+### Multithreading (멀티스레딩)
+
+- 정의: 한 process에서 여러 execution thread가 작업을 동시에 또는 병렬로 진행하는 방식이다.
+- 프로젝트 예: 계획된 server가 제한된 수의 client request를 동시에 처리하고 stress test로 검증한다.
+- 주의: asynchronous I/O 자체를 multithreading과 동일시하지 않고 thread scheduling과 shared state 접근을 별도로 확인한다.
+
+### Thread Safety (스레드 안전성)
+
+- 정의: 여러 thread가 같은 state에 접근해도 race condition이나 손상된 결과가 생기지 않는 성질이다.
+- 프로젝트 예: concurrent score submit과 leaderboard query가 일관된 결과를 내는지 자동 test한다.
+- 주의: 무조건 큰 global lock을 두기보다 먼저 공유 범위를 줄이고 필요한 최소 synchronization을 사용한다.
+
+## Data Persistence
+
+### MySQL
+
+- 정의: table, key, constraint와 SQL query로 structured data를 저장하는 relational database management system이다.
+- 프로젝트 예: 계획된 server가 player run과 leaderboard score를 MySQL 8.4 LTS에 저장한다.
+- 주의: query는 parameterized 형태로 실행하고 credential, connection string, local data volume을 Git에 넣지 않는다.
 
 ## Architecture and State
 
@@ -211,5 +303,6 @@
 
 | Version | Date | 변경 | ADR |
 |---|---|---|---|
+| `0.3.0` | 2026-09-04 | 필수 engine, language, VCS, network, concurrency, database 용어 14개 추가, 총 43개 | [ADR 0006](adr/0006-portfolio-technology-baseline.md) |
 | `0.2.0` | 2026-09-04 | Day 2 FSM에서 사용한 Terminal State 추가, 총 29개 | [ADR 0005](adr/0005-minimal-enemy-fsm.md) |
 | `0.1.0` | 2026-09-04 | 현재 코드와 Day 2~4 계획에서 사용한 기본 용어 28개 수록 | [ADR 0004](adr/0004-game-development-glossary-governance.md) |

@@ -37,14 +37,19 @@ git remote -v
 | Project naming | `Arena Systems Lab`로 정리 완료 |
 | GitHub | public `procloudkim/arena-systems-lab` |
 | Process governance | 완료, ADR 0003 적용 |
-| Game development glossary | `0.2.0`, 29개 용어, ADR 0004 적용 |
+| Game development glossary | `0.3.0`, 43개 용어, ADR 0004 적용 |
 | Day 2 enemy FSM | `Idle`, `Chase`, `Attack`, `Dead` 구현·수동 검증 완료 |
+| Portfolio technology baseline | 9개 필수 기술과 연결 구조 확정, ADR 0006 적용 |
+| Reusable extension tools | Unreal 5.8, VS Native Game/C++, Windows .NET SDK 10.0.400 |
+| Approval-gated gaps | SVN MISSING, MySQL runtime MISSING, Docker image UNKNOWN |
 | Integrated branch | `main` |
 | Runtime work in progress | 없음 |
 
 Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사망, Game Over, 재시작이 포함된다. Scene과 Prefab 대신 runtime bootstrap을 사용한다.
 
 Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으로 사용한다. 상태가 바뀔 때만 적 색상과 Hierarchy 이름을 갱신하며 상태별 class 계층은 만들지 않는다.
+
+최종 portfolio 완료 하한은 Unity, Unreal Engine, Git, SVN, MySQL, network programming, socket programming, multithreading, OOP다. Unity arena → C#/.NET TCP leaderboard server → MySQL 흐름을 만들고 Unreal C++ `ArenaObserver`가 같은 server를 읽는다. SVN은 Git과 분리된 local workflow lab으로 검증하며 실제 협업·live-service 대응은 현재 범위에서 제외한다.
 
 ## Validation Ledger
 
@@ -56,21 +61,29 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | Day 2 PlayMode FSM flow | PASS | 사용자 상태 색상·접촉 공격·Game Over·restart 확인 |
 | Unity Console after Day 2 | PASS | 사용자 확인, 오류 없음 |
 | Process/ADR static checks | PASS | link, filename, required-section, duplicate-status 검사 |
-| Glossary static checks | PASS | version, link, heading uniqueness, entry shape 검사 |
+| Glossary static checks | PASS | version 0.3.0, 43개 heading, entry shape 검사 |
+| Portfolio baseline document checks | PASS | link 0건 누락, ADR 1~6 sequence/schema, forbidden Unity source/settings 변경 0건 |
+| .NET/Unreal/MySQL/SVN runtime validation | NOT RUN | 구현·승인 전 planning checkpoint |
 | Windows player build | NOT RUN | Day 4 예정 |
 
 검증 세부 이력은 [환경 감사](docs/ENVIRONMENT_AUDIT.md)와 각 ADR에 보존한다.
 
 ## Work Queue
 
-1. **Next — Day 3:** 측정 기반 profiling과 최소 Editor validation
-2. **Conditional — Day 3:** 측정 결과가 필요성을 입증할 때만 pooling 또는 spatial partitioning
-3. **Later — Day 4:** PlayMode regression, Windows Mono build·실행, `README.md`, demo 문서
+1. **Next — Day 3:** profiling 기준선, `SpatialHash2D` correctness/비용 비교, 최소 Editor validation
+2. **Then — Day 4:** PlayMode regression, Windows Mono build·실행, `README.md`, demo 문서
+3. **Required extension — Milestone 5:** BCL 기반 TCP socket server와 concurrent/thread-safety test
+4. **Approval-gated — Milestone 6·9:** MySQL persistence와 isolated SVN workflow lab
+5. **Required extension — Milestone 7·8:** Unity network client와 Unreal C++ `ArenaObserver`
 
 알려진 gap:
 
 - Windows player build는 아직 실행하지 않았다.
 - Visual Studio Unity workload는 없지만 현재 작업의 차단 요소가 아니다.
+- Unreal Editor와 Native Game/C++ toolchain은 있으나 `.uproject`와 Unreal build 결과는 없다.
+- SVN client/admin과 native MySQL runtime은 확인되지 않았다. 설치·download·package 추가는 사용자 승인 전 실행하지 않는다.
+- Docker client는 있으나 daemon이 꺼져 기존 `mysql:8.4` image는 확인하지 못했다.
+- network/socket/multithreading source와 test는 아직 없다.
 - `companyName`과 application identifier는 ADR 0002에 따라 별도 branding 결정 전까지 유지한다.
 - Location container의 불완전한 `My`, `My project` 폴더는 사용자 데이터 보호를 위해 건드리지 않는다.
 
@@ -83,6 +96,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260904-03` | Process SSOT와 ADR governance | `work/process-governance` | `c6a7fb0` | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | Static checks PASS | Integrated |
 | `CP-20260904-04` | Game development glossary `0.1.0` | `work/game-dev-glossary` | `7ac3c5d` | [ADR 0004](docs/adr/0004-game-development-glossary-governance.md) | Static checks PASS | Integrated |
 | `CP-20260904-05` | 최소 Enemy FSM과 debug 표시 | `work/enemy-fsm` | `8539a8b`, evidence `b294fbb` | [ADR 0005](docs/adr/0005-minimal-enemy-fsm.md) | Compile PASS, EditMode 9/9, manual PASS | Integrated |
+| `CP-20260904-06` | Portfolio 필수 기술 baseline과 확장 계획 | `work/portfolio-technology-baseline` | `01cd869` | [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md) | Environment audit, document static checks PASS; runtime NOT RUN | Integrated |
 
 ## ADR Index and Naming
 
@@ -93,6 +107,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | Accepted | 현재 상태 SSOT와 ADR naming governance |
 | [ADR 0004](docs/adr/0004-game-development-glossary-governance.md) | Accepted | 게임 개발 용어 문서와 versioning governance |
 | [ADR 0005](docs/adr/0005-minimal-enemy-fsm.md) | Accepted | enum 기반 최소 enemy FSM과 debug 표시 |
+| [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md) | Accepted | 9개 필수 기술과 end-to-end 최소 구조 |
 
 ADR 파일명은 `NNNN-short-kebab-case-title.md`, checkpoint ID는 `CP-YYYYMMDD-NN` 형식을 사용한다. 전체 규칙은 ADR 0003을 따른다.
 
@@ -113,7 +128,7 @@ ADR 파일명은 `NNNN-short-kebab-case-title.md`, checkpoint ID는 `CP-YYYYMMDD
 |---|---|
 | `PROCESS.md` | 현재 진행 상태, 검증 요약, 다음 작업, checkpoint |
 | `AGENTS.md` | 항상 적용할 작업 규칙 |
-| `docs/IMPLEMENTATION_PLAN.md` | 4일 목표와 계획 |
+| `docs/IMPLEMENTATION_PLAN.md` | 4일 Unity core와 필수 portfolio 확장 계획 |
 | `docs/ENVIRONMENT_AUDIT.md` | 날짜가 고정된 환경·검증 증거 |
 | `docs/AI_USAGE.md` | AI 작업의 시간순 기록 |
 | `docs/GAME_DEV_GLOSSARY.md` | 게임·Unity·물리·검증 용어와 project example |
