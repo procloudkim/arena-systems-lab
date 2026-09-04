@@ -14,15 +14,17 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - `Assets/Settings/`: 기존 URP 2D 설정
 - `Assets/InputSystem_Actions.inputactions`: 기존 Input System 액션 정의
 - `Assets/ArenaSystemsLab/Runtime/`: gameplay runtime, 최소 enemy FSM, 실험용 `SpatialHash2D`
-- `Assets/ArenaSystemsLab/Editor/`: project validation Editor Tool
+- `Assets/ArenaSystemsLab/Editor/`: project validation과 Windows Development build Editor Tool
 - `Assets/ArenaSystemsLab/Tests/EditMode/`: runtime logic, spatial query, Editor validation 테스트
 - `Assets/ArenaSystemsLab/Tests/PlayMode/`: 자동 gameplay profiling 기준선 테스트
 - `Packages/`: Unity package 선언과 lock 파일
 - `ProjectSettings/`: Unity 프로젝트 설정
+- `README.md`: 프로젝트 소개, 실행, 검증, build entry point
 - `PROCESS.md`: 현재 상태와 다음 재개 지점의 단일 기준
 - `docs/`: 감사, 구현 계획, AI 사용 기록
 - `docs/GAME_DEV_GLOSSARY.md`: 게임·Unity·물리·검증 용어 백과사전
 - `docs/PERFORMANCE_BASELINE.md`: 측정 조건, 수치, 최적화 채택 여부
+- `docs/DEMO_GUIDE.md`: 3~5분 demo flow와 Windows player 수동 checklist
 - `docs/adr/`: 사람과 LLM이 함께 읽는 의사결정 기록
 - `.gitignore`: Unity/IDE 생성물 제외 규칙
 
@@ -68,10 +70,12 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - build scenes: `ProjectSettings/EditorBuildSettings.asset`
 - 입력 액션: `Assets/InputSystem_Actions.inputactions`
 - 현재 진행 상태와 checkpoint: `PROCESS.md`
+- 프로젝트 진입점과 실행 방법: `README.md`
 - 게임 개발 용어 정의: `docs/GAME_DEV_GLOSSARY.md`
 - 감사 상태: `docs/ENVIRONMENT_AUDIT.md`
 - AI 작업 기록: `docs/AI_USAGE.md`
 - Day 3 측정 기준선: `docs/PERFORMANCE_BASELINE.md`
+- demo와 standalone 수동 검증: `docs/DEMO_GUIDE.md`
 - 작업·구조 의사결정: `docs/adr/`
 - 최종 필수 기술 baseline: `docs/adr/0006-portfolio-technology-baseline.md`
 - milestone과 완료 근거 matrix: `docs/IMPLEMENTATION_PLAN.md`
@@ -127,7 +131,10 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - Project validation Editor menu: **Verified on 2026-09-04**. 사용자가 `Tools > Arena Systems Lab > Validate Project`를 포함한 Day 3 수동 검증 완료를 확인했다.
 - PlayMode 수동 검증: Day 1 흐름, Day 2 상태 색상·전이, Day 3 변경 후 기존 gameplay 회귀를 **Verified on 2026-09-04**.
 - Unity Console: Day 1~3 변경 후 **Verified on 2026-09-04**, 사용자 확인 오류 없음.
-- Windows build 명령: **Not yet verified**.
+- Windows Mono Development build command-line: **Verified on 2026-09-04**. Batchmode에서 `-executeMethod ArenaSystemsLab.Editor.ArenaWindowsBuilder.BuildWindowsFromCommandLine`을 사용하며 output은 `Builds/Windows/ArenaSystemsLab.exe`다.
+- Windows build Editor menu: **Not yet human verified**. `Tools > Arena Systems Lab > Build Windows Development`를 사용한다.
+- Windows player launch smoke: **Verified on 2026-09-04**. 생성된 x86-64 player가 8초 동안 생존했고 managed exception·crash 없이 종료됐다.
+- Windows player 전체 gameplay 수동 검증: **Verified on 2026-09-04**. 사용자가 `docs/DEMO_GUIDE.md`의 이동·공격·FSM·Game Over·restart checklist PASS와 오류 없음을 확인했다.
 - Windows .NET SDK version 명령: **Verified on 2026-09-04**. Windows `dotnet.exe --version` 결과 `10.0.400`.
 - .NET server build/test: **Not yet verified**. Project가 생긴 뒤 실제 명령만 기록한다.
 - Unreal C++ build/run: **Not yet verified**. `ArenaObserver` project가 생긴 뒤 exact Engine 5.8로 확인한다.
@@ -142,6 +149,7 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - 의미 있는 변경은 `PROCESS.md`와 관련 ADR을 갱신하고, 실제 검증 결과를 commit message에 기록한 뒤 같은 작업 turn에서 commit과 push까지 완료한다.
 - 실행하지 않은 test를 통과했다고 기록하지 않는다. 실패나 미검증 항목도 commit과 ADR에 명시한다.
 - 생성물, credential, token을 stage하지 않는다.
+- Unity build 뒤 tracked asset이나 ProjectSettings가 자동 직렬화되면 diff로 이번 build의 부작용인지 확인하고 승인 없이 commit하지 않는다.
 - `git reset`, `git clean`, `git checkout -- .`, `git restore .`, `git stash`, `git pull`, `git rebase`, force push를 실행하지 않는다.
 - 사용자 변경을 되돌리거나 덮어쓰지 않는다.
 - commit 전 staged diff와 전체 상태를 검토하고, push 후 remote ref를 확인한다.

@@ -5,9 +5,9 @@
 - Last updated: 2026-09-04 KST
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
-- Expected handoff state: `main...origin/main`, clean
-- Active work: `work/day3-profiling-validation`, 자동·사람 검증 완료, 통합 대기
-- Next task: Day 3 branch를 `main`에 통합한 뒤 Day 4 Windows build·README·demo 진행
+- Expected handoff state: `work/day4-build-demo...origin/work/day4-build-demo`, clean
+- Active work: `work/day4-build-demo`, 자동·사람 검증 완료, 통합 준비 완료
+- Next task: Day 4를 `main`에 통합하고 network security foundation branch 시작
 
 ## Session Start
 
@@ -37,14 +37,15 @@ git remote -v
 | Project naming | `Arena Systems Lab`로 정리 완료 |
 | GitHub | public `procloudkim/arena-systems-lab` |
 | Process governance | 완료, ADR 0003 적용 |
-| Game development glossary | `0.4.0`, 48개 용어, ADR 0004 적용 |
+| Game development glossary | `0.5.0`, 52개 용어, ADR 0004 적용 |
 | Day 2 enemy FSM | `Idle`, `Chase`, `Attack`, `Dead` 구현·수동 검증 완료 |
 | Day 3 measured tooling | `SpatialHash2D` 실험, profile 기준선, project validator 자동·사람 검증 완료 |
+| Day 4 build and demo | Windows Mono Development build·launch smoke·standalone 수동 flow PASS |
 | Portfolio technology baseline | 9개 필수 기술과 연결 구조 확정, ADR 0006 적용 |
 | Reusable extension tools | Unreal 5.8, VS Native Game/C++, Windows .NET SDK 10.0.400 |
 | Approval-gated gaps | SVN MISSING, MySQL runtime MISSING, Docker image UNKNOWN |
-| Integrated branch | `main` |
-| Runtime work in progress | `work/day3-profiling-validation`, 검증 완료·통합 대기 |
+| Integrated branch | `main`, Day 3까지 통합 |
+| Active branch | `work/day4-build-demo`, runtime gameplay 변경 없음 |
 
 Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사망, Game Over, 재시작이 포함된다. Scene과 Prefab 대신 runtime bootstrap을 사용한다.
 
@@ -56,7 +57,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 | 검증 | 결과 | 최근 근거 |
 |---|---|---|
-| Runtime/Editor/Test assembly compilation | PASS | exact Editor 6000.5.1f1, Day 3 final batch logs |
+| Runtime/Editor/Test assembly compilation | PASS | exact Editor 6000.5.1f1, Day 4 batch logs |
 | EditMode tests | PASS | 16 passed / 0 failed / 0 skipped |
 | Automated PlayMode profile test | PASS | 1 passed / 0 failed / 0 skipped, 5초 sampling |
 | Project validator command line | PASS | exact Editor에서 validation passed |
@@ -65,24 +66,26 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | Day 1 PlayMode manual flow | PASS | 사용자 확인 |
 | Day 2 PlayMode FSM flow | PASS | 사용자 상태 색상·접촉 공격·Game Over·restart 확인 |
 | Unity Console after Day 3 | PASS | 사용자 확인, 오류 없음 |
-| Process/ADR static checks | PASS | link, filename, required-section, duplicate-status 검사 |
-| Glossary static checks | PASS | version 0.4.0, 48개 heading, entry shape 검사 |
+| Windows Mono Development build | PASS | x86-64 player, build result Success, 64.697초 |
+| Windows player launch smoke | PASS | 8초 process 생존, managed exception·crash 없음 |
+| Windows player full manual flow | PASS | 사용자 확인, [standalone checklist](docs/DEMO_GUIDE.md)와 오류 없음 |
+| Process/ADR static checks | PASS | Markdown link 0건 누락, ADR 0001~0008 sequence·필수 section 검사 |
+| Glossary static checks | PASS | version 0.5.0, 52개 heading 검사 |
 | Portfolio baseline document checks | PASS | link 0건 누락, ADR 1~6 sequence/schema, forbidden Unity source/settings 변경 0건 |
 | .NET/Unreal/MySQL/SVN runtime validation | NOT RUN | 구현·승인 전 planning checkpoint |
-| Windows player build | NOT RUN | Day 4 예정 |
 
 검증 세부 이력은 [환경 감사](docs/ENVIRONMENT_AUDIT.md)와 각 ADR에 보존한다.
 
 ## Work Queue
 
-1. **Next — Day 3 integration:** 종료된 Editor 상태에서 branch를 `main`에 merge·push
-2. **Day 4:** Windows Mono build·실행, regression, `README.md`, demo 문서
+1. **Next — Day 4 integration:** 실행 중 Windows player 종료 뒤 branch를 `main`에 merge·push
+2. **Security research:** 공식 자료 기반 loopback TCP threat model과 protocol limits 확정
 3. **Required extension — Milestone 5·7·8:** TCP server, Unity network client, Unreal C++ `ArenaObserver`
 4. **Approval-gated — Milestone 6·9:** MySQL persistence와 isolated SVN workflow lab
 
 알려진 gap:
 
-- Windows player build는 아직 실행하지 않았다.
+- Windows build output과 log는 local ignored generated artifact이며 repository에 포함하지 않는다.
 - Visual Studio Unity workload는 없지만 현재 작업의 차단 요소가 아니다.
 - Unreal Editor와 Native Game/C++ toolchain은 있으나 `.uproject`와 Unreal build 결과는 없다.
 - SVN client/admin과 native MySQL runtime은 확인되지 않았다. 설치·download·package 추가는 사용자 승인 전 실행하지 않는다.
@@ -101,7 +104,8 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260904-04` | Game development glossary `0.1.0` | `work/game-dev-glossary` | `7ac3c5d` | [ADR 0004](docs/adr/0004-game-development-glossary-governance.md) | Static checks PASS | Integrated |
 | `CP-20260904-05` | 최소 Enemy FSM과 debug 표시 | `work/enemy-fsm` | `8539a8b`, evidence `b294fbb` | [ADR 0005](docs/adr/0005-minimal-enemy-fsm.md) | Compile PASS, EditMode 9/9, manual PASS | Integrated |
 | `CP-20260904-06` | Portfolio 필수 기술 baseline과 확장 계획 | `work/portfolio-technology-baseline` | `01cd869` | [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md) | Environment audit, document static checks PASS; runtime NOT RUN | Integrated |
-| `CP-20260904-07` | 측정 기반 Day 3 자료구조·Editor Tool | `work/day3-profiling-validation` | `86e90f4`, automated evidence `b64af42` | [ADR 0007](docs/adr/0007-measured-day3-tooling.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, CLI PASS, human PASS | Ready to integrate |
+| `CP-20260904-07` | 측정 기반 Day 3 자료구조·Editor Tool | `work/day3-profiling-validation` | `86e90f4`, automated evidence `b64af42`, human evidence `f17e880` | [ADR 0007](docs/adr/0007-measured-day3-tooling.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, CLI PASS, human PASS | Integrated as `e205ccd` |
+| `CP-20260904-08` | Windows Development build·README·demo | `work/day4-build-demo` | `fca8a38`, human evidence `f87a0d5` | [ADR 0008](docs/adr/0008-reproducible-windows-build-and-demo.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, build·smoke·human PASS | Ready to integrate |
 
 ## ADR Index and Naming
 
@@ -114,6 +118,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | [ADR 0005](docs/adr/0005-minimal-enemy-fsm.md) | Accepted | enum 기반 최소 enemy FSM과 debug 표시 |
 | [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md) | Accepted | 9개 필수 기술과 end-to-end 최소 구조 |
 | [ADR 0007](docs/adr/0007-measured-day3-tooling.md) | Accepted | 측정 기준선, spatial query 실험, Editor validation |
+| [ADR 0008](docs/adr/0008-reproducible-windows-build-and-demo.md) | Accepted | 재현 가능한 Windows build와 demo handoff |
 
 ADR 파일명은 `NNNN-short-kebab-case-title.md`, checkpoint ID는 `CP-YYYYMMDD-NN` 형식을 사용한다. 전체 규칙은 ADR 0003을 따른다.
 
@@ -134,9 +139,11 @@ ADR 파일명은 `NNNN-short-kebab-case-title.md`, checkpoint ID는 `CP-YYYYMMDD
 |---|---|
 | `PROCESS.md` | 현재 진행 상태, 검증 요약, 다음 작업, checkpoint |
 | `AGENTS.md` | 항상 적용할 작업 규칙 |
+| `README.md` | project 소개, 실행과 검증 entry point |
 | `docs/IMPLEMENTATION_PLAN.md` | 4일 Unity core와 필수 portfolio 확장 계획 |
 | `docs/ENVIRONMENT_AUDIT.md` | 날짜가 고정된 환경·검증 증거 |
 | `docs/AI_USAGE.md` | AI 작업의 시간순 기록 |
 | `docs/GAME_DEV_GLOSSARY.md` | 게임·Unity·물리·검증 용어와 project example |
 | `docs/PERFORMANCE_BASELINE.md` | Day 3 측정 조건, 수치, 채택하지 않은 최적화 |
+| `docs/DEMO_GUIDE.md` | demo flow와 Windows player 수동 checklist |
 | `docs/adr/` | 결정의 이유, 영향, 검증 |

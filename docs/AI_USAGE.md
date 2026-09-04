@@ -53,7 +53,7 @@
 
 ## 사람이 추후 결정하거나 확인해야 할 항목
 
-- Windows player build와 실행
+- Windows build Editor menu 동작
 
 ## 실행된 테스트
 
@@ -72,7 +72,7 @@
 
 ## 미검증 항목
 
-- Windows build
+- Windows build Editor menu 수동 실행
 
 ## AI 제안을 그대로 채택하지 않은 부분
 
@@ -191,3 +191,39 @@ PlayMode profile은 target 120 FPS, 1초 warm-up, 5초 sampling으로 601 sample
 Day 3 Editor menu와 기존 gameplay 회귀, Unity Console checklist는 사용자가 완료했고 PASS로 기록했다. package 설치, Scene/Prefab 수정, tracked ProjectSettings 변경은 수행하지 않았다.
 
 Day 3 구현 commit `86e90f4`를 `origin/work/day3-profiling-validation`에 push하고 local/remote SHA 일치를 확인했다. 전체 `git diff --check`는 Unity가 생성한 새 `.meta`의 기존 형식과 같은 빈 YAML field 후행 공백을 보고했으며, `.meta`를 제외한 staged diff check는 PASS였다. 생성된 metadata를 임의로 재작성하지 않았다.
+
+사용자가 Day 3 Editor menu, 기존 gameplay 회귀, Unity Console checklist 완료를 확인했다. 이 사람 검증 근거를 별도 commit으로 remote branch에 push한 뒤 Unity process와 lock 부재를 확인하고 Day 3 branch를 `main`에 통합했다.
+
+## Day 4 Windows build·README·demo 기록
+
+AI가 생성하거나 수정한 대상:
+
+- `Assets/ArenaSystemsLab/Editor/ArenaWindowsBuilder.cs`
+- `README.md`
+- `docs/DEMO_GUIDE.md`
+- `docs/adr/0008-reproducible-windows-build-and-demo.md`
+- `AGENTS.md`, `PROCESS.md`, 환경 감사, AI 기록, glossary, 구현 계획
+
+`ArenaWindowsBuilder`는 기존 validator, Build Settings Scene과 Standalone Mono backend를 재사용한다. project 설정을 자동 전환하지 않고 Windows x86-64 Development player를 ignored `Builds/Windows` 아래에 생성한다. release/IL2CPP build, installer, archive upload는 추가하지 않았다.
+
+실행 결과:
+
+- EditMode regression: PASS, 16/16
+- PlayMode regression/profile: PASS, 1/1
+- Project validator CLI: PASS
+- Windows Mono Development build: PASS, 64.697초
+- Player artifact: PASS, PE32+ GUI x86-64, local output 약 166 MB
+- Player launch smoke: PASS, 8초 생존 후 target process 종료
+- Player full gameplay: PASS, 사용자 확인 및 오류 없음
+
+첫 test invocation은 감사되지 않은 `C:` 기본 Editor 경로를 사용해 executable을 찾지 못했고 test가 실행되지 않았다. 기존 Day 3 log와 제한된 일반 설치 경로 탐색으로 실제 `D:` 설치를 확인한 뒤 exact Editor를 재사용했다.
+
+build 중 Unity/URP가 4개 tracked asset/settings와 미추적 `SceneTemplateSettings.json`을 자동 직렬화했다. 직전 clean Git 상태와 diff로 이번 실행의 부작용임을 확인하고 해당 값만 원래 내용으로 복원했다. 최종 Scene, Prefab, Package, tracked ProjectSettings 변경은 없다.
+
+Player log에는 D3D12 info queue 경고와 종료 시 Unity cleanup 진단이 있었지만 managed exception, crash, 조기 종료는 없었다. 이 smoke 결과를 전체 gameplay PASS로 확대하지 않고 standalone 수동 checklist를 `docs/DEMO_GUIDE.md`에 남겼다.
+
+Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 local/remote SHA 일치를 확인했다. 당시에는 Windows player 전체 gameplay와 build Editor menu가 사람 검증 전이므로 branch를 `main`에 통합하지 않았다.
+
+이후 사용자가 Windows player standalone 8단계 checklist PASS와 오류 없음을 확인했다. 확인 시점에 player process가 아직 실행 중이므로 사람 검증 기록은 남기되 강제 종료나 branch 통합은 수행하지 않는다.
+
+사람 검증 commit `f87a0d5`를 remote branch와 대조한 뒤 generated player 창에 정상 종료 신호를 보냈고 process가 즉시 종료됐다. Unity Editor, player, crash handler와 project lock이 모두 없는 상태에서 Day 4 통합을 재개한다.

@@ -115,7 +115,11 @@ Unity Profiler, `UnityEngine.Pool`, UnityEditor API만 사용한다. Performance
 
 ### 위험 요소
 
-Windows player build 명령과 생성된 실행 파일은 아직 검증되지 않았다.
+Unity/URP가 build 중 source asset이나 ProjectSettings를 자동 직렬화할 수 있으므로 전후 Git diff를 확인한다. 자동 launch smoke는 전체 gameplay 검증을 대신하지 않으므로 standalone 수동 checklist를 별도로 수행한다.
+
+### 현재 상태
+
+현재 완료 상태와 다음 재개 지점은 [PROCESS.md](../PROCESS.md)를 따른다.
 
 ## Milestone 5: TCP socket server and multithreading
 
