@@ -161,3 +161,5 @@ AI 제안 중 채택하지 않은 부분:
 - MySQL wire protocol을 직접 구현하지 않았다.
 - Unreal에서 두 번째 arena game을 만들지 않고 read-only observer로 범위를 제한했다.
 - asynchronous I/O만으로 multithreading 경험을 주장하지 않도록 별도 concurrent test gate를 두었다.
+
+baseline 문서 구현 commit `01cd869`를 `origin/work/portfolio-technology-baseline`에 push하고 local/remote SHA 일치를 확인했다. Markdown link, ADR 0001~0006 sequence와 section, glossary 0.3.0의 43개 entry shape, 변경 경계 검사는 PASS다. runtime test는 documentation-only checkpoint이므로 실행하지 않았다.

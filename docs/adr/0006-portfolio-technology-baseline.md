@@ -46,6 +46,9 @@ MySQL wire protocol은 직접 구현하지 않는다. 권장 connector는 `MySql
 - SVN command, standard install path, registry probe: MISSING
 - MySQL command, service, standard install path, registry probe: MISSING
 - Docker client 29.7.2: READY; daemon과 MySQL image: UNKNOWN
-- 문서 link, ADR schema, glossary shape 검사: 첫 commit 전에 실행
+- 문서 link: PASS, missing 0
+- ADR filename sequence와 required schema: PASS, ADR 0001~0006
+- Glossary: PASS, version 0.3.0, 43개 term, entry shape issue 0
+- Unity source, Scene, Prefab, Package, ProjectSettings 변경: 0
 - Runtime, database, Unreal, SVN 통합 검사: NOT RUN
-- Remote branch SHA: 첫 push 후 기록
+- Remote branch SHA: PASS, commit `01cd869`가 `origin/work/portfolio-technology-baseline`과 일치
