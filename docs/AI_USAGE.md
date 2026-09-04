@@ -338,3 +338,5 @@ Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 loc
 - networking package, interface 하나뿐인 service layer, Scene·Prefab 설정을 추가하지 않았다.
 - TLS, authentication, remote bind, account ID와 server-authoritative score를 local demo에 미리 구현하지 않았다.
 - 매 frame polling을 만들지 않고 Game Over에서만 두 개의 bounded request를 보낸다.
+
+구현·ADR·자동 검증 문서 commit `ac1f24a`를 `origin/work/unity-network-client`에 push하고 local/remote SHA 일치를 확인했다. 사람 검증 전이므로 `main` 통합은 수행하지 않았으며 현재 checkpoint는 `PROCESS.md`의 `CP-20260905-02`에서 관리한다.
