@@ -276,3 +276,46 @@ Unity/URP는 build 중 `DefaultVolumeProfile.asset`, `UniversalRP.asset`, `Unive
 | `git diff`, `git status` | Unity 자동 변경과 최종 source 경계 확인 | 승인 범위 밖 최종 diff 0 |
 
 설치, package 추가, download, Unity Editor upgrade는 수행하지 않았다.
+
+## Milestone 5 네트워크 보안·.NET 검증
+
+실행 시점: `2026-09-05T00:05:22+09:00`
+
+Day 4 통합 후 `work/network-security-foundation` branch에서 외부 package 없이 C#/.NET TCP server를 구현하기 전에 공식 자료로 신뢰 경계와 자원 제한을 조사했다. TCP stream framing, JSON 제한, server-side input validation, resource exhaustion, logging, async I/O와 multithreading 구분, 향후 TLS 기준을 [Network Security Baseline](NETWORK_SECURITY.md)에 근거와 함께 기록했다.
+
+| 항목 | 감지 결과 | 버전/설정 | 상태 | 근거 | 필요한 조치 |
+|---|---|---|---|---|---|
+| Windows .NET SDK | 기존 설치 재사용 | 10.0.400 | READY | 이전 version 감사와 실제 restore/build/run | 없음 |
+| Server dependency | BCL only | NuGet package 0개, source clear | READY | 두 csproj와 `Server/NuGet.Config` | 승인 없이 package 추가 금지 |
+| TCP bind | IPv4 loopback only | `127.0.0.1`, default port 7777 | READY | `TcpListener(IPAddress.Loopback, port)`와 integration check | remote bind 금지 |
+| Framing | length-prefixed UTF-8 JSON | 4-byte big-endian, 최대 16 KiB | READY | source와 fragmented/oversized check | engine client에서 동일 규격 사용 |
+| Input validation | exact schema와 bounds | JSON depth 8, ID/score/query 제한 | READY | parser check | client validation으로 대체 금지 |
+| Resource limits | 명시적 상한 | clients 16, timeout 5초, players 10,000 | READY | source와 timeout/capacity check | 실제 부하 한계는 미측정 |
+| Shared state | `lock`으로 보호 | actual worker thread 8개 | READY | multithreaded store check | 측정 전 lock 구조 변경 금지 |
+| TLS/authentication | 구현 없음 | plaintext, identity 없음 | MISSING | source와 threat model | remote exposure 전 필수 |
+| Score authority | client 제출값 범위만 검사 | gameplay 정당성 검증 없음 | MISSING | protocol semantics | public leaderboard 전 설계 |
+
+### 실행한 명령과 결과
+
+| 명령 종류 | 목적 | 결과 |
+|---|---|---|
+| Git branch/status와 bounded source inventory | Day 4 통합 상태와 기존 server source 충돌 확인 | `main`=`origin/main` at `75151b9`, server source 없음, 새 branch 시작 |
+| 공식 RFC·Microsoft·OWASP·CWE 자료 조사 | protocol·input·DoS·log·async/TLS 사실 검증 | claim 6개 판정과 remote gate 기록 |
+| `dotnet restore ... --configfile Server/NuGet.Config` | 외부 source 없는 project assets 생성 | PASS, 두 project restore |
+| `dotnet build ... --configuration Release --no-restore` | server와 verification compile | PASS, warnings 0 / errors 0 |
+| `dotnet run ... --no-build --no-restore` | protocol·security·threading integration 검사 | PASS, 8 passed / 0 failed |
+| actual server CLI + Windows PowerShell socket client | process entry point와 cross-process frame 확인 | PASS, port 7777 health response·graceful shutdown |
+| WSL Python client → Windows loopback | cross-OS namespace 동작 확인 시도 | FAIL, `ConnectionRefused`; server 판정 근거에서 제외 |
+| `git check-ignore -v` | .NET generated artifact와 csproj 경계 확인 | `obj/bin` ignored, `Server/**/*.csproj` source로 보존 |
+
+첫 `dotnet restore`는 package source를 비운 상태라 외부 NuGet package를 받지 않았다. 다만 Windows .NET CLI 최초 실행 메시지가 ASP.NET Core HTTPS development certificate 생성 사실을 보고했다. 이번 TCP server는 그 인증서를 참조하거나 사용하지 않으며, repository 밖 certificate store를 승인 없이 조사·삭제하지 않았다.
+
+첫 restore에는 telemetry 안내가 표시됐고 network capture를 수행하지 않았으므로 실제 telemetry 전송 여부는 `UNKNOWN`이다. 이후 build/run 명령에는 process 범위 `DOTNET_CLI_TELEMETRY_OPTOUT=1`과 `DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1`을 사용했다.
+
+Unity Editor, Scene, Prefab, Unity package, ProjectSettings는 이 checkpoint에서 열거나 변경하지 않았다. TLS/authentication과 score authority가 없으므로 현재 server는 loopback protocol lab으로만 분류하며 LAN/public service 검증은 `NOT RUN`이다.
+
+WSL의 `127.0.0.1`에서 Windows `dotnet.exe` process로 접속한 첫 cross-process 시도는 두 OS network namespace 차이로 연결되지 않았다. 같은 Windows host의 PowerShell `TcpClient`로 다시 실행해 정상 response를 확인했으며 실패 시도를 숨기거나 server PASS로 재해석하지 않았다.
+
+최초 verification 7건은 모두 통과했지만 보안 재검토에서 서로 다른 `playerId`를 무한히 누적할 수 있는 전체 state 상한 누락을 발견했다. stored player 10,000개 제한과 capacity 검사를 추가한 뒤 final verification 8/8을 다시 실행했다.
+
+첫 Windows PowerShell inline client 명령은 Bash와 PowerShell 사이 JSON quote가 손실되어 parser error로 종료됐고 network request는 전송되지 않았다. `ConvertTo-Json`으로 quote 경계를 제거한 다음 동일 Windows host에서 재실행해 health response를 확인했다.

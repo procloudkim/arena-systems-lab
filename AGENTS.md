@@ -17,6 +17,9 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - `Assets/ArenaSystemsLab/Editor/`: project validation과 Windows Development build Editor Tool
 - `Assets/ArenaSystemsLab/Tests/EditMode/`: runtime logic, spatial query, Editor validation 테스트
 - `Assets/ArenaSystemsLab/Tests/PlayMode/`: 자동 gameplay profiling 기준선 테스트
+- `Server/ArenaSystemsLab.Server/`: BCL-only loopback TCP leaderboard server
+- `Server/ArenaSystemsLab.Server.Verification/`: package 없는 protocol·security·threading 검증 executable
+- `Server/NuGet.Config`: server restore에서 외부 package source를 사용하지 않는 기준
 - `Packages/`: Unity package 선언과 lock 파일
 - `ProjectSettings/`: Unity 프로젝트 설정
 - `README.md`: 프로젝트 소개, 실행, 검증, build entry point
@@ -25,12 +28,12 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - `docs/GAME_DEV_GLOSSARY.md`: 게임·Unity·물리·검증 용어 백과사전
 - `docs/PERFORMANCE_BASELINE.md`: 측정 조건, 수치, 최적화 채택 여부
 - `docs/DEMO_GUIDE.md`: 3~5분 demo flow와 Windows player 수동 checklist
+- `docs/NETWORK_SECURITY.md`: network threat model, protocol limits, remote exposure gate
 - `docs/adr/`: 사람과 LLM이 함께 읽는 의사결정 기록
 - `.gitignore`: Unity/IDE 생성물 제외 규칙
 
 다음 디렉터리는 [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md)에 따라 필요한 milestone에서만 만든다. 아직 없으면 생성됐다고 가정하지 않는다.
 
-- `Server/`: planned C#/.NET TCP leaderboard server와 test
 - `Database/`: planned MySQL schema와 migration
 - `Unreal/`: planned Unreal Engine C++ `ArenaObserver`
 - `docs/evidence/`: planned 재현 가능한 검증 evidence
@@ -76,6 +79,9 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - AI 작업 기록: `docs/AI_USAGE.md`
 - Day 3 측정 기준선: `docs/PERFORMANCE_BASELINE.md`
 - demo와 standalone 수동 검증: `docs/DEMO_GUIDE.md`
+- network protocol과 보안 경계: `docs/NETWORK_SECURITY.md`
+- standalone server build 기준: `Server/ArenaSystemsLab.Server/ArenaSystemsLab.Server.csproj`
+- standalone server verification 기준: `Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj`
 - 작업·구조 의사결정: `docs/adr/`
 - 최종 필수 기술 baseline: `docs/adr/0006-portfolio-technology-baseline.md`
 - milestone과 완료 근거 matrix: `docs/IMPLEMENTATION_PLAN.md`
@@ -115,6 +121,9 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - 측정하지 않은 성능 향상을 주장하지 않는다.
 - 한 구현뿐인 interface, factory, service locator, DI container를 만들지 않는다.
 - network payload는 크기와 값 범위를 검증하고 최초 통합은 loopback으로 제한한다.
+- loopback을 authentication으로 간주하지 않는다. server는 frame 16 KiB, JSON depth 8, client 16개, request 5초, player 10,000개 상한을 유지한다.
+- TLS, authentication, abuse control과 server-authoritative score 검증 전에는 server를 LAN/public interface에 bind하지 않는다.
+- raw network payload, credential, player-controlled 문자열과 stack trace를 운영 log에 남기지 않는다.
 - asynchronous I/O와 multithreading을 같은 것으로 기록하지 않는다. concurrent test와 shared-state 안전성 근거가 있어야 multithreading 완료로 표시한다.
 - credential, connection string, local database volume, generated engine cache를 commit하지 않는다.
 
@@ -136,7 +145,12 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - Windows player launch smoke: **Verified on 2026-09-04**. 생성된 x86-64 player가 8초 동안 생존했고 managed exception·crash 없이 종료됐다.
 - Windows player 전체 gameplay 수동 검증: **Verified on 2026-09-04**. 사용자가 `docs/DEMO_GUIDE.md`의 이동·공격·FSM·Game Over·restart checklist PASS와 오류 없음을 확인했다.
 - Windows .NET SDK version 명령: **Verified on 2026-09-04**. Windows `dotnet.exe --version` 결과 `10.0.400`.
-- .NET server build/test: **Not yet verified**. Project가 생긴 뒤 실제 명령만 기록한다.
+- .NET server restore/build/verification: **Verified on 2026-09-05** with Windows .NET SDK 10.0.400. `<dotnet>`을 감사된 executable로 바꿔 다음 argument를 사용한다.
+  - `"<dotnet>" restore Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configfile Server/NuGet.Config`
+  - `"<dotnet>" build Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configuration Release --no-restore`
+  - `"<dotnet>" run --project Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configuration Release --no-build --no-restore`
+- .NET Release build: **PASS**, warnings 0 / errors 0. Verification executable: **PASS**, 8 passed / 0 failed.
+- .NET server CLI smoke: **PASS on 2026-09-05**, port 7777에서 Windows PowerShell client `health` response와 `Ctrl+C` 정상 종료 확인.
 - Unreal C++ build/run: **Not yet verified**. `ArenaObserver` project가 생긴 뒤 exact Engine 5.8로 확인한다.
 - SVN workflow와 MySQL integration: **Not yet verified**. 필요한 도구와 dependency가 승인·준비된 뒤 실행한다.
 

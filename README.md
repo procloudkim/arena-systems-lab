@@ -47,6 +47,9 @@ Scene과 Prefab을 직접 바꾸지 않고 `ArenaGame` runtime bootstrap이 기�
 | `SpatialHash2D` | gameplay와 분리된 spatial query correctness·비용 실험 |
 | `ArenaProjectValidator` | Editor version, Build Scene, Input Actions 검사 |
 | `ArenaWindowsBuilder` | 검증 후 Windows x86-64 Mono Development build 생성 |
+| `WireProtocol` | 길이 기반 TCP frame과 엄격한 JSON request 검증 |
+| `LeaderboardServer` | loopback socket 수명, timeout, 동시 client 제한 |
+| `LeaderboardStore` | 최고 score 규칙과 thread-safe bounded state |
 
 ## 자동 검증
 
@@ -74,6 +77,19 @@ Editor에서는 `Tools > Arena Systems Lab > Build Windows Development`를 사�
 
 Day 4 자동 검증에서 Windows x86-64 Development build와 8초 player launch smoke test가 통과했다. 이어서 사용자가 [demo guide](docs/DEMO_GUIDE.md)의 독립 실행 파일 gameplay checklist PASS와 오류 없음을 확인했다.
 
+## Loopback leaderboard server
+
+Milestone 5의 C#/.NET server foundation은 Unity project와 분리된 `Server/`에 있다. 현재 Unity game에는 아직 연결되지 않았으며 local protocol 검증만 허용한다. project root의 PowerShell에서 `<dotnet>`을 감사된 Windows .NET 10 executable로 바꿔 실행한다.
+
+```powershell
+& "<dotnet>" restore Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configfile Server/NuGet.Config
+& "<dotnet>" build Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configuration Release --no-restore
+& "<dotnet>" run --project Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configuration Release --no-build --no-restore
+& "<dotnet>" run --project Server/ArenaSystemsLab.Server/ArenaSystemsLab.Server.csproj --configuration Release --no-build --no-restore -- --port 7777
+```
+
+server는 `127.0.0.1`에만 bind하며 4-byte big-endian 길이와 UTF-8 JSON을 사용한다. 2026-09-05 Release build는 경고 0·오류 0, verification은 8/8 PASS다. protocol 한계와 원격 공개 금지 조건은 [network security baseline](docs/NETWORK_SECURITY.md)에 기록했다.
+
 ## 설계·검증 근거
 
 - 현재 상태와 다음 작업: [PROCESS.md](PROCESS.md)
@@ -81,6 +97,7 @@ Day 4 자동 검증에서 Windows x86-64 Development build와 8초 player launch
 - 측정 조건과 최적화 채택 판단: [docs/PERFORMANCE_BASELINE.md](docs/PERFORMANCE_BASELINE.md)
 - 3~5분 demo와 수동 검증: [docs/DEMO_GUIDE.md](docs/DEMO_GUIDE.md)
 - 게임 개발 용어 백과사전: [docs/GAME_DEV_GLOSSARY.md](docs/GAME_DEV_GLOSSARY.md)
+- 네트워크 위협 모델과 protocol: [docs/NETWORK_SECURITY.md](docs/NETWORK_SECURITY.md)
 - AI 작성·사람 검증 기록: [docs/AI_USAGE.md](docs/AI_USAGE.md)
 - Architecture Decision Records: [docs/adr/](docs/adr/)
 
@@ -88,5 +105,6 @@ Day 4 자동 검증에서 Windows x86-64 Development build와 8초 player launch
 
 - 도형과 IMGUI만 사용한 system prototype이며 외부 art, animation, sound가 없다.
 - object pooling은 병목 근거가 없어 적용하지 않았고 `SpatialHash2D`도 실제 neighbor query가 생기기 전까지 gameplay에 연결하지 않는다.
-- Day 4까지는 Unity MVP다. 전체 portfolio 하한인 TCP/socket server, multithreading, MySQL persistence, Unreal C++ observer, isolated SVN workflow는 후속 milestone이다.
+- Day 4까지 Unity MVP와 loopback TCP server foundation을 완료했다. Unity client 연결, MySQL persistence, Unreal C++ observer, isolated SVN workflow는 후속 milestone이다.
+- 현재 TCP server는 인증·TLS·server-authoritative score가 없는 local lab이다. LAN이나 public interface에 노출하지 않는다.
 - 실제 협업·live-service 경험을 수행했다고 주장하지 않는다.

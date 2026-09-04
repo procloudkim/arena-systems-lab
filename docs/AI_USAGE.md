@@ -227,3 +227,71 @@ Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 loc
 이후 사용자가 Windows player standalone 8단계 checklist PASS와 오류 없음을 확인했다. 확인 시점에 player process가 아직 실행 중이므로 사람 검증 기록은 남기되 강제 종료나 branch 통합은 수행하지 않는다.
 
 사람 검증 commit `f87a0d5`를 remote branch와 대조한 뒤 generated player 창에 정상 종료 신호를 보냈고 process가 즉시 종료됐다. Unity Editor, player, crash handler와 project lock이 모두 없는 상태에서 Day 4 통합을 재개한다.
+
+## Milestone 5 네트워크 보안 foundation 기록
+
+실행일: `2026-09-05`
+
+### AI가 수행한 조사
+
+- Day 4 사람 검증 근거와 `main` 통합 상태, Unity/player process 종료 상태를 확인했다.
+- TCP message boundary, UTF-8 JSON과 parser limit, loopback bind, `ReadExactlyAsync`, input validation, resource exhaustion, 안전한 logging, async I/O와 multithreading 차이, 향후 TLS 설정을 공식 RFC·Microsoft·OWASP·CWE 자료와 대조했다.
+- “한 send는 한 read다”, “loopback은 인증이다”, “공식 client input은 신뢰 가능하다”, “async I/O 자체가 multithreading 증거다”라는 가정을 모두 기각했다.
+- 기존 repository에 network/socket/thread source가 없고 Windows .NET SDK 10.0.400을 재사용할 수 있음을 확인했다.
+
+### AI가 생성하거나 수정한 파일
+
+- `Server/ArenaSystemsLab.Server/`: BCL-only protocol, loopback server, bounded thread-safe in-memory store
+- `Server/ArenaSystemsLab.Server.Verification/`: framework 없는 실행형 검증 8건
+- `Server/NuGet.Config`: restore package source clear
+- `docs/NETWORK_SECURITY.md`
+- `docs/adr/0009-loopback-first-bounded-tcp-protocol.md`
+- `.gitignore`, `AGENTS.md`, `README.md`, 구현 계획, 환경 감사, AI 기록, glossary
+
+### 사람이 확인해야 할 항목
+
+- 현재 보안 문서의 threat model과 local-only 한계가 portfolio 설명에 맞는지 검토한다.
+- Unity client 연결 이후 실제 Game Over score 제출·조회와 Console을 수동 검증한다.
+- LAN/public bind가 필요해지면 TLS, authentication, abuse control과 server-authoritative score 설계를 먼저 승인한다.
+
+### 실행된 테스트
+
+- Offline restore with cleared NuGet sources: PASS
+- Release build: PASS, warnings 0 / errors 0
+- Fragmented frame: PASS
+- Zero/oversized frame length: PASS
+- Strict request validation: PASS
+- Bounded player store: PASS
+- Actual 8-thread shared store: PASS
+- Loopback health: PASS
+- Slow-client timeout: PASS
+- 24 concurrent score clients and leaderboard: PASS
+- 최종 verification: 8 passed / 0 failed
+- Actual server CLI + Windows PowerShell health client: PASS, graceful shutdown
+
+### 미검증 항목
+
+- Unity와 Unreal client end-to-end flow
+- MySQL persistence와 restart recovery
+- TLS, authentication, authorization, replay/rate limiting
+- client 제출 score의 gameplay 정당성
+- 부하 한계, 장시간 soak, 외부 penetration test
+- 첫 .NET restore의 실제 telemetry 전송 여부
+
+### AI 제안을 그대로 채택하지 않은 부분
+
+- loopback foundation에 TLS·account system·token을 미리 만들지 않았다. remote exposure 전까지 bind 자체를 금지하는 gate로 남겼다.
+- xUnit/NUnit 등 test package를 추가하지 않고 작은 verification executable을 사용했다.
+- asynchronous socket I/O를 multithreading 증거로 포장하지 않고 실제 `Thread` 8개 검사를 분리했다.
+- 측정 전 cache, worker pool, per-player lock, database abstraction을 추가하지 않았다.
+- client가 제출한 score를 안전하다고 주장하지 않았다.
+
+첫 `dotnet restore`에서 Windows .NET CLI가 ASP.NET Core HTTPS development certificate를 자동 생성했다고 보고했다. 이 인증서는 server에서 사용하지 않으며 repository 밖 certificate store를 승인 없이 수정하지 않았다. 이후 .NET 명령은 process 범위 telemetry opt-out과 first-time-experience skip을 적용했다.
+
+실제 server CLI smoke에서 WSL Python client의 `127.0.0.1` 연결은 `ConnectionRefused`로 실패했다. Windows process와 같은 host namespace의 PowerShell `TcpClient`로 재검사해 health response를 확인했으며, 첫 결과는 환경 차이에 의한 실패 시도로 그대로 기록했다.
+
+초기 verification 7/7 뒤에도 보안 경계를 다시 검토했고, 서로 다른 player를 계속 추가하면 dictionary가 무한히 커지는 누적 자원 위험을 발견했다. player 10,000개 상한과 검사를 추가해 final 8/8로 다시 검증했다.
+
+첫 PowerShell inline client는 shell 사이 JSON quoting 오류로 parser 단계에서 실패해 request를 보내지 못했다. payload를 PowerShell `ConvertTo-Json`으로 생성하도록 고쳐 같은 Windows host에서 재실행했다.
+
+구현·문서 commit `3909f6b`를 `origin/work/network-security-foundation`에 push하고 local/remote SHA 일치를 확인했다. 다음 통합 여부와 재개 지점은 `PROCESS.md`의 `CP-20260905-01`에서 관리한다.
