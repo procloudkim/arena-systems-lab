@@ -5,9 +5,9 @@
 - Last updated: 2026-09-05 KST
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
-- Expected handoff state: `work/network-security-foundation...origin/work/network-security-foundation`, clean
-- Active work: Milestone 5 loopback TCP server foundation 구현·자동 검증·원격 push 완료
-- Next task: network security foundation 검토·`main` 통합 후 Milestone 7 Unity client 연결
+- Expected handoff state: `main...origin/main`, clean
+- Active work: Milestone 5 loopback TCP server foundation이 `main`에 통합됨
+- Next task: `work/unity-network-client` branch에서 Milestone 7 Unity client 연결
 
 ## Session Start
 
@@ -46,8 +46,8 @@ git remote -v
 | Portfolio technology baseline | 9개 필수 기술과 연결 구조 확정, ADR 0006 적용 |
 | Reusable extension tools | Unreal 5.8, VS Native Game/C++, Windows .NET SDK 10.0.400 |
 | Approval-gated gaps | SVN MISSING, MySQL runtime MISSING, Docker image UNKNOWN |
-| Integrated branch | `main`, Day 4까지 `75151b9`로 통합 |
-| Active branch | `work/network-security-foundation`, Unity runtime gameplay 변경 없음 |
+| Integrated branch | `main`, Milestone 5 foundation까지 `bb3a24e`로 통합 |
+| Active branch | `main`, clean handoff 예정 |
 
 Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사망, Game Over, 재시작이 포함된다. Scene과 Prefab 대신 runtime bootstrap을 사용한다.
 
@@ -83,8 +83,8 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 ## Work Queue
 
-1. **Next — Milestone 5 integration:** `work/network-security-foundation`의 security baseline과 automated evidence를 검토한 뒤 `main`에 merge·push
-2. **Required extension — Milestone 7·8:** Unity network client와 Unreal C++ `ArenaObserver`를 같은 protocol에 연결
+1. **Next — Milestone 7:** `work/unity-network-client` branch에서 Game Over score submit·leaderboard query를 현재 protocol에 연결
+2. **Required extension — Milestone 8:** Unreal C++ `ArenaObserver`를 같은 protocol에 연결
 3. **Approval-gated — Milestone 6·9:** MySQL persistence와 isolated SVN workflow lab
 
 알려진 gap:
@@ -111,7 +111,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260904-06` | Portfolio 필수 기술 baseline과 확장 계획 | `work/portfolio-technology-baseline` | `01cd869` | [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md) | Environment audit, document static checks PASS; runtime NOT RUN | Integrated |
 | `CP-20260904-07` | 측정 기반 Day 3 자료구조·Editor Tool | `work/day3-profiling-validation` | `86e90f4`, automated evidence `b64af42`, human evidence `f17e880` | [ADR 0007](docs/adr/0007-measured-day3-tooling.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, CLI PASS, human PASS | Integrated as `e205ccd` |
 | `CP-20260904-08` | Windows Development build·README·demo | `work/day4-build-demo` | `fca8a38`, human evidence `f87a0d5` | [ADR 0008](docs/adr/0008-reproducible-windows-build-and-demo.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, build·smoke·human PASS | Integrated as `75151b9` |
-| `CP-20260905-01` | Security-first loopback TCP server foundation | `work/network-security-foundation` | `3909f6b` | [ADR 0009](docs/adr/0009-loopback-first-bounded-tcp-protocol.md) | .NET Release PASS, verification 8/8, CLI smoke PASS | Awaiting integration |
+| `CP-20260905-01` | Security-first loopback TCP server foundation | `work/network-security-foundation` | `3909f6b` | [ADR 0009](docs/adr/0009-loopback-first-bounded-tcp-protocol.md) | .NET Release PASS, verification 8/8, CLI smoke PASS | Integrated as `bb3a24e` |
 
 ## ADR Index and Naming
 

@@ -44,3 +44,4 @@ client 구현 전에 언어와 engine이 공유할 수 있는 작은 protocol �
 - Unity Scene, Prefab, Package, ProjectSettings changes: none
 - Remote TLS/authentication and score authority: NOT IMPLEMENTED, remote exposure forbidden
 - Remote branch SHA: PASS, implementation commit `3909f6b`가 `origin/work/network-security-foundation`과 일치
+- Main integration: PASS, merge commit `bb3a24e`

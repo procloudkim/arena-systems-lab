@@ -295,3 +295,5 @@ Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 loc
 첫 PowerShell inline client는 shell 사이 JSON quoting 오류로 parser 단계에서 실패해 request를 보내지 못했다. payload를 PowerShell `ConvertTo-Json`으로 생성하도록 고쳐 같은 Windows host에서 재실행했다.
 
 구현·문서 commit `3909f6b`를 `origin/work/network-security-foundation`에 push하고 local/remote SHA 일치를 확인했다. 다음 통합 여부와 재개 지점은 `PROCESS.md`의 `CP-20260905-01`에서 관리한다.
+
+자동 검증과 실제 CLI smoke, 변경 경계 검사를 근거로 branch를 merge commit `bb3a24e`에서 `main`에 통합하고 `origin/main`에 push했다. Unity runtime, Scene, Prefab, Package, ProjectSettings 변경은 없다.
