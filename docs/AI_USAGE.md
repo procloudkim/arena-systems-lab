@@ -290,4 +290,8 @@ Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 loc
 
 실제 server CLI smoke에서 WSL Python client의 `127.0.0.1` 연결은 `ConnectionRefused`로 실패했다. Windows process와 같은 host namespace의 PowerShell `TcpClient`로 재검사해 health response를 확인했으며, 첫 결과는 환경 차이에 의한 실패 시도로 그대로 기록했다.
 
+초기 verification 7/7 뒤에도 보안 경계를 다시 검토했고, 서로 다른 player를 계속 추가하면 dictionary가 무한히 커지는 누적 자원 위험을 발견했다. player 10,000개 상한과 검사를 추가해 final 8/8로 다시 검증했다.
+
+첫 PowerShell inline client는 shell 사이 JSON quoting 오류로 parser 단계에서 실패해 request를 보내지 못했다. payload를 PowerShell `ConvertTo-Json`으로 생성하도록 고쳐 같은 Windows host에서 재실행했다.
+
 구현·문서 commit `3909f6b`를 `origin/work/network-security-foundation`에 push하고 local/remote SHA 일치를 확인했다. 다음 통합 여부와 재개 지점은 `PROCESS.md`의 `CP-20260905-01`에서 관리한다.

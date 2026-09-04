@@ -315,3 +315,7 @@ Day 4 통합 후 `work/network-security-foundation` branch에서 외부 package 
 Unity Editor, Scene, Prefab, Unity package, ProjectSettings는 이 checkpoint에서 열거나 변경하지 않았다. TLS/authentication과 score authority가 없으므로 현재 server는 loopback protocol lab으로만 분류하며 LAN/public service 검증은 `NOT RUN`이다.
 
 WSL의 `127.0.0.1`에서 Windows `dotnet.exe` process로 접속한 첫 cross-process 시도는 두 OS network namespace 차이로 연결되지 않았다. 같은 Windows host의 PowerShell `TcpClient`로 다시 실행해 정상 response를 확인했으며 실패 시도를 숨기거나 server PASS로 재해석하지 않았다.
+
+최초 verification 7건은 모두 통과했지만 보안 재검토에서 서로 다른 `playerId`를 무한히 누적할 수 있는 전체 state 상한 누락을 발견했다. stored player 10,000개 제한과 capacity 검사를 추가한 뒤 final verification 8/8을 다시 실행했다.
+
+첫 Windows PowerShell inline client 명령은 Bash와 PowerShell 사이 JSON quote가 손실되어 parser error로 종료됐고 network request는 전송되지 않았다. `ConvertTo-Json`으로 quote 경계를 제거한 다음 동일 Windows host에서 재실행해 health response를 확인했다.
