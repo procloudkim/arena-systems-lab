@@ -1,3 +1,7 @@
+using System;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,9 +13,10 @@ namespace ArenaSystemsLab
         public const float HalfHeight = 5f;
 
         private const int MaxEnemies = 40;
+        private const int LeaderboardLimit = 5;
+        private const string LeaderboardPlayerId = "UnityPlayer";
         private const string ControlsText = "Move: WASD / Arrows / Left Stick    Attack: Left Click / Enter / West Button";
         private const string EnemyStatesText = "Enemy: Gray Idle / Red Chase / Orange Attack";
-        private const string GameOverText = "GAME OVER\nPress R to restart";
 
         private Camera arenaCamera;
         private Sprite squareSprite;
@@ -21,7 +26,12 @@ namespace ArenaSystemsLab
         private EnemySpawner spawner;
         private GUIStyle hudStyle;
         private GUIStyle gameOverStyle;
+        private LeaderboardClient leaderboardClient;
+        private CancellationTokenSource leaderboardCancellation;
         private string hudText;
+        private string gameOverText;
+        private string leaderboardStatus;
+        private string leaderboardText;
         private int score;
         private int enemyCount;
         private int cachedHealth = -1;
@@ -50,6 +60,7 @@ namespace ArenaSystemsLab
                 1f);
 
             ConfigureCamera();
+            leaderboardClient = new LeaderboardClient();
             StartRound();
         }
 
@@ -63,6 +74,7 @@ namespace ArenaSystemsLab
 
         private void OnDestroy()
         {
+            CancelLeaderboardRequest();
             if (playerHealth != null)
             {
                 playerHealth.Died -= HandlePlayerDied;
@@ -79,15 +91,16 @@ namespace ArenaSystemsLab
             EnsureGuiStyles();
             RefreshHudText();
 
-            GUI.Box(new Rect(12f, 12f, 530f, 96f), GUIContent.none);
+            GUI.Box(new Rect(12f, 12f, 530f, 122f), GUIContent.none);
             GUI.Label(new Rect(24f, 18f, 500f, 28f), hudText, hudStyle);
             GUI.Label(new Rect(24f, 48f, 500f, 24f), ControlsText, hudStyle);
             GUI.Label(new Rect(24f, 72f, 500f, 24f), EnemyStatesText, hudStyle);
+            GUI.Label(new Rect(24f, 96f, 500f, 24f), leaderboardStatus, hudStyle);
 
             if (isGameOver)
             {
-                GUI.Box(new Rect(Screen.width * 0.5f - 180f, Screen.height * 0.5f - 70f, 360f, 140f), GUIContent.none);
-                GUI.Label(new Rect(Screen.width * 0.5f - 170f, Screen.height * 0.5f - 55f, 340f, 110f), GameOverText, gameOverStyle);
+                GUI.Box(new Rect(Screen.width * 0.5f - 220f, Screen.height * 0.5f - 145f, 440f, 290f), GUIContent.none);
+                GUI.Label(new Rect(Screen.width * 0.5f - 205f, Screen.height * 0.5f - 132f, 410f, 264f), gameOverText, gameOverStyle);
             }
         }
 
@@ -99,7 +112,10 @@ namespace ArenaSystemsLab
         public void RegisterEnemyDeath()
         {
             enemyCount = Mathf.Max(0, enemyCount - 1);
-            score++;
+            if (!isGameOver)
+            {
+                score++;
+            }
         }
 
         private void ConfigureCamera()
@@ -120,6 +136,7 @@ namespace ArenaSystemsLab
 
         private void StartRound()
         {
+            CancelLeaderboardRequest();
             if (playerHealth != null)
             {
                 playerHealth.Died -= HandlePlayerDied;
@@ -137,6 +154,9 @@ namespace ArenaSystemsLab
             cachedScore = -1;
             cachedEnemyCount = -1;
             isGameOver = false;
+            leaderboardStatus = "Leaderboard: waiting for Game Over";
+            leaderboardText = string.Empty;
+            gameOverText = string.Empty;
 
             roundRoot = new GameObject("Round").transform;
             roundRoot.SetParent(transform);
@@ -188,6 +208,89 @@ namespace ArenaSystemsLab
             {
                 spawner.enabled = false;
             }
+
+            leaderboardStatus = "Leaderboard: submitting score...";
+            RefreshGameOverText();
+            leaderboardCancellation = new CancellationTokenSource();
+            _ = SyncLeaderboardAsync(score, leaderboardCancellation.Token);
+        }
+
+        private async Task SyncLeaderboardAsync(int finalScore, CancellationToken cancellationToken)
+        {
+            try
+            {
+                LeaderboardEntry[] entries = await leaderboardClient.SubmitAndGetLeaderboardAsync(
+                    LeaderboardPlayerId,
+                    finalScore,
+                    LeaderboardLimit,
+                    cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                leaderboardStatus = "Leaderboard: connected";
+                leaderboardText = FormatLeaderboard(entries);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (LeaderboardClientException)
+            {
+                leaderboardStatus = "Leaderboard: unavailable (start local server, then play again)";
+                leaderboardText = string.Empty;
+            }
+            catch (Exception)
+            {
+                leaderboardStatus = "Leaderboard: unexpected client error";
+                leaderboardText = string.Empty;
+                Debug.LogError("Leaderboard synchronization failed with an unexpected client error.", this);
+            }
+
+            RefreshGameOverText();
+        }
+
+        private void CancelLeaderboardRequest()
+        {
+            if (leaderboardCancellation == null)
+            {
+                return;
+            }
+
+            leaderboardCancellation.Cancel();
+            leaderboardCancellation.Dispose();
+            leaderboardCancellation = null;
+        }
+
+        private void RefreshGameOverText()
+        {
+            gameOverText = $"GAME OVER\nFinal Score: {score}\nPress R to restart\n\n{leaderboardStatus}";
+            if (!string.IsNullOrEmpty(leaderboardText))
+            {
+                gameOverText += $"\n\nTop {LeaderboardLimit}\n{leaderboardText}";
+            }
+        }
+
+        private static string FormatLeaderboard(LeaderboardEntry[] entries)
+        {
+            if (entries.Length == 0)
+            {
+                return "No scores yet";
+            }
+
+            var builder = new StringBuilder(entries.Length * 24);
+            for (int index = 0; index < entries.Length; index++)
+            {
+                if (index > 0)
+                {
+                    builder.Append('\n');
+                }
+
+                builder.Append(index + 1)
+                    .Append(". ")
+                    .Append(entries[index].PlayerId)
+                    .Append("  ")
+                    .Append(entries[index].Score);
+            }
+
+            return builder.ToString();
         }
 
         private void RefreshHudText()

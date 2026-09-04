@@ -12,6 +12,7 @@
 - 지속적으로 생성되어 player를 추적·접촉 공격하는 적
 - `Idle`, `Chase`, `Attack`, `Dead` enemy FSM과 상태별 색상 표시
 - player death, Game Over, `R` restart loop
+- Game Over score의 local TCP 제출과 상위 5개 leaderboard 표시
 
 Scene과 Prefab을 직접 바꾸지 않고 `ArenaGame` runtime bootstrap이 기존 `SampleScene` 위에 arena를 구성한다. 외부 art, sound, networking package는 사용하지 않는다.
 
@@ -44,6 +45,7 @@ Scene과 Prefab을 직접 바꾸지 않고 `ArenaGame` runtime bootstrap이 기�
 | `EnemyStateMachine` | 적 상태와 전이 우선순위 |
 | `EnemySpawner` | arena 경계 spawn과 최대 적 수 제어 |
 | `ArenaGame` | bootstrap, round lifecycle, score, Game Over/restart |
+| `LeaderboardClient` | loopback TCP framing, response 검증, 취소와 1회 재시도 |
 | `SpatialHash2D` | gameplay와 분리된 spatial query correctness·비용 실험 |
 | `ArenaProjectValidator` | Editor version, Build Scene, Input Actions 검사 |
 | `ArenaWindowsBuilder` | 검증 후 Windows x86-64 Mono Development build 생성 |
@@ -63,7 +65,7 @@ Scene과 Prefab을 직접 바꾸지 않고 `ArenaGame` runtime bootstrap이 기�
 & "<UnityEditor>\Unity.exe" -batchmode -nographics -projectPath "<project-root>" -executeMethod ArenaSystemsLab.Editor.ArenaProjectValidator.ValidateFromCommandLine -logFile "<project-root>\Logs\ProjectValidation.log"
 ```
 
-2026-09-04 기준 exact Editor에서 EditMode `16/16`, PlayMode `1/1`, command-line project validation이 통과했다.
+2026-09-05 기준 exact Editor에서 EditMode `20/20`, PlayMode `1/1`, command-line project validation이 통과했다. 새 client 검사는 정상 framing, 불완전 응답 1회 재시도, 과대 response 거부와 server-unavailable 처리를 포함한다.
 
 ## Windows build
 
@@ -79,7 +81,7 @@ Day 4 자동 검증에서 Windows x86-64 Development build와 8초 player launch
 
 ## Loopback leaderboard server
 
-Milestone 5의 C#/.NET server foundation은 Unity project와 분리된 `Server/`에 있다. 현재 Unity game에는 아직 연결되지 않았으며 local protocol 검증만 허용한다. project root의 PowerShell에서 `<dotnet>`을 감사된 Windows .NET 10 executable로 바꿔 실행한다.
+Milestone 5의 C#/.NET server foundation은 Unity project와 분리된 `Server/`에 있다. Unity game은 Game Over에서 `UnityPlayer`의 score를 제출하고 상위 5개를 표시한다. 연결은 local loopback으로만 허용하며 project root의 PowerShell에서 `<dotnet>`을 감사된 Windows .NET 10 executable로 바꿔 실행한다.
 
 ```powershell
 & "<dotnet>" restore Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configfile Server/NuGet.Config
@@ -89,6 +91,10 @@ Milestone 5의 C#/.NET server foundation은 Unity project와 분리된 `Server/`
 ```
 
 server는 `127.0.0.1`에만 bind하며 4-byte big-endian 길이와 UTF-8 JSON을 사용한다. 2026-09-05 Release build는 경고 0·오류 0, verification은 8/8 PASS다. protocol 한계와 원격 공개 금지 조건은 [network security baseline](docs/NETWORK_SECURITY.md)에 기록했다.
+
+서버가 없으면 Game Over 화면에 unavailable 상태가 표시되며 restart와 gameplay는 계속 동작한다. 실제 Game Over submit·query의 사람 검증 절차는 [demo guide](docs/DEMO_GUIDE.md)에 있다.
+
+현재 leaderboard는 player별 최고 score를 하나만 유지한다. 예를 들어 `UnityPlayer`가 3점 뒤 11점을 제출하면 Top 5에는 `UnityPlayer 11`만 남는다. 모든 플레이 시도 기록은 MySQL 단계에서 leaderboard와 분리된 run history로 저장할 계획이다.
 
 ## 설계·검증 근거
 
@@ -105,6 +111,6 @@ server는 `127.0.0.1`에만 bind하며 4-byte big-endian 길이와 UTF-8 JSON을
 
 - 도형과 IMGUI만 사용한 system prototype이며 외부 art, animation, sound가 없다.
 - object pooling은 병목 근거가 없어 적용하지 않았고 `SpatialHash2D`도 실제 neighbor query가 생기기 전까지 gameplay에 연결하지 않는다.
-- Day 4까지 Unity MVP와 loopback TCP server foundation을 완료했다. Unity client 연결, MySQL persistence, Unreal C++ observer, isolated SVN workflow는 후속 milestone이다.
+- Day 4 Unity MVP, loopback TCP server foundation과 Unity client 자동 검증까지 완료했다. 실제 server와의 Game Over 사람 검증, MySQL persistence, Unreal C++ observer, isolated SVN workflow는 후속 단계다.
 - 현재 TCP server는 인증·TLS·server-authoritative score가 없는 local lab이다. LAN이나 public interface에 노출하지 않는다.
 - 실제 협업·live-service 경험을 수행했다고 주장하지 않는다.

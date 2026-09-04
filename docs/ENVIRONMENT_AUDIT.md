@@ -310,11 +310,45 @@ Day 4 통합 후 `work/network-security-foundation` branch에서 외부 package 
 
 첫 `dotnet restore`는 package source를 비운 상태라 외부 NuGet package를 받지 않았다. 다만 Windows .NET CLI 최초 실행 메시지가 ASP.NET Core HTTPS development certificate 생성 사실을 보고했다. 이번 TCP server는 그 인증서를 참조하거나 사용하지 않으며, repository 밖 certificate store를 승인 없이 조사·삭제하지 않았다.
 
-첫 restore에는 telemetry 안내가 표시됐고 network capture를 수행하지 않았으므로 실제 telemetry 전송 여부는 `UNKNOWN`이다. 이후 build/run 명령에는 process 범위 `DOTNET_CLI_TELEMETRY_OPTOUT=1`과 `DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1`을 사용했다.
+첫 restore에는 telemetry 안내가 표시됐고 network capture를 수행하지 않았으므로 실제 telemetry 전송 여부는 `UNKNOWN`이다. 이후 build/run 명령에는 process 범위 `DOTNET_CLI_TELEMETRY_OPTOUT=1`을 사용했다. `DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1`도 설정했지만 .NET Core 3.0 이후 지원되지 않으므로 first-run 방지 근거가 아니다. 첫 CLI 실행 전에 개발 인증서 생성을 막아야 할 때 사용할 변수는 `DOTNET_GENERATE_ASPNET_CERTIFICATE=false`다. 근거: [.NET SDK 환경 변수](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-environment-variables), [ASP.NET Core HTTPS 개발 인증서](https://learn.microsoft.com/en-us/aspnet/core/security/enforcing-ssl?view=aspnetcore-10.0).
 
 Unity Editor, Scene, Prefab, Unity package, ProjectSettings는 이 checkpoint에서 열거나 변경하지 않았다. TLS/authentication과 score authority가 없으므로 현재 server는 loopback protocol lab으로만 분류하며 LAN/public service 검증은 `NOT RUN`이다.
 
-WSL의 `127.0.0.1`에서 Windows `dotnet.exe` process로 접속한 첫 cross-process 시도는 두 OS network namespace 차이로 연결되지 않았다. 같은 Windows host의 PowerShell `TcpClient`로 다시 실행해 정상 response를 확인했으며 실패 시도를 숨기거나 server PASS로 재해석하지 않았다.
+WSL의 `127.0.0.1`에서 Windows `dotnet.exe` process로 접속한 첫 cross-process 시도는 연결되지 않았다. 이후 `wslinfo --networking-mode`에서 `nat`를 확인했고 이 결과는 [Microsoft WSL networking](https://learn.microsoft.com/en-us/windows/wsl/networking)의 기본 NAT 설명과 일치한다. 다만 당시 mode가 변경되지 않았다는 별도 기록은 없으므로 정확한 역사적 원인은 추론으로 남긴다. 같은 Windows host의 PowerShell `TcpClient`로 다시 실행해 정상 response를 확인했으며 실패 시도를 server PASS로 재해석하지 않았다.
+
+## Milestone 7 Unity network client 자동 검증
+
+실행 시점: `2026-09-05`
+
+| 항목 | 결과 | 근거 |
+|---|---|---|
+| Runtime/Test compilation | PASS | exact Editor final compiler error 0 |
+| EditMode regression | PASS | 20 passed / 0 failed / 0 skipped |
+| Client framed protocol | PASS | submit/query JSON과 big-endian frame 확인 |
+| Retry boundary | PASS | incomplete response에 250 ms 뒤 정확히 한 번 재시도 |
+| Oversized response | PASS | 16 KiB 초과 길이를 payload allocation 전에 거부 |
+| Server unavailable | PASS | bounded `connection_failed` 또는 `request_timeout` 반환 |
+| PlayMode regression/profile | PASS | 1 passed / 0 failed / 0 skipped |
+| Project validator CLI | PASS | `Arena Systems Lab validation passed.` |
+| Package·Scene·Prefab·tracked ProjectSettings | UNCHANGED | hash와 Git diff 대조 |
+| Actual server Game Over·Console human verification | NOT RUN at automated checkpoint | 이후 사람 검증 결과는 아래에 기록 |
+
+첫 compile은 Unity API profile의 `TcpListener`가 `IDisposable`이 아니어서 실패했다. listener 종료를 `finally`의 `Stop()`으로 바꿨다. 이어진 두 test run은 Unity main-thread synchronization context를 동기 대기해 정지했으며 AI가 시작한 batch Editor와 worker PID만 종료했다. network test를 worker thread에서 시작하도록 수정한 뒤 최종 실행이 정상 종료됐다.
+
+server-unavailable 첫 assertion은 즉시 `connection_failed`만 예상했지만 실제 Windows Unity에서는 bounded `request_timeout`이 반환되어 19/20으로 실패했다. 두 결과 모두 server 미실행을 나타내는 고정 code이므로 계약을 수정했고 final 20/20을 확인했다. PlayMode가 생성한 미추적 `ProjectSettings/SceneTemplateSettings.json`은 해당 실행의 부작용임을 확인한 뒤 제거했다.
+
+### 사람 end-to-end 검증
+
+| 검증 | 결과 | 근거 |
+|---|---|---|
+| Server-unavailable Game Over | PASS | 사용자 확인, unavailable 표시 후 restart 정상 |
+| Actual server submit/query | PASS | `UnityPlayer` 3점 뒤 11점 최고 score 갱신 |
+| Duplicate player entry | PASS | 같은 player는 한 항목, 최고 11점 유지 |
+| Unity Console | PASS | 사용자 확인 Error/Exception 없음 |
+| Server stderr | PASS | 검증 session 0 byte |
+| Historical run persistence | NOT IMPLEMENTED | protocol v1은 player별 최고 score만 보존; MySQL milestone 예정 |
+
+AI가 시작한 Release server는 `127.0.0.1:7777` listening을 확인한 뒤 사람 검증에 사용했다. 검증 후 target PID만 종료하고 port가 비어 있음을 확인했다. 이 session의 종료는 graceful shutdown 검사가 아니며 graceful `Ctrl+C`는 Milestone 5 CLI smoke에서 별도로 검증됐다.
 
 최초 verification 7건은 모두 통과했지만 보안 재검토에서 서로 다른 `playerId`를 무한히 누적할 수 있는 전체 state 상한 누락을 발견했다. stored player 10,000개 제한과 capacity 검사를 추가한 뒤 final verification 8/8을 다시 실행했다.
 

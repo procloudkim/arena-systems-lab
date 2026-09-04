@@ -286,9 +286,9 @@ Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 loc
 - 측정 전 cache, worker pool, per-player lock, database abstraction을 추가하지 않았다.
 - client가 제출한 score를 안전하다고 주장하지 않았다.
 
-첫 `dotnet restore`에서 Windows .NET CLI가 ASP.NET Core HTTPS development certificate를 자동 생성했다고 보고했다. 이 인증서는 server에서 사용하지 않으며 repository 밖 certificate store를 승인 없이 수정하지 않았다. 이후 .NET 명령은 process 범위 telemetry opt-out과 first-time-experience skip을 적용했다.
+첫 `dotnet restore`에서 Windows .NET CLI가 ASP.NET Core HTTPS development certificate를 자동 생성했다고 보고했다. 이 인증서는 server에서 사용하지 않으며 repository 밖 certificate store를 승인 없이 수정하지 않았다. 이후 .NET 명령에는 process 범위 `DOTNET_CLI_TELEMETRY_OPTOUT=1`을 적용했다. `DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1`도 설정했지만 .NET Core 3.0 이후 지원되지 않으므로 부작용 방지 근거로 사용하지 않는다. 첫 실행 전에 인증서 생성을 막아야 한다면 `DOTNET_GENERATE_ASPNET_CERTIFICATE=false`를 사용해야 한다.
 
-실제 server CLI smoke에서 WSL Python client의 `127.0.0.1` 연결은 `ConnectionRefused`로 실패했다. Windows process와 같은 host namespace의 PowerShell `TcpClient`로 재검사해 health response를 확인했으며, 첫 결과는 환경 차이에 의한 실패 시도로 그대로 기록했다.
+실제 server CLI smoke에서 WSL Python client의 `127.0.0.1` 연결은 `ConnectionRefused`로 실패했다. 이후 확인한 WSL networking mode는 `nat`이고 Microsoft 문서의 기본 NAT 동작과 일치하지만 당시 mode가 변경되지 않았다는 기록은 없어 정확한 역사적 원인은 추론으로 남긴다. Windows process와 같은 host의 PowerShell `TcpClient`로 재검사해 health response를 확인했으며 첫 결과는 실패 시도로 그대로 기록했다.
 
 초기 verification 7/7 뒤에도 보안 경계를 다시 검토했고, 서로 다른 player를 계속 추가하면 dictionary가 무한히 커지는 누적 자원 위험을 발견했다. player 10,000개 상한과 검사를 추가해 final 8/8로 다시 검증했다.
 
@@ -297,3 +297,52 @@ Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 loc
 구현·문서 commit `3909f6b`를 `origin/work/network-security-foundation`에 push하고 local/remote SHA 일치를 확인했다. 다음 통합 여부와 재개 지점은 `PROCESS.md`의 `CP-20260905-01`에서 관리한다.
 
 자동 검증과 실제 CLI smoke, 변경 경계 검사를 근거로 branch를 merge commit `bb3a24e`에서 `main`에 통합하고 `origin/main`에 push했다. Unity runtime, Scene, Prefab, Package, ProjectSettings 변경은 없다.
+
+## Milestone 7 Unity network client 기록
+
+실행일: `2026-09-05`
+
+### AI가 생성하거나 수정한 파일
+
+- `Assets/ArenaSystemsLab/Runtime/LeaderboardClient.cs`: loopback TCP client, bounded frame·response validation, cancellation과 1회 retry
+- `Assets/ArenaSystemsLab/Runtime/ArenaGame.cs`: Game Over submit/query, leaderboard IMGUI와 사망 이후 score 고정
+- `Assets/ArenaSystemsLab/Tests/EditMode/LeaderboardClientTests.cs`: 정상 protocol, retry, oversized response, server-unavailable 검사
+- `docs/adr/0010-unity-loopback-leaderboard-client.md`
+- README, demo guide, 환경 감사, AI 기록, glossary, AGENTS 작업 지침
+
+### 실행된 검증
+
+- Exact Editor runtime/test compilation: PASS, final compiler error 0
+- EditMode regression: PASS, 20 passed / 0 failed / 0 skipped
+- PlayMode regression/profile: PASS, 1 passed / 0 failed / 0 skipped
+- Project validator command line: PASS
+- Package·Scene·Prefab·tracked ProjectSettings: UNCHANGED
+- 실제 .NET server와 Game Over 사람 검증: 자동 checkpoint에서는 NOT RUN, 이후 사람 검증 결과는 아래에 기록
+
+### 실패와 수정
+
+- 첫 compile은 Unity API profile의 `TcpListener`가 `IDisposable`이 아니어서 FAIL했다. test listener를 `finally`의 `Stop()`으로 종료하도록 수정했다.
+- 첫 network test는 Unity main-thread synchronization context를 동기 대기해 정지했다. AI가 시작한 batch Editor와 worker PID만 종료하고 test body를 `Task.Run`에서 시작하도록 수정했다.
+- 다음 async test 형태도 같은 실행기에서 정지해 동일하게 시작한 PID만 정리했다. 두 중단 시도는 PASS 근거에서 제외했다.
+- server-unavailable 첫 검사는 `connection_failed`만 기대했지만 Windows Unity에서는 두 번의 bounded connect가 `request_timeout`으로 끝나 19/20 FAIL했다. 두 결과 모두 같은 unavailable 계약이므로 환경에 따른 두 고정 code를 검증하도록 수정했고 final 20/20이 통과했다.
+- PlayMode 실행이 미추적 `ProjectSettings/SceneTemplateSettings.json`을 생성했다. 해당 실행이 만든 단일 부작용임을 확인하고 제거했으며 tracked 설정은 변경되지 않았다.
+
+### 사람이 확인해야 할 항목
+
+- server가 없을 때 Game Over에 unavailable이 표시되고 `R` restart가 유지되는지 확인한다.
+- Windows .NET server를 실행한 뒤 Game Over score와 `UnityPlayer` leaderboard가 일치하는지 확인한다.
+- Unity Console과 server log에 Error/Exception 또는 외부 payload 노출이 없는지 확인한다.
+
+### 채택하지 않은 범위
+
+- networking package, interface 하나뿐인 service layer, Scene·Prefab 설정을 추가하지 않았다.
+- TLS, authentication, remote bind, account ID와 server-authoritative score를 local demo에 미리 구현하지 않았다.
+- 매 frame polling을 만들지 않고 Game Over에서만 두 개의 bounded request를 보낸다.
+
+구현·ADR·자동 검증 문서 commit `ac1f24a`를 `origin/work/unity-network-client`에 push하고 local/remote SHA 일치를 확인했다. 사람 검증 전이므로 `main` 통합은 수행하지 않았으며 현재 checkpoint는 `PROCESS.md`의 `CP-20260905-02`에서 관리한다.
+
+사용자가 server 미실행 Game Over에서 unavailable 표시, `R` restart와 Console 오류 없음을 확인했다. 이후 AI가 기존 Release server executable을 loopback port 7777에서 시작했고 사용자가 실제 Game Over score submit/query와 Console을 검증했다. 첫 run 3점, 두 번째 run 11점 뒤 leaderboard에는 `UnityPlayer 11` 한 항목이 표시됐다.
+
+이 결과는 `LeaderboardStore`가 player별 최고 score를 보존하는 현재 계약과 일치한다. 사용자가 과거 3점 run이 보이지 않는 이유를 질문해 leaderboard와 run history를 구분했고, MySQL milestone에서 모든 run을 별도로 저장하되 retry 중복을 막는 idempotency key를 먼저 결정하도록 구현 계획과 glossary를 보완했다. 현재 protocol과 in-memory store는 변경하지 않았다.
+
+AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 port 7777이 비어 있음을 확인했다. stdout은 loopback listening 한 줄, stderr는 0 byte였으며 이 종료는 `Ctrl+C` graceful shutdown 검사가 아니라 target process 정리다. 서버 시작 전 첫 PowerShell wrapper는 Bash가 `$` 변수를 먼저 확장해 parser error로 실패했고 Unity나 server process를 생성하지 않았다. 변수 확장을 차단해 재실행한 뒤 exact Editor와 server를 정상 시작했다.

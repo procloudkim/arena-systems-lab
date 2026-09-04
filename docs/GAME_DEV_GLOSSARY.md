@@ -2,7 +2,7 @@
 
 > Arena Systems Lab 개발 중 실제로 만난 게임·Unity·물리·검증 용어를 한국어로 설명하는 생활형 백과사전이다.
 
-- Version: `0.6.0`
+- Version: `0.8.0`
 - Last updated: 2026-09-05 KST
 - Governance: [ADR 0004](adr/0004-game-development-glossary-governance.md)
 
@@ -151,6 +151,18 @@
 - 프로젝트 예: server는 accept, frame read/write에 `async`/`await`와 cancellation을 사용한다.
 - 주의: 비동기 I/O 자체는 여러 CPU thread가 병렬로 shared state를 실행했다는 증거가 아니다.
 
+### Cancellation Token (취소 토큰)
+
+- 정의: 오래 걸리는 비동기 작업에 더 이상 결과가 필요 없다는 신호를 전달하고 협력적으로 중단시키는 값이다.
+- 프로젝트 예: Game Over score 전송 중 round를 재시작하거나 `ArenaGame`이 파괴되면 `CancellationToken`으로 socket 요청을 취소한다.
+- 주의: token은 thread나 작업을 강제로 제거하지 않으므로 I/O API와 반복 로직이 신호를 실제로 확인해야 한다.
+
+### Retry Policy (재시도 정책)
+
+- 정의: 일시적인 실패 뒤 같은 작업을 다시 시도할 조건, 횟수와 간격을 제한하는 규칙이다.
+- 프로젝트 예: Unity client는 연결·I/O·timeout·불완전 frame에만 250 ms 뒤 한 번 재시도한다.
+- 주의: 무제한 재시도는 장애를 키울 수 있고, 중복 실행해도 안전한 요청인지 먼저 확인해야 한다.
+
 ### Multithreading (멀티스레딩)
 
 - 정의: 한 process에서 여러 execution thread가 작업을 동시에 또는 병렬로 진행하는 방식이다.
@@ -170,6 +182,18 @@
 - 주의: test가 한 번 통과한 것만으로 모든 race가 없다고 단정하지 않고 공유 state와 synchronization 경계를 함께 검토한다.
 
 ## Data Persistence
+
+### Leaderboard (리더보드)
+
+- 정의: player들을 특정 성과 기준으로 정렬해 순위를 보여 주는 목록이며 보통 player별 대표 기록 하나를 사용한다.
+- 프로젝트 예: 현재 `LeaderboardStore`는 같은 `playerId`의 최고 score만 유지하므로 3점 뒤 11점이면 `UnityPlayer 11` 한 항목만 반환한다.
+- 주의: leaderboard는 모든 플레이 시도의 시간순 기록인 run history와 목적이 다르다.
+
+### Run History (플레이 이력)
+
+- 정의: 한 player가 수행한 각 게임 시도를 score, 시각, 식별자와 함께 개별 event로 보존한 기록이다.
+- 프로젝트 예: MySQL milestone에서 3점 run과 11점 run을 각각 저장하되 leaderboard에는 최고 11점만 사용한다.
+- 주의: network retry가 같은 run을 두 번 저장하지 않도록 idempotency key나 database unique constraint가 필요하다.
 
 ### MySQL
 
@@ -423,6 +447,8 @@
 
 | Version | Date | 변경 | ADR |
 |---|---|---|---|
+| `0.8.0` | 2026-09-05 | 사람 검증에서 확인한 leaderboard·run history 구분 2개 추가, 총 67개 | [ADR 0010](adr/0010-unity-loopback-leaderboard-client.md) |
+| `0.7.0` | 2026-09-05 | Unity network client의 cancellation·retry 용어 2개 추가, 총 65개 | [ADR 0010](adr/0010-unity-loopback-leaderboard-client.md) |
 | `0.6.0` | 2026-09-05 | network security·protocol·concurrency 용어 11개 추가, 총 63개 | [ADR 0009](adr/0009-loopback-first-bounded-tcp-protocol.md) |
 | `0.5.0` | 2026-09-04 | Day 4 build·regression·smoke 용어 4개 추가, 총 52개 | [ADR 0008](adr/0008-reproducible-windows-build-and-demo.md) |
 | `0.4.0` | 2026-09-04 | Day 3 측정·알고리즘·Editor Tool 용어 5개 추가, 총 48개 | [ADR 0007](adr/0007-measured-day3-tooling.md) |
