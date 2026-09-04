@@ -383,6 +383,7 @@ AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 
 ### 실패와 수정
 
 - WSL에서 `Build.bat`를 직접 실행한 시도와 잘못 quoting한 `cmd.exe` 시도는 build가 시작되지 않아 FAIL로 분류했다. Windows PowerShell에서 batch를 호출해 해결했다.
+- 첫 수동 GUI 실행은 공백이 있는 `.uproject` 인자가 보존되지 않아 project browser만 열렸다. process command line과 새 log 부재로 발견해 해당 창만 정상 종료하고, 전체 project 경로를 인용해 exact Editor에서 다시 열었다.
 - 첫 compile은 중첩 test source가 module root header를 찾지 못해 FAIL했다. test source를 module root로 옮겼다.
 - source 이동 직후 incremental build는 이전 경로를 가진 UBT makefile cache 때문에 FAIL했다. `-NoUBTMakefiles`로 source를 재수집한 뒤 final build가 통과했다.
 - 첫 Editor automation 실행이 Android File Server 설정과 token, 91줄 input config를 자동 생성했다. token section을 제거하고 해당 plugin 및 Fab/Bridge를 project에서 비활성화했으며, input config는 자동 rewrite를 막는 3줄만 유지했다. 재실행에서 token과 Fab/Bridge/EOS 초기화가 없음을 확인했다.
