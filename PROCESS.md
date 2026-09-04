@@ -6,8 +6,8 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: `main...origin/main`, clean
-- Active work: Milestone 7 Unity network client 자동·사람 검증 완료, Editor 종료 후 통합 대기
-- Next task: Unity Editor 종료를 확인하고 `work/unity-network-client`를 `main`에 통합
+- Active work: Milestone 7 Unity network client가 `main`에 통합됨
+- Next task: `work/unreal-arena-observer` branch에서 Milestone 8 Unreal C++ read-only client 구현
 
 ## Session Start
 
@@ -47,8 +47,8 @@ git remote -v
 | Portfolio technology baseline | 9개 필수 기술과 연결 구조 확정, ADR 0006 적용 |
 | Reusable extension tools | Unreal 5.8, VS Native Game/C++, Windows .NET SDK 10.0.400 |
 | Approval-gated gaps | SVN MISSING, MySQL runtime MISSING, Docker image UNKNOWN |
-| Integrated branch | `main`, Milestone 5 foundation까지 `bb3a24e`로 통합 |
-| Active branch | `work/unity-network-client`, implementation `ac1f24a` push 완료 |
+| Integrated branch | `main`, Milestone 7 Unity client까지 `b0a3f8e`로 통합 |
+| Active branch | `main`, clean handoff 예정 |
 
 Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사망, Game Over, 재시작이 포함된다. Scene과 Prefab 대신 runtime bootstrap을 사용한다.
 
@@ -89,9 +89,9 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 ## Work Queue
 
-1. **Next — Milestone 7 integration:** Editor 종료 후 검증 branch를 `main`에 통합
-2. **Required extension — Milestone 8:** Unreal C++ `ArenaObserver`를 같은 protocol에 연결
-3. **Approval-gated — Milestone 6·9:** MySQL persistence와 isolated SVN workflow lab
+1. **Next — Milestone 8:** `work/unreal-arena-observer` branch에서 Unreal C++ `ArenaObserver`를 같은 protocol에 연결
+2. **Approval-gated — Milestone 6:** 모든 run history와 player별 최고 score를 MySQL에 영속화
+3. **Approval-gated — Milestone 9:** isolated SVN workflow lab
 
 알려진 gap:
 
@@ -119,7 +119,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260904-07` | 측정 기반 Day 3 자료구조·Editor Tool | `work/day3-profiling-validation` | `86e90f4`, automated evidence `b64af42`, human evidence `f17e880` | [ADR 0007](docs/adr/0007-measured-day3-tooling.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, CLI PASS, human PASS | Integrated as `e205ccd` |
 | `CP-20260904-08` | Windows Development build·README·demo | `work/day4-build-demo` | `fca8a38`, human evidence `f87a0d5` | [ADR 0008](docs/adr/0008-reproducible-windows-build-and-demo.md) | Compile PASS, EditMode 16/16, PlayMode 1/1, build·smoke·human PASS | Integrated as `75151b9` |
 | `CP-20260905-01` | Security-first loopback TCP server foundation | `work/network-security-foundation` | `3909f6b` | [ADR 0009](docs/adr/0009-loopback-first-bounded-tcp-protocol.md) | .NET Release PASS, verification 8/8, CLI smoke PASS | Integrated as `bb3a24e` |
-| `CP-20260905-02` | Unity Game Over leaderboard client | `work/unity-network-client` | `ac1f24a` | [ADR 0010](docs/adr/0010-unity-loopback-leaderboard-client.md) | Compile PASS, EditMode 20/20, PlayMode 1/1, validator·server 없음·actual server·Console PASS | Ready to integrate after Editor closes |
+| `CP-20260905-02` | Unity Game Over leaderboard client | `work/unity-network-client` | `ac1f24a`, human evidence `02e472a` | [ADR 0010](docs/adr/0010-unity-loopback-leaderboard-client.md) | Compile PASS, EditMode 20/20, PlayMode 1/1, validator·server 없음·actual server·Console PASS | Integrated as `b0a3f8e` |
 
 ## ADR Index and Naming
 

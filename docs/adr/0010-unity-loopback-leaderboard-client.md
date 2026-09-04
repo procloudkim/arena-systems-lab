@@ -47,3 +47,5 @@ Unity와 .NET server가 protocol 상수를 각각 보유한다. 현재 작은 pr
 - Actual .NET server Game Over submit/query: PASS, `UnityPlayer` 3점 뒤 11점으로 최고 score 갱신·중복 entry 없음
 - Actual flow Unity Console: PASS, 사용자 확인 오류 없음
 - Run history persistence: NOT IMPLEMENTED, MySQL milestone에서 retry idempotency와 함께 결정
+- Human evidence commit: `02e472a`, remote work branch와 일치
+- Main integration: PASS, merge commit `b0a3f8e`

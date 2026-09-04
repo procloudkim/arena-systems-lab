@@ -346,3 +346,5 @@ Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 loc
 이 결과는 `LeaderboardStore`가 player별 최고 score를 보존하는 현재 계약과 일치한다. 사용자가 과거 3점 run이 보이지 않는 이유를 질문해 leaderboard와 run history를 구분했고, MySQL milestone에서 모든 run을 별도로 저장하되 retry 중복을 막는 idempotency key를 먼저 결정하도록 구현 계획과 glossary를 보완했다. 현재 protocol과 in-memory store는 변경하지 않았다.
 
 AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 port 7777이 비어 있음을 확인했다. stdout은 loopback listening 한 줄, stderr는 0 byte였으며 이 종료는 `Ctrl+C` graceful shutdown 검사가 아니라 target process 정리다. 서버 시작 전 첫 PowerShell wrapper는 Bash가 `$` 변수를 먼저 확장해 parser error로 실패했고 Unity나 server process를 생성하지 않았다. 변수 확장을 차단해 재실행한 뒤 exact Editor와 server를 정상 시작했다.
+
+사람 검증과 leaderboard/run-history 구분을 commit `02e472a`로 `origin/work/unity-network-client`에 push했다. 사용자가 Unity Editor 종료를 확인했고 AI도 Unity process, `Temp/UnityLockfile`, port 7777 부재와 clean remote branch를 대조했다. branch를 merge commit `b0a3f8e`에서 `main`에 통합하고 같은 SHA를 `origin/main`에 push했다.
