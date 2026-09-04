@@ -131,12 +131,12 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 
 - 초기 import 검증: 현재 Editor 로그에서 C# compiler/import error 표식 0건을 확인했다.
 - EditMode Test Runner UI: **Not yet verified**. `Window > General > Test Runner`에서 EditMode 테스트를 실행한다.
-- 자동 EditMode 명령: **Verified on 2026-09-04**. 정확히 일치하는 Editor가 닫히고 Unity process와 `Temp/UnityLockfile`이 없을 때 다음 형태로 실행한다.
+- 자동 EditMode 명령: **Verified on 2026-09-05**. 정확히 일치하는 Editor가 닫히고 Unity process와 `Temp/UnityLockfile`이 없을 때 다음 형태로 실행한다.
   `"<UnityEditor>/Unity.exe" -batchmode -nographics -projectPath "<project-root>" -runTests -testPlatform EditMode -testFilter "ArenaSystemsLab.Tests.EditMode" -testResults "<project-root>/Logs/EditModeResults.xml" -logFile "<project-root>/Logs/EditModeTest.log"`
 - Test Framework 1.7에서는 command-line test에 `-quit`을 함께 지정하지 않는다. 설치 package source가 이 조합은 동작하지 않는다고 명시한다.
-- EditMode 결과: **Verified on 2026-09-04**, 16 passed / 0 failed / 0 skipped.
-- 자동 PlayMode profiling 명령: **Verified on 2026-09-04**. 위 명령에서 `-testPlatform PlayMode -testFilter "ArenaSystemsLab.Tests.PlayMode"`를 사용하며 결과는 1 passed / 0 failed / 0 skipped.
-- Project validation command-line: **Verified on 2026-09-04**. Batchmode에서 `-executeMethod ArenaSystemsLab.Editor.ArenaProjectValidator.ValidateFromCommandLine`을 사용한다.
+- EditMode 결과: **Verified on 2026-09-05**, 20 passed / 0 failed / 0 skipped. Unity network client의 framing, retry, response limit, server-unavailable 검사를 포함한다.
+- 자동 PlayMode profiling 명령: **Verified on 2026-09-05**. 위 명령에서 `-testPlatform PlayMode -testFilter "ArenaSystemsLab.Tests.PlayMode"`를 사용하며 결과는 1 passed / 0 failed / 0 skipped.
+- Project validation command-line: **Verified on 2026-09-05**. Batchmode에서 `-executeMethod ArenaSystemsLab.Editor.ArenaProjectValidator.ValidateFromCommandLine`을 사용한다.
 - Project validation Editor menu: **Verified on 2026-09-04**. 사용자가 `Tools > Arena Systems Lab > Validate Project`를 포함한 Day 3 수동 검증 완료를 확인했다.
 - PlayMode 수동 검증: Day 1 흐름, Day 2 상태 색상·전이, Day 3 변경 후 기존 gameplay 회귀를 **Verified on 2026-09-04**.
 - Unity Console: Day 1~3 변경 후 **Verified on 2026-09-04**, 사용자 확인 오류 없음.
@@ -151,6 +151,7 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
   - `"<dotnet>" run --project Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configuration Release --no-build --no-restore`
 - .NET Release build: **PASS**, warnings 0 / errors 0. Verification executable: **PASS**, 8 passed / 0 failed.
 - .NET server CLI smoke: **PASS on 2026-09-05**, port 7777에서 Windows PowerShell client `health` response와 `Ctrl+C` 정상 종료 확인.
+- Unity leaderboard client automated checks: **PASS on 2026-09-05**, 4 passed / 0 failed. Actual .NET server Game Over flow와 Console 사람 검증은 **Not yet verified**.
 - Unreal C++ build/run: **Not yet verified**. `ArenaObserver` project가 생긴 뒤 exact Engine 5.8로 확인한다.
 - SVN workflow와 MySQL integration: **Not yet verified**. 필요한 도구와 dependency가 승인·준비된 뒤 실행한다.
 

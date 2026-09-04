@@ -1,6 +1,6 @@
 # Arena Systems Lab Demo Guide
 
-> 목표: 3~5분 안에 playable loop, OOP/FSM 구조, 측정 근거, Editor Tool, 자동 테스트, Windows build를 재현한다.
+> 목표: 3~5분 안에 playable loop, OOP/FSM 구조, local leaderboard, 측정 근거, Editor Tool과 자동 테스트를 재현한다.
 
 ## 준비 조건
 
@@ -8,6 +8,11 @@
 - `Assets/Scenes/SampleScene.unity`가 Build Settings에서 활성화
 - 실행 전 `git status --short --branch`로 예상하지 않은 변경이 없는지 확인
 - Unity가 다른 process에서 이 project를 열고 있지 않음
+- leaderboard 시연 시 Windows PowerShell에서 아래 local server를 먼저 실행
+
+```powershell
+& "<dotnet>" run --project Server/ArenaSystemsLab.Server/ArenaSystemsLab.Server.csproj --configuration Release --no-build --no-restore -- --port 7777
+```
 
 ## Demo flow
 
@@ -17,9 +22,23 @@
 | 0:30~1:00 | `Tools > Arena Systems Lab > Validate Project` 실행 | exact Editor, enabled Scene, `Player/Move`, `Player/Attack` validation PASS |
 | 1:00~2:30 | `SampleScene` Play | 이동·조준·공격, spawn·chase, HP·score 증가 |
 | 2:30~3:00 | enemy와 접촉 후 Hierarchy/색상 확인 | Gray `Idle`, Red `Chase`, Orange `Attack`; death는 terminal state |
-| 3:00~3:30 | player 사망 후 `R` | Game Over 후 score·enemy·health가 초기화된 새 round |
-| 3:30~4:15 | Test Runner와 `PERFORMANCE_BASELINE.md` | EditMode 16/16, PlayMode 1/1, 측정 전 최적화를 채택하지 않은 판단 |
-| 4:15~5:00 | Windows build 실행 | 독립 player에서도 같은 loop가 시작됨 |
+| 3:00~3:40 | player 사망 후 leaderboard와 `R` 확인 | score 제출·상위 5개 조회 후 새 round 시작 |
+| 3:40~4:30 | Test Runner와 `PERFORMANCE_BASELINE.md` | EditMode 20/20, PlayMode 1/1, 측정 전 최적화를 채택하지 않은 판단 |
+| 4:30~5:00 | Windows build 근거 확인 | 독립 player build와 launch 기록 |
+
+## Unity leaderboard 수동 체크리스트
+
+기존 Windows build는 Unity client 구현 전 생성물이므로 이 검증은 우선 exact Editor PlayMode에서 수행한다.
+
+| 단계 | 실행 | 기대 결과 | 실패 판정 |
+|---:|---|---|---|
+| 1 | port 7777 server가 없는 상태로 Play 후 사망 | Game Over와 final score가 표시되고 잠시 뒤 leaderboard가 `unavailable`로 바뀜 | freeze, crash, 반복 Console error |
+| 2 | `R` 입력 | server 실패와 무관하게 HP 100·score 0인 새 round 시작 | 요청 취소나 restart 실패 |
+| 3 | 위 PowerShell 명령으로 server 실행 | `127.0.0.1:7777`, protocol v1 listening message | 다른 interface bind, 즉시 종료 |
+| 4 | 다시 Play하여 적을 처치한 뒤 사망 | `Leaderboard: connected`, `UnityPlayer`와 final score가 상위 5개에 표시 | score 불일치, 응답 미표시 |
+| 5 | 한 번 더 플레이해 더 높은 score 제출 | 같은 `UnityPlayer` entry가 최고 score로 갱신 | duplicate entry 또는 낮은 score로 감소 |
+| 6 | Unity Console과 server log 확인 | Unity Error/Exception 없음, server는 고정 상태 log만 출력 | payload/player ID/stack trace 노출 또는 error |
+| 7 | Play 종료 후 server에서 `Ctrl+C` | server가 정상 종료되고 Unity도 PlayMode를 빠져나옴 | 종료 불가 또는 남은 process |
 
 ## Windows player 수동 체크리스트
 
@@ -40,12 +59,15 @@
 
 | 항목 | 상태 | 근거 |
 |---|---|---|
-| EditMode regression | PASS | exact Editor, 16 passed / 0 failed / 0 skipped |
+| EditMode regression | PASS | exact Editor, 20 passed / 0 failed / 0 skipped |
 | PlayMode regression/profile | PASS | 1 passed / 0 failed / 0 skipped |
 | Project validator CLI | PASS | validation success log |
 | Windows Mono Development build | PASS | Windows x86-64 player 생성, build result Success |
 | Player launch smoke | PASS | 8초간 process 생존, 조기 종료·managed exception·crash 없음 |
 | Windows player 전체 gameplay | PASS | 사용자 확인, 위 8단계와 오류 없음 |
+| Unity leaderboard 자동 protocol 검사 | PASS | 정상 framing·single retry·oversized response·server unavailable 4건 |
+| Actual server Game Over flow | NOT RUN | 위 Unity leaderboard 사람 검증 필요 |
+| Milestone 7 Windows player rebuild | NOT RUN | 사람 PlayMode 검증 후 최종 build 단계에서 실행 |
 
 Player smoke log에는 GPU 환경의 D3D12 info queue 경고와 강제 종료 시점의 Unity resource cleanup 진단이 남았다. build 실패, managed exception, crash 근거는 아니며 이후 사람 검증에서도 새 Error/Exception이 없음을 확인했다.
 
