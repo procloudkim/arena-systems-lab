@@ -34,6 +34,8 @@
 
 측정값은 Editor의 단일 microbenchmark 결과이며 합격 threshold로 사용하지 않는다. 현재 gameplay에는 neighbor query가 없으므로 `SpatialHash2D`를 runtime에 연결하지 않았다.
 
+검사 범위의 한계: 비교 테스트는 500개 query의 전체 match 수 합계를 비교한다. 모든 query의 개별 결과 집합이 일치하는지까지 검증하지 않는다. 별도 작은 음수 좌표 테스트는 예상 항목 집합을 검사한다. 근거는 [SpatialHash2DTests](../Assets/ArenaSystemsLab/Tests/EditMode/SpatialHash2DTests.cs)다.
+
 ## Optimization Decision
 
 - Object pooling: 적용하지 않음. 현재 profile만으로 spawn/despawn가 병목이라고 분리해 입증하지 못했다.
@@ -42,17 +44,9 @@
 
 ## Reproduction
 
-Unity Editor가 닫혀 있고 `Temp/UnityLockfile`이 없을 때 exact Editor로 실행한다. Test Framework 1.7 규칙에 따라 test command에 `-quit`을 넣지 않는다.
+안전 조건과 정확한 PowerShell 명령 인수 패턴은 [실행 및 검증 가이드](DEMO_GUIDE.md)를 따른다. EditMode에서 spatial query 실험, PlayMode에서 자동 gameplay sampling을 실행한다. 결과 경로는 이전 기록을 덮지 않도록 선택한다.
 
-```text
-<UnityEditor>/Unity.exe -batchmode -nographics -projectPath <project-root> -runTests -testPlatform EditMode -testFilter ArenaSystemsLab.Tests.EditMode -testResults <project-root>/Logs/Day3EditModeResults.xml -logFile <project-root>/Logs/Day3EditMode.log
-
-<UnityEditor>/Unity.exe -batchmode -nographics -projectPath <project-root> -runTests -testPlatform PlayMode -testFilter ArenaSystemsLab.Tests.PlayMode -testResults <project-root>/Logs/Day3PlayModeResults.xml -logFile <project-root>/Logs/Day3PlayMode.log
-
-<UnityEditor>/Unity.exe -batchmode -nographics -projectPath <project-root> -executeMethod ArenaSystemsLab.Editor.ArenaProjectValidator.ValidateFromCommandLine -logFile <project-root>/Logs/Day3ProjectValidation.log
-```
-
-Editor menu에서는 `Tools > Arena Systems Lab > Validate Project`를 사용한다.
+새 실행은 현재 소스에 대한 측정이다. 위 수치는 2026-09-04 당시 결과이며 이후 network client 추가 등 변경이 포함된 새 측정값으로 대체하거나 동일하다고 가정하지 않는다.
 
 ## Validation History
 

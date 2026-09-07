@@ -1,131 +1,66 @@
 # Arena Systems Lab
 
-> 적의 압박을 피하고 직접 조준해 반격하는 2D arena survival을 통해 Unity/C# 게임 시스템의 설계·측정·검증 과정을 보여 주는 포트폴리오다.
+> 직접 이동·조준·발사하는 Unity 2D 생존 게임과, .NET TCP 점수 서버 및 Unreal C++ 조회 클라이언트.
 
-`Arena Systems Lab`은 뱀파이어 서바이버류의 생존 압박을 작은 vertical slice로 재해석했다. 자동 공격 대신 직접 조준·발사를 사용해 이동 경로와 공격 방향을 동시에 판단하게 만드는 것이 현재 핵심 재미다.
+적을 피하며 투사체로 처치하고, 사망하면 점수를 확인한 뒤 다시 시작한다. Unity는 플레이를 담당하고 Unreal은 같은 로컬 서버의 순위만 읽는다. 서버 없이도 게임을 실행할 수 있다.
 
-## 현재 플레이 범위
+## 빠른 실행
 
-- WASD, 방향키 또는 gamepad left stick 이동
-- mouse, right stick 또는 마지막 이동 방향 조준
-- 기본 projectile 공격과 처치 score
-- 지속적으로 생성되어 player를 추적·접촉 공격하는 적
-- `Idle`, `Chase`, `Attack`, `Dead` enemy FSM과 상태별 색상 표시
-- player death, Game Over, `R` restart loop
-- Game Over score의 local TCP 제출과 상위 5개 leaderboard 표시
+1. Unity Hub에서 이 저장소의 프로젝트 폴더를 Unity `6000.5.1f1`로 연다. 다른 버전으로 변환하지 않는다.
+2. `Assets/Scenes/SampleScene.unity`를 열고 Play를 누른다.
+3. WASD/방향키로 이동하고 마우스로 조준하며 왼쪽 버튼을 눌러 공격한다. Game Over에서 R로 재시작한다.
 
-Scene과 Prefab을 직접 바꾸지 않고 `ArenaGame` runtime bootstrap이 기존 `SampleScene` 위에 arena를 구성한다. 외부 art, sound, networking package는 사용하지 않는다.
-
-## 핵심 재미
-
-적이 계속 좁혀 오는 상황에서 이동으로 공간을 만들고, 직접 조준한 공격으로 위험을 처치 score로 바꾸는 짧은 **압박 → 회피 → 반격 → 재도전** loop다.
-
-## 실행 방법
-
-필수 환경은 프로젝트와 정확히 일치하는 Unity Editor `6000.5.1f1`이다.
-
-1. Unity Hub에서 이 폴더를 project로 연다.
-2. `Assets/Scenes/SampleScene.unity`를 연다.
-3. Play 버튼을 누른다.
-
-| 동작 | Keyboard / Mouse | Gamepad |
+| 동작 | 키보드·마우스 | 게임패드 |
 |---|---|---|
-| 이동 | `WASD` 또는 방향키 | left stick |
-| 조준 | mouse pointer 또는 마지막 이동 방향 | right stick 또는 마지막 이동 방향 |
-| 공격 | left click 또는 `Enter` | west button |
-| 재시작 | Game Over에서 `R` | 아직 지원하지 않음 |
+| 이동 | WASD / 방향키 | 왼쪽 스틱 |
+| 조준 | 마우스 | 오른쪽 스틱 |
+| 공격 | 왼쪽 클릭 / Enter, 누를 때 1회 | 서쪽 버튼, 누를 때 1회 |
+| 재시작 | Game Over에서 R | 전용 입력 없음 |
 
-## 구조
+조준 우선순위와 기본 수치는 [요구사항 명세](docs/REQUIREMENTS.md)에 있다. 패키지나 엔진 설치가 필요하면 자동 설치하지 말고 환경 차이를 먼저 확인한다.
 
-| 영역 | 책임 |
+## 개발 5대 문서
+
+이 저장소에서 사용하는 문서 분류이며, 보편적인 단일 표준을 뜻하지 않는다. 처음 읽는 사람은 아래 순서로 범위 → 구조 → 데이터 → 통신 → 실행을 확인한다.
+
+| 문서 | 답하는 질문 |
 |---|---|
-| `Health` | damage, health, 단 한 번의 death event |
-| `PlayerController` | Input System 입력, 이동, projectile 발사 |
-| `EnemyController` | 추적, 접촉 damage, 상태 debug 표시 |
-| `EnemyStateMachine` | 적 상태와 전이 우선순위 |
-| `EnemySpawner` | arena 경계 spawn과 최대 적 수 제어 |
-| `ArenaGame` | bootstrap, round lifecycle, score, Game Over/restart |
-| `LeaderboardClient` | loopback TCP framing, response 검증, 취소와 1회 재시도 |
-| `SpatialHash2D` | gameplay와 분리된 spatial query correctness·비용 실험 |
-| `ArenaProjectValidator` | Editor version, Build Scene, Input Actions 검사 |
-| `ArenaWindowsBuilder` | 검증 후 Windows x86-64 Mono Development build 생성 |
-| `WireProtocol` | 길이 기반 TCP frame과 엄격한 JSON request 검증 |
-| `LeaderboardServer` | loopback socket 수명, timeout, 동시 client 제한 |
-| `LeaderboardStore` | 최고 score 규칙과 thread-safe bounded state |
-| `ArenaObserver` | Unreal C++ native socket 조회와 read-only HUD |
+| 1. [요구사항 명세](docs/REQUIREMENTS.md) | 무엇을 구현했으며 완료 기준과 제외 범위는 무엇인가? |
+| 2. [아키텍처 설계서](docs/ARCHITECTURE.md) | 컴포넌트·상태·스레드·프로세스는 어떻게 연결되는가? |
+| 3. [데이터 모델 및 ERD](docs/DATA_MODEL.md) | 무엇을 어디에 저장하며 순위와 플레이 이력은 어떻게 다른가? |
+| 4. [TCP 프로토콜 및 보안 명세](docs/NETWORK_SECURITY.md) | 요청·응답·오류·자원 제한·신뢰 경계는 무엇인가? |
+| 5. [실행 및 검증 가이드](docs/DEMO_GUIDE.md) | 어떤 환경과 명령으로 실행·테스트·빌드하는가? |
 
-## 자동 검증
+## 구성과 환경
 
-아래 명령의 `<UnityEditor>`와 `<project-root>`를 실제 경로로 바꾼다. Test Framework 1.7에서는 test command에 `-quit`을 넣지 않는다.
+| 구성 | 역할 | 소스 / 환경 기준 |
+|---|---|---|
+| Unity | 2D 이동·전투·적 FSM·Game Over·순위 표시 | [Runtime](Assets/ArenaSystemsLab/Runtime/), Unity `6000.5.1f1`, Input System `1.19.0`, URP `17.5.0` |
+| .NET 서버 | 로컬 TCP 요청 처리, 플레이어별 최고 점수 | [Server](Server/ArenaSystemsLab.Server/), `net10.0`, 외부 NuGet 의존성 없음 |
+| Unreal | Play 시작 시 Top 5를 한 번 조회하는 HUD | [ArenaObserver](Unreal/ArenaObserver/), Engine association `5.8`, 검증 엔진 `5.8.0` |
+| 개발 도구 | Unity 프로젝트 검사, Windows Development 빌드 | [Editor](Assets/ArenaSystemsLab/Editor/) |
+| 검증 | Unity 테스트, 서버 검증 실행 파일, Unreal automation | [실행 및 검증 가이드](docs/DEMO_GUIDE.md) |
 
-```powershell
-& "<UnityEditor>\Unity.exe" -batchmode -nographics -projectPath "<project-root>" -runTests -testPlatform EditMode -testFilter "ArenaSystemsLab.Tests.EditMode" -testResults "<project-root>\Logs\EditModeResults.xml" -logFile "<project-root>\Logs\EditModeTest.log"
+서버는 `127.0.0.1:7777`만 사용한다. 준비·빌드 후 가이드의 서버 명령을 실행하면 Unity Game Over에서 제출·조회하고 Unreal Play에서 같은 순위를 조회할 수 있다. 두 클라이언트는 서로 직접 통신하지 않는다.
 
-& "<UnityEditor>\Unity.exe" -batchmode -nographics -projectPath "<project-root>" -runTests -testPlatform PlayMode -testFilter "ArenaSystemsLab.Tests.PlayMode" -testResults "<project-root>\Logs\PlayModeResults.xml" -logFile "<project-root>\Logs\PlayModeTest.log"
+## 읽기 전에 알아둘 제한
 
-& "<UnityEditor>\Unity.exe" -batchmode -nographics -projectPath "<project-root>" -executeMethod ArenaSystemsLab.Editor.ArenaProjectValidator.ValidateFromCommandLine -logFile "<project-root>\Logs\ProjectValidation.log"
-```
+- 현재 저장소는 메모리 기반이다. 서버를 재시작하면 점수가 사라진다. MySQL·SQL 스키마·모든 플레이 이력 저장은 미구현이다.
+- Top 5는 서로 다른 플레이어의 최고 점수다. `UnityPlayer`가 3점 다음 11점을 내면 `UnityPlayer 11` 한 줄만 남는다.
+- 인증·TLS·점수의 게임상 정당성 검증이 없다. LAN·공개 서버로 운영하지 않는다.
+- 공간 해시는 독립 실험이며 게임 루프에 연결되지 않았다. Object Pool도 적용하지 않았다.
+- 기존 Windows 빌드 검증은 2026-09-04의 네트워크 기능 추가 전 결과다. 현재 네트워크 기능을 포함한 재빌드와 Unity → Unreal 연속 시연은 검증 대기다.
+- 2026-09-05 기록에는 Unity EditMode 20/20, PlayMode 1/1, 서버 검증 8/8, Unreal automation 각 실행 1/1 PASS가 있다. 이는 날짜가 고정된 기록이며 새 환경의 실행 보증이 아니다. 원본 로그·빌드 생성물은 Git에 포함되지 않는다.
 
-2026-09-05 기준 exact Editor에서 EditMode `20/20`, PlayMode `1/1`, command-line project validation이 통과했다. 새 client 검사는 정상 framing, 불완전 응답 1회 재시도, 과대 response 거부와 server-unavailable 처리를 포함한다.
+## 개발 기록
 
-## Windows build
+현재 상태와 다음 작업은 [PROCESS](PROCESS.md), 작업 규칙은 [AGENTS](AGENTS.md)가 기준이다.
 
-Editor에서는 `Tools > Arena Systems Lab > Build Windows Development`를 사용한다. Command line에서는 다음 entry point를 실행한다.
+- [구현 계획](docs/IMPLEMENTATION_PLAN.md)
+- [환경 감사 기록](docs/ENVIRONMENT_AUDIT.md)
+- [성능 측정 기준선](docs/PERFORMANCE_BASELINE.md)
+- [게임 개발 용어 백과사전](docs/GAME_DEV_GLOSSARY.md)
+- [AI 작업 및 사람 검증 기록](docs/AI_USAGE.md)
+- [의사결정 기록](docs/adr/)
 
-```powershell
-& "<UnityEditor>\Unity.exe" -batchmode -nographics -projectPath "<project-root>" -executeMethod ArenaSystemsLab.Editor.ArenaWindowsBuilder.BuildWindowsFromCommandLine -logFile "<project-root>\Logs\WindowsBuild.log"
-```
-
-빌드는 기존 활성 Scene과 Standalone Mono 설정만 사용한다. 설정이 다르면 자동 전환하지 않고 실패한다. 결과는 `Builds/Windows/ArenaSystemsLab.exe`이며 `Builds/`와 `Logs/`는 Git 추적 대상이 아니다.
-
-Day 4 자동 검증에서 Windows x86-64 Development build와 8초 player launch smoke test가 통과했다. 이어서 사용자가 [demo guide](docs/DEMO_GUIDE.md)의 독립 실행 파일 gameplay checklist PASS와 오류 없음을 확인했다.
-
-## Loopback leaderboard server
-
-Milestone 5의 C#/.NET server foundation은 Unity project와 분리된 `Server/`에 있다. Unity game은 Game Over에서 `UnityPlayer`의 score를 제출하고 상위 5개를 표시한다. 연결은 local loopback으로만 허용하며 project root의 PowerShell에서 `<dotnet>`을 감사된 Windows .NET 10 executable로 바꿔 실행한다.
-
-```powershell
-& "<dotnet>" restore Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configfile Server/NuGet.Config
-& "<dotnet>" build Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configuration Release --no-restore
-& "<dotnet>" run --project Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configuration Release --no-build --no-restore
-& "<dotnet>" run --project Server/ArenaSystemsLab.Server/ArenaSystemsLab.Server.csproj --configuration Release --no-build --no-restore -- --port 7777
-```
-
-server는 `127.0.0.1`에만 bind하며 4-byte big-endian 길이와 UTF-8 JSON을 사용한다. 2026-09-05 Release build는 경고 0·오류 0, verification은 8/8 PASS다. protocol 한계와 원격 공개 금지 조건은 [network security baseline](docs/NETWORK_SECURITY.md)에 기록했다.
-
-서버가 없으면 Game Over 화면에 unavailable 상태가 표시되며 restart와 gameplay는 계속 동작한다. 실제 Game Over submit·query의 사람 검증 절차는 [demo guide](docs/DEMO_GUIDE.md)에 있다.
-
-현재 leaderboard는 player별 최고 score를 하나만 유지한다. 예를 들어 `UnityPlayer`가 3점 뒤 11점을 제출하면 Top 5에는 `UnityPlayer 11`만 남는다. 모든 플레이 시도 기록은 MySQL 단계에서 leaderboard와 분리된 run history로 저장할 계획이다.
-
-## Unreal Arena Observer
-
-`Unreal/ArenaObserver`는 같은 protocol의 Top 5를 읽는 Unreal Engine 5.8 C++ application이다. Unity gameplay를 복제하지 않으며 Engine 기본 map과 `AHUD`만 사용한다.
-
-정확한 Unreal Engine `5.8.0`과 Visual Studio Native Game/C++ workload가 필요하다. PowerShell에서 `<UnrealEngine>`과 `<project-root>`를 실제 경로로 바꿔 실행한다.
-
-```powershell
-& "<UnrealEngine>\Engine\Build\BatchFiles\Build.bat" ArenaObserverEditor Win64 Development "<project-root>\Unreal\ArenaObserver\ArenaObserver.uproject" -WaitMutex -NoHotReloadFromIDE
-
-& "<UnrealEngine>\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" "<project-root>\Unreal\ArenaObserver\ArenaObserver.uproject" -unattended -nop4 -NullRHI -NoSplash -NoSound -ExecCmds="Automation RunTests ArenaSystemsLab.ArenaObserver; Quit" -ReportExportPath="<project-root>\Unreal\ArenaObserver\Saved\Automation"
-```
-
-Development Editor build, protocol automation, server 부재의 3초 제한과 실제 .NET server native socket 조회는 통과했다. 화면 검증은 server 실행 여부에 따라 `Leaderboard unavailable` 또는 연결 상태와 Top 5를 확인하며, 정확한 절차는 [demo guide](docs/DEMO_GUIDE.md)에 있다.
-
-## 설계·검증 근거
-
-- 현재 상태와 다음 작업: [PROCESS.md](PROCESS.md)
-- 4일 구현 및 portfolio 확장 계획: [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md)
-- 측정 조건과 최적화 채택 판단: [docs/PERFORMANCE_BASELINE.md](docs/PERFORMANCE_BASELINE.md)
-- 3~5분 demo와 수동 검증: [docs/DEMO_GUIDE.md](docs/DEMO_GUIDE.md)
-- 게임 개발 용어 백과사전: [docs/GAME_DEV_GLOSSARY.md](docs/GAME_DEV_GLOSSARY.md)
-- 네트워크 위협 모델과 protocol: [docs/NETWORK_SECURITY.md](docs/NETWORK_SECURITY.md)
-- AI 작성·사람 검증 기록: [docs/AI_USAGE.md](docs/AI_USAGE.md)
-- Architecture Decision Records: [docs/adr/](docs/adr/)
-
-## 현재 한계와 다음 단계
-
-- 도형과 IMGUI만 사용한 system prototype이며 외부 art, animation, sound가 없다.
-- object pooling은 병목 근거가 없어 적용하지 않았고 `SpatialHash2D`도 실제 neighbor query가 생기기 전까지 gameplay에 연결하지 않는다.
-- Day 4 Unity MVP, loopback TCP server, Unity client와 Unreal C++ observer의 자동 검증까지 완료했다. Unreal 화면 사람 검증, MySQL persistence와 isolated SVN workflow는 후속 단계다.
-- 현재 TCP server는 인증·TLS·server-authoritative score가 없는 local lab이다. LAN이나 public interface에 노출하지 않는다.
-- 실제 협업·live-service 경험을 수행했다고 주장하지 않는다.
+문서 버전과 기술 문서의 관리 경계는 [ADR 0012](docs/adr/0012-technical-documentation-governance.md)를 따른다.

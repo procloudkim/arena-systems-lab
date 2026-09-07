@@ -5,7 +5,7 @@
 
 ## Context
 
-포트폴리오 하한에는 Unreal Engine과 C++의 실제 구현·빌드 근거가 필요하다. 이미 검증한 protocol을 재사용하면 두 번째 게임이나 새 server를 만들지 않고도 Unity가 제출한 data를 다른 engine에서 소비하는 경계를 보여 줄 수 있다.
+프로젝트 하한에는 Unreal Engine과 C++의 실제 구현·빌드 근거가 필요하다. 이미 검증한 protocol을 재사용하면 두 번째 게임이나 새 server를 만들지 않고도 Unity가 제출한 data를 다른 engine에서 소비하는 경계를 보여 줄 수 있다.
 
 Unreal client도 socket response를 신뢰할 수 없고, network wait가 game thread를 막아서는 안 된다. 현재 server에는 TLS, authentication과 score authority가 없으므로 observer 역시 `127.0.0.1:7777` 밖으로 연결 범위를 넓히면 안 된다.
 
@@ -22,7 +22,7 @@ Unreal client도 socket response를 신뢰할 수 없고, network wait가 game t
 
 ## Consequences
 
-Unity와 Unreal이 같은 wire contract를 독립 구현으로 소비하며 protocol drift를 automation fixture로 검출할 수 있다. server가 없어도 최대 3초 뒤 unavailable 상태를 표시하고 Editor/game loop는 유지된다.
+Unity와 Unreal이 같은 wire contract를 독립 구현으로 소비하며 protocol drift를 automation fixture로 검출할 수 있다. server가 없으면 3초 deadline을 사용한 조회 실패를 unavailable로 표시하고 Editor/game loop를 유지한다. 이는 OS 스케줄링까지 포함한 엄격한 3초 응답 보장이 아니다.
 
 endpoint와 query limit는 현재 local demo 요구에 맞춰 code에 고정돼 있다. remote service, runtime endpoint 설정, 주기적 refresh나 submit 기능이 실제 요구가 되기 전에는 configuration layer를 만들지 않는다.
 
@@ -34,12 +34,12 @@ Engine 기본 `EnhancedInput`은 Editor target에서 로드되지만 observer co
 - Visual Studio Native Game/C++ workload, MSVC 14.50, Windows SDK 10.0.26100: READY
 - Development Editor C++ build: PASS
 - Unreal Automation protocol-only: PASS, 1 passed / 0 failed / 0 warnings
-- Native socket server-unavailable: PASS, port 부재 확인 뒤 3초 bounded failure
+- Native socket server-unavailable: PASS, port 부재 확인 뒤 실패 상태 검사 PASS, 소켓 코드의 deadline 3초
 - Native socket actual .NET server query: PASS, 1 passed / 0 failed / 0 warnings
 - Actual server shutdown: PASS, `Ctrl+C` 후 port 7777 해제
 - Remote implementation commit: PASS, `20b0d55`가 `origin/work/unreal-arena-observer`와 일치
 - Protocol fixture: request bytes, valid response, 잘못된 정렬, fractional score, invalid ID, duplicate player, oversized payload 검사 PASS
-- Plugin 재실행 검사: Android File Server token 재생성 없음, Fab/Bridge/EOS 초기화 없음
+- Plugin 재실행 검사: Android File Server token 재생성 없음, Fab/Bridge 비활성화 확인. EOS 전체 비활성화는 확인한 범위가 아님
 - Server-unavailable HUD manual verification: PASS, `Connection I/O error`가 unavailable 상태로 표시되고 Editor 응답 유지
 - Actual server leaderboard HUD manual verification: PASS, ephemeral `ObserverFixture 42` 표시
 - Unreal Editor project error human verification: PASS, `ArenaObserver` Error/Fatal/ensure 없음

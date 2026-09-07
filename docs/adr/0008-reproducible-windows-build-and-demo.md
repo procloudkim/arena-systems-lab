@@ -5,7 +5,7 @@
 
 ## Context
 
-Day 4에는 Editor 내부 동작을 넘어 Windows player가 실제로 생성·시작되는 근거와 채용 검토자가 짧게 따라갈 demo flow가 필요하다. 기존 project에는 Windows Mono support와 enabled `SampleScene`이 있지만 재현 가능한 build entry point, root README, standalone checklist가 없었다.
+Day 4에는 Editor 내부 동작을 넘어 Windows player가 실제로 생성·시작되는 근거와 제3자가 짧게 따라갈 demo flow가 필요하다. 기존 project에는 Windows Mono support와 enabled `SampleScene`이 있지만 재현 가능한 build entry point, root README, standalone checklist가 없었다.
 
 ## Decision
 
@@ -20,7 +20,7 @@ Day 4에는 Editor 내부 동작을 넘어 Windows player가 실제로 생성·�
 
 ## Consequences
 
-Editor menu와 CI형 command line에서 동일한 build를 재현할 수 있고 잘못된 version, Scene, input, backend는 build 전에 명확히 실패한다. 현재 자동화는 portfolio 대상인 Windows Mono Development build만 지원하며 release, IL2CPP, installer, artifact upload를 만들지 않는다.
+Editor menu와 CI형 command line에서 동일한 build를 재현할 수 있고 잘못된 version, Scene, input, backend는 build 전에 명확히 실패한다. 현재 자동화는 현재 대상인 Windows Mono Development build만 지원하며 release, IL2CPP, installer, artifact upload를 만들지 않는다.
 
 첫 build는 약 166 MB의 local output을 만들지만 `.gitignore` 대상이다. Unity/URP가 build 중 4개 tracked 설정 asset과 미추적 `SceneTemplateSettings.json`을 자동 직렬화했으며, build 결과를 확인한 뒤 작업 전 Git 내용으로 복원했다.
 
