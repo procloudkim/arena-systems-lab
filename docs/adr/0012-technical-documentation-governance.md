@@ -49,4 +49,4 @@
 - 소스·패키지·엔진 설정 변경 경계: PASS, 변경 없음. `git diff --check` 통과
 - Mermaid 웹 렌더링: NOT RUN, 새 도구 설치 없음
 - Unity/.NET/Unreal compile·runtime·자동/수동 게임 검사: NOT RUN, 문서 전용 변경
-- 구현 commit과 remote 확인은 후속 PROCESS checkpoint에 기록한다.
+- 구현 commit `8cabddd`를 원격 작업 branch에 push하고 SHA 일치를 확인했다. 후속 상태는 [PROCESS checkpoint](../../PROCESS.md)에서 관리한다.

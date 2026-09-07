@@ -441,3 +441,5 @@ AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 
 README에서 5대 문서·소스 링크·도식을 읽고 설명과 실제 조작이 일치하는지 확인한다. 같은 서버 세션의 Unity 제출 → Unreal 조회 시연과 현재 Windows 재빌드는 별도 검증이다.
 
 MySQL 구현을 가정한 물리 ERD, 공간 해시의 gameplay 적용, 전역 3초 네트워크 보장, 완전한 JSON 검증·부하 안전성 주장은 채택하지 않았다. 숫자 ValueKind 오류 분류와 Unity 응답 누락 필드·중복 ID 문제는 기록했지만 코드 수정으로 범위를 넓히지 않았다. 성능 비교 테스트가 총 match 수만 비교하는 한계도 명시했다.
+
+구현 commit `8cabddd`를 `origin/work/technical-documentation`에 push하고 SHA 일치를 확인했다. 문서 25개, 내부 링크 누락 0, JSON 예제 7개, ADR 12개, glossary 78개와 정보 경계 검사 PASS이며 runtime·엔진 설정 변경은 없다.

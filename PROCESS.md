@@ -6,7 +6,7 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: `main...origin/main`, clean
-- Active work: README와 기술 문서 5종 작성·정적 검사 완료, 문서 작업 branch 게시 준비
+- Active work: README와 기술 문서 5종 구현 `8cabddd` 원격 게시 완료, checkpoint 기록·main 통합 대기
 - Next task: 문서 최종 검토 후 현재 소스의 Windows 재빌드·연속 시연 및 알려진 검증 한계 보강
 
 ## Session Start
@@ -132,6 +132,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260905-01` | Security-first loopback TCP server foundation | `work/network-security-foundation` | `3909f6b` | [ADR 0009](docs/adr/0009-loopback-first-bounded-tcp-protocol.md) | .NET Release PASS, verification 8/8, CLI smoke PASS | Integrated as `bb3a24e` |
 | `CP-20260905-02` | Unity Game Over leaderboard client | `work/unity-network-client` | `ac1f24a`, human evidence `02e472a` | [ADR 0010](docs/adr/0010-unity-loopback-leaderboard-client.md) | Compile PASS, EditMode 20/20, PlayMode 1/1, validator·server 없음·actual server·Console PASS | Integrated as `b0a3f8e` |
 | `CP-20260905-03` | Unreal C++ read-only leaderboard observer | `work/unreal-arena-observer` | `20b0d55`, human evidence `724a094` | [ADR 0011](docs/adr/0011-unreal-read-only-leaderboard-observer.md) | Development Editor build, protocol·server 없음·actual server 자동·사람 검증 PASS | Integrated as `b57db33` |
+| `CP-20260907-01` | README·기술 문서 5종·정보 경계 정리 | `work/technical-documentation` | `8cabddd` | [ADR 0012](docs/adr/0012-technical-documentation-governance.md) | 문서 25개, 링크 누락 0, JSON 7개, ADR 12개, glossary 78개 PASS; runtime NOT RUN | Pushed, 통합 대기 |
 
 ## ADR Index and Naming
 
