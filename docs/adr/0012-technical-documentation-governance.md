@@ -21,7 +21,8 @@
 - 문서 버전은 `1.0.0`부터 시작한다. 구조·책임의 비호환 변경은 major, 기술 내용 추가는 minor, 사실·링크·표현 정정은 patch로 올린다. wire protocol 및 엔진 버전과 혼동하지 않는다.
 - 최신 추적 문서에는 외부 목적, 개인 계정, 연락처, 개인 장치의 절대 경로를 넣지 않는다. 예제에는 고정 테스트 ID와 상대 경로·자리표시자를 사용한다. 감사의 식별 인수는 치환 사실을 명시한다.
 - ADR 0006만 `0006-technology-baseline.md`로 정리한다. 번호·결정·날짜·검증 commit은 보존하고 링크를 갱신한다. 당시 branch 표기를 치환하면서 존재하지 않은 branch를 만들거나 있었다고 기록하지 않는다. 다른 Accepted ADR의 파일명 불변 규칙은 유지한다.
-- 이번 변경은 현재 문서 트리만 대상으로 한다. Git 과거 commit·작성자·remote metadata는 재작성하지 않는다. 문서 정리를 이력 전체의 정보 제거로 주장하지 않는다.
+- 이번 변경은 현재 문서 트리와 GitHub 소개 문구를 대상으로 한다. Git 과거 commit·작성자·remote 주소는 재작성하지 않는다. 문서 정리를 이력 전체의 정보 제거로 주장하지 않는다.
+- GitHub 소개는 Unity 게임·.NET TCP 서버·Unreal 조회·테스트/도구의 실제 구현 요약으로 통일한다. 공개 범위·homepage·계정 설정은 변경하지 않는다.
 - 설명에서 발견한 코드 한계는 기록하되 이 문서 작업에서 런타임을 수정하지 않는다. 새 패키지·프로그램·다이어그램 도구를 설치하지 않는다.
 
 ## Consequences
@@ -50,3 +51,4 @@
 - Mermaid 웹 렌더링: NOT RUN, 새 도구 설치 없음
 - Unity/.NET/Unreal compile·runtime·자동/수동 게임 검사: NOT RUN, 문서 전용 변경
 - 구현 commit `8cabddd`를 원격 작업 branch에 push하고 SHA 일치를 확인했다. 후속 상태는 [PROCESS checkpoint](../../PROCESS.md)에서 관리한다.
+- Main 통합: merge `77435fc` push 및 SHA 일치 확인. GitHub 소개 문구 변경 후 재조회로 기술 요약·PUBLIC·빈 homepage 유지 확인, topic 없음.

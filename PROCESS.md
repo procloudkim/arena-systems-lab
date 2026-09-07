@@ -6,7 +6,7 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: `main...origin/main`, clean
-- Active work: README와 기술 문서 5종 구현 `8cabddd` 원격 게시 완료, checkpoint 기록·main 통합 대기
+- Active work: README와 기술 문서 5종·GitHub 기술 소개 정리, 검증·main 통합 완료
 - Next task: 문서 최종 검토 후 현재 소스의 Windows 재빌드·연속 시연 및 알려진 검증 한계 보강
 
 ## Session Start
@@ -35,7 +35,7 @@ git remote -v
 | Environment audit | 완료, exact Unity 6000.5.1f1 확인 |
 | Day 1 vertical slice | 완료 |
 | Project naming | `Arena Systems Lab`로 정리 완료 |
-| GitHub | public `arena-systems-lab`, 원격 주소는 Git 설정에서 확인 |
+| GitHub | public `arena-systems-lab`, 기술 소개 정리 완료. 원격 주소는 Git 설정에서 확인 |
 | Process governance | ADR 0003·0012, PROCESS 상태와 기술 명세 책임 분리 |
 | Technical documentation | 요구사항·아키텍처·논리 ERD·TCP 보안 명세·실행 가이드 `1.0.0`, README에서 연결 |
 | Game development glossary | `0.10.0`, 78개 용어, ADR 0004·0012 적용 |
@@ -49,8 +49,8 @@ git remote -v
 | Technology baseline | 9개 필수 기술과 연결 구조 확정, ADR 0006 적용 |
 | Reusable extension tools | Unreal 5.8, VS Native Game/C++, Windows .NET SDK 10.0.400 |
 | Approval-gated gaps | SVN MISSING, MySQL runtime MISSING, Docker image UNKNOWN |
-| Integrated branch | `main`, Milestone 8까지 merge `b57db33`으로 통합 |
-| Active branch | `work/technical-documentation`, 문서 전용 변경 |
+| Integrated branch | `main`, 기술 문서 merge `77435fc`으로 통합 |
+| Active branch | 없음, `main` handoff |
 
 Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사망, Game Over, 재시작이 포함된다. Scene과 Prefab 대신 runtime bootstrap을 사용한다.
 
@@ -107,7 +107,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 - Windows build output과 log는 local ignored generated artifact이며 repository에 포함하지 않는다.
 - 문서의 기존 PASS는 날짜가 고정된 기록이다. 2026-09-07에는 엔진·서버 runtime을 재실행하지 않았다.
-- 문서의 개인 식별 정보 정리는 현재 문서 트리에 한정한다. Git 과거 이력·작성자·remote metadata는 재작성하지 않았다.
+- 정보 경계 정리는 현재 문서와 GitHub 소개에 한정한다. Git 과거 이력·작성자·remote 주소는 재작성하지 않았다.
 - Visual Studio Unity workload는 초기 검사에서 0건이었지만 현재 작업의 차단 요소가 아니다.
 - Unreal source·build·native socket test와 실제 HUD 사람 검증은 완료됐다.
 - SVN client/admin과 native MySQL runtime은 확인되지 않았다. 설치·download·package 추가는 사용자 승인 전 실행하지 않는다.
@@ -132,7 +132,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260905-01` | Security-first loopback TCP server foundation | `work/network-security-foundation` | `3909f6b` | [ADR 0009](docs/adr/0009-loopback-first-bounded-tcp-protocol.md) | .NET Release PASS, verification 8/8, CLI smoke PASS | Integrated as `bb3a24e` |
 | `CP-20260905-02` | Unity Game Over leaderboard client | `work/unity-network-client` | `ac1f24a`, human evidence `02e472a` | [ADR 0010](docs/adr/0010-unity-loopback-leaderboard-client.md) | Compile PASS, EditMode 20/20, PlayMode 1/1, validator·server 없음·actual server·Console PASS | Integrated as `b0a3f8e` |
 | `CP-20260905-03` | Unreal C++ read-only leaderboard observer | `work/unreal-arena-observer` | `20b0d55`, human evidence `724a094` | [ADR 0011](docs/adr/0011-unreal-read-only-leaderboard-observer.md) | Development Editor build, protocol·server 없음·actual server 자동·사람 검증 PASS | Integrated as `b57db33` |
-| `CP-20260907-01` | README·기술 문서 5종·정보 경계 정리 | `work/technical-documentation` | `8cabddd` | [ADR 0012](docs/adr/0012-technical-documentation-governance.md) | 문서 25개, 링크 누락 0, JSON 7개, ADR 12개, glossary 78개 PASS; runtime NOT RUN | Pushed, 통합 대기 |
+| `CP-20260907-01` | README·기술 문서 5종·정보 경계 정리 | `work/technical-documentation` | `8cabddd`, checkpoint `15a01b3` | [ADR 0012](docs/adr/0012-technical-documentation-governance.md) | 문서 25개, 링크 누락 0, JSON 7개, ADR 12개, glossary 78개 PASS; runtime NOT RUN | Integrated as `77435fc` |
 
 ## ADR Index and Naming
 

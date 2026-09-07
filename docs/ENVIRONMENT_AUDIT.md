@@ -432,5 +432,9 @@ Automation startup의 Engine `UnifiedErrorTests.cpp`가 의도적으로 출력�
 | 공식 문서 웹 조회 | 표준/API 의미 교차 확인 | ADR 0012에 출처·판정 기록 |
 | Node 표준 fs/path/child_process 검사 | 링크·ADR·glossary·JSON 예제·기존 결과 집계 | 정적 검사 성공. 첫 Unreal JSON BOM 처리 실패 뒤 읽기 방식 정정으로 성공 |
 | `git diff --check`, `git diff --stat` | 공백 오류·변경 경계 | 문서 diff 확인, runtime 변경 없음 |
+| `git add`, `git commit`, `git push`, `git ls-remote --heads origin` | 구현·checkpoint 기록과 원격 대조 | 구현 8cabddd, checkpoint 15a01b3 push·SHA 일치 |
+| `git switch main`, `git merge --no-ff work/technical-documentation`, `git push origin main` | 기본 branch 문서 통합 | merge 77435fc push·SHA 일치 |
+| `gh repo view --json description,homepageUrl,visibility,defaultBranchRef` 및 topic 조회 | 저장소 소개·공개 설정 확인 | 기술과 무관한 기존 소개 확인, topic 없음 |
+| `gh repo edit --description <technical-summary>` 후 재조회 | 현재 구현 요약으로 소개 정리 | 성공, PUBLIC·빈 homepage·main 유지. 문구 인수는 요약 표기 |
 
 새로운 compile·빌드·게임 수동 PASS를 추가하지 않는다. 기존 log와 generated binary는 계속 ignored 상태이며 이번 문서 변경에 포함하지 않는다.
