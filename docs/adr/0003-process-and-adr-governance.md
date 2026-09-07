@@ -3,6 +3,7 @@
 - Status: Accepted
 - Date: 2026-09-04
 - Supersedes: ADR 0001의 session resume source-of-truth 부분
+- 일부 규칙 보완: [ADR 0012](0012-technical-documentation-governance.md)의 기술 문서 책임과 ADR 0006 파일명 정리 예외
 
 ## Context
 

@@ -97,7 +97,7 @@
 
 ## GitHub 원격 생성 기록
 
-`2026-09-04T02:09:17+09:00`에 사용자의 명시적 요청으로 public `procloudkim/arena-systems-lab` repository를 생성하고 로컬 `origin`으로 연결했다. 공개 repository 목록의 일반 프로젝트 naming pattern인 소문자 kebab-case와 기능 중심 명칭을 적용했다. 원격 repository는 비어 있으며 stage, commit, push는 수행하지 않았다.
+`2026-09-04T02:09:17+09:00`에 사용자의 명시적 요청으로 public `arena-systems-lab` repository를 생성하고 로컬 `origin`으로 연결했다. 공개 repository 목록의 일반 프로젝트 naming pattern인 소문자 kebab-case와 기능 중심 명칭을 적용했다. 원격 repository는 비어 있으며 stage, commit, push는 수행하지 않았다.
 
 ## Git 운영 정책 변경
 
@@ -143,7 +143,7 @@ exact Editor 6000.5.1f1에서 runtime/test assembly compilation과 EditMode 테�
 
 AI는 source를 수정하기 전에 기존 Git 상태, exact Unity 환경, Unreal Engine과 Visual Studio C++ toolchain, Windows .NET SDK, SVN, MySQL, Docker, repository 구현 여부를 읽기 전용으로 감사했다. Unity 6000.5.1f1, Unreal 5.8.0, Visual Studio Native Game/C++ component, .NET SDK 10.0.400, Git은 재사용 가능하다. SVN과 native MySQL은 발견되지 않았으며 Docker client 29.7.2는 있지만 daemon이 꺼져 기존 MySQL image는 확인하지 못했다.
 
-AI는 ADR 0006에서 하나의 연결된 최소 구조를 선택했다. 현재 Unity arena가 score를 C#/.NET TCP server에 제출하고 MySQL에 저장하며 Unreal C++ `ArenaObserver`가 같은 leaderboard를 읽는다. SVN은 Git source-of-truth와 섞지 않는 isolated workflow lab으로 제한한다.
+AI는 ADR 0006에서 하나의 연결된 최소 구조를 선택했다. 계획된 구조는 Unity arena가 score를 C#/.NET TCP server에 제출하고 MySQL에 저장하며 Unreal C++ `ArenaObserver`가 같은 leaderboard를 읽는 것이다. 이 시점의 확장 설계이며 당시 구현 완료를 뜻하지 않는다. SVN은 Git source-of-truth와 섞지 않는 isolated workflow lab으로 제한한다.
 
 이번 checkpoint에서 변경한 대상은 `AGENTS.md`, `PROCESS.md`, 구현 계획, 환경 감사, AI 기록, glossary, ADR 0006이다. runtime source, Unity Scene/Prefab, package manifest/lock, Project Settings는 변경하지 않았다.
 
@@ -163,7 +163,7 @@ AI 제안 중 채택하지 않은 부분:
 - Unreal에서 두 번째 arena game을 만들지 않고 read-only observer로 범위를 제한했다.
 - asynchronous I/O만으로 multithreading 경험을 주장하지 않도록 별도 concurrent test gate를 두었다.
 
-baseline 문서 구현 commit `01cd869`를 `origin/work/portfolio-technology-baseline`에 push하고 local/remote SHA 일치를 확인했다. Markdown link, ADR 0001~0006 sequence와 section, glossary 0.3.0의 43개 entry shape, 변경 경계 검사는 PASS다. runtime test는 documentation-only checkpoint이므로 실행하지 않았다.
+baseline 문서 구현 commit `01cd869`를 당시 원격 작업 branch에 push하고 local/remote SHA 일치를 확인했다. Markdown link, ADR 0001~0006 sequence와 section, glossary 0.3.0의 43개 entry shape, 변경 경계 검사는 PASS다. runtime test는 documentation-only checkpoint이므로 실행하지 않았다.
 
 ## Day 3 측정·Editor Tool 기록
 
@@ -216,7 +216,7 @@ AI가 생성하거나 수정한 대상:
 - Player launch smoke: PASS, 8초 생존 후 target process 종료
 - Player full gameplay: PASS, 사용자 확인 및 오류 없음
 
-첫 test invocation은 감사되지 않은 `C:` 기본 Editor 경로를 사용해 executable을 찾지 못했고 test가 실행되지 않았다. 기존 Day 3 log와 제한된 일반 설치 경로 탐색으로 실제 `D:` 설치를 확인한 뒤 exact Editor를 재사용했다.
+첫 test invocation은 확인하지 않은 기본 Editor 경로를 사용해 executable을 찾지 못했고 test가 실행되지 않았다. 기존 Day 3 log와 제한된 일반 설치 경로 탐색으로 실제 설치를 확인한 뒤 exact Editor를 재사용했다.
 
 build 중 Unity/URP가 4개 tracked asset/settings와 미추적 `SceneTemplateSettings.json`을 자동 직렬화했다. 직전 clean Git 상태와 diff로 이번 실행의 부작용임을 확인하고 해당 값만 원래 내용으로 복원했다. 최종 Scene, Prefab, Package, tracked ProjectSettings 변경은 없다.
 
@@ -250,7 +250,7 @@ Day 4 구현 commit `fca8a38`을 `origin/work/day4-build-demo`에 push하고 loc
 
 ### 사람이 확인해야 할 항목
 
-- 현재 보안 문서의 threat model과 local-only 한계가 portfolio 설명에 맞는지 검토한다.
+- 보안 문서의 위협 모델과 로컬 전용 한계가 실제 구현과 일치하는지 검토한다.
 - Unity client 연결 이후 실제 Game Over score 제출·조회와 Console을 수동 검증한다.
 - LAN/public bind가 필요해지면 TLS, authentication, abuse control과 server-authoritative score 설계를 먼저 승인한다.
 
@@ -386,7 +386,7 @@ AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 
 - 첫 수동 GUI 실행은 공백이 있는 `.uproject` 인자가 보존되지 않아 project browser만 열렸다. process command line과 새 log 부재로 발견해 해당 창만 정상 종료하고, 전체 project 경로를 인용해 exact Editor에서 다시 열었다.
 - 첫 compile은 중첩 test source가 module root header를 찾지 못해 FAIL했다. test source를 module root로 옮겼다.
 - source 이동 직후 incremental build는 이전 경로를 가진 UBT makefile cache 때문에 FAIL했다. `-NoUBTMakefiles`로 source를 재수집한 뒤 final build가 통과했다.
-- 첫 Editor automation 실행이 Android File Server 설정과 token, 91줄 input config를 자동 생성했다. token section을 제거하고 해당 plugin 및 Fab/Bridge를 project에서 비활성화했으며, input config는 자동 rewrite를 막는 3줄만 유지했다. 재실행에서 token과 Fab/Bridge/EOS 초기화가 없음을 확인했다.
+- 첫 Editor automation 실행이 Android File Server 설정과 token, 91줄 input config를 자동 생성했다. token section을 제거하고 해당 plugin 및 Fab/Bridge를 project에서 비활성화했으며, input config는 자동 rewrite를 막는 3줄만 유지했다. 재실행에서 token 재생성 부재와 Fab/Bridge 비활성화를 확인했다. EOS 전체 비활성화까지 확인한 것으로 해석하지 않는다.
 - automation 시작 시 Engine 5.8 자체 `UnifiedErrorTests.cpp`가 의도적으로 생성하는 `LogAutomationTest: Error: Condition failed` 15줄이 있다. project test report는 errors 0이고 해당 source 위치를 local Engine에서 대조했으므로 project 오류로 재분류하지 않았다.
 
 ### 사람이 확인한 항목
@@ -404,3 +404,40 @@ AI가 시작한 server PID `44368`은 검증 뒤 해당 process만 종료했고 
 구현·ADR·자동 검증 commit `20b0d55`를 `origin/work/unreal-arena-observer`에 push하고 local/remote SHA 일치를 확인했다. 이후 exact Unreal 5.8 Editor에서 사람이 두 HUD 경로를 검증했다. actual-server 화면의 data는 Unity가 새 session에서 제출한 것으로 가장하지 않고, 고정 protocol로 주입한 ephemeral `ObserverFixture 42`로 기록한다. Unity actual-server submit/query 사람 검증은 Milestone 7에 별도 근거가 있다.
 
 사람 검증 근거 commit `724a094`를 remote work branch와 대조한 뒤 merge commit `b57db33`으로 `main`에 통합하고 push했다. Editor와 server는 정상 종료됐고 port 7777 listener와 관련 process가 남지 않았으며, 다음 MySQL·SVN 단계는 설치·download 승인을 받기 전 시작하지 않는다.
+
+## 2026-09-07 기술 문서 5종 정리
+
+### 조사와 사실 확인
+
+`work/technical-documentation`에서 `fa834cf`의 Unity 게임·테스트·Editor 도구, .NET 프로토콜·저장소, Unreal 클라이언트·HUD·설정을 대조했다. 시작 Git 상태는 `main...origin/main`, 미커밋 변경 없음이었다.
+
+`factchk`에 따라 TCP·비동기 I/O·JSON 숫자 변환·누락 필드·논리 ERD·Markdown 다이어그램의 의미를 RFC, Microsoft, Unity, Mermaid, GitHub 공식 자료와 대조했다. [ADR 0012](adr/0012-technical-documentation-governance.md)의 판정표에 수정한 설명과 보류한 코드 문제를 분리했다.
+
+### 생성·변경 범위
+
+- 새 기술 명세: `docs/REQUIREMENTS.md`, `docs/ARCHITECTURE.md`, `docs/DATA_MODEL.md`
+- 재사용한 기술 명세: `docs/NETWORK_SECURITY.md`, `docs/DEMO_GUIDE.md`
+- 진입점·운영 규칙: README, AGENTS, PROCESS, 구현 계획
+- 기존 기록 정정: 환경 감사, AI 기록, 성능 기준선, ADR 0003·0006·0008·0011
+- 새 결정: ADR 0012. ADR 0006은 결정 번호·기술 근거를 유지하며 파일명과 링크만 정리했다.
+- 용어 문서: `0.10.0`, ERD·schema·idempotency 추가, 78개. FSM 예시를 실제 물리 접촉 조건으로 정정했다.
+
+현재 문서의 기술과 무관한 외부 목적, 개인 계정·식별 URL·장치 경로를 제거하거나 명시적 자리표시자로 치환했다. Git 과거 이력·작성자·remote metadata는 건드리지 않았다. 문서 정리는 저장소 이력 전체의 정보 제거를 뜻하지 않는다.
+
+### 실행한 검증과 실패
+
+- Markdown 내부 파일 링크·JSON 예제·fence 짝·ADR 연속 번호/필수 section·glossary 구조·문서 버전 검사: PASS.
+- 현재 Markdown의 비기술적 목적·개인 식별 패턴 검사: 일치 0건. 패턴 검사와 내용 검토 범위이며 이력 전체의 무정보성을 보증하지 않는다.
+- 기존 Unity XML: EditMode 20/20, PlayMode 1/1 PASS를 읽기 전용 재확인했다. 이번에 테스트를 다시 실행한 것은 아니다.
+- 기존 Unreal automation JSON 3개: 각각 1 passed / 0 failed / 0 warnings를 재확인했다.
+- 기존 Day 4 Windows 빌드 로그: 성공 표식 재확인. 네트워크 기능을 포함한 새 빌드 결과가 아니다.
+- 첫 Unreal JSON 집계는 BOM 처리 누락으로 실패했다. 읽은 문자열에서 BOM을 제외해 재검사했고 파일 자체는 변경하지 않았다.
+- 한 문서 patch는 예상 문맥이 맞지 않아 적용되지 않았다. 파일 상태를 재확인하고 실제 문맥으로 후속 편집했다.
+- Unity/.NET/Unreal compile·자동/수동 runtime 검사: NOT RUN, 문서 전용 변경.
+- Mermaid 최종 웹 렌더링: NOT RUN. 새 렌더러나 패키지를 설치하지 않았다.
+
+### 사람이 확인할 항목과 채택하지 않은 변경
+
+README에서 5대 문서·소스 링크·도식을 읽고 설명과 실제 조작이 일치하는지 확인한다. 같은 서버 세션의 Unity 제출 → Unreal 조회 시연과 현재 Windows 재빌드는 별도 검증이다.
+
+MySQL 구현을 가정한 물리 ERD, 공간 해시의 gameplay 적용, 전역 3초 네트워크 보장, 완전한 JSON 검증·부하 안전성 주장은 채택하지 않았다. 숫자 ValueKind 오류 분류와 Unity 응답 누락 필드·중복 ID 문제는 기록했지만 코드 수정으로 범위를 넓히지 않았다. 성능 비교 테스트가 총 match 수만 비교하는 한계도 명시했다.

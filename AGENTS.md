@@ -2,7 +2,7 @@
 
 ## 1. Project objective
 
-Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설계, 알고리즘 적용, 디버깅, 성능 측정, Editor Tool, 테스트, AI 생성 코드의 사람 검증 기록을 포트폴리오로 남긴다. 최종 완료 하한은 Unity, Unreal Engine, Git, Apache Subversion(SVN), MySQL, network programming, socket programming, multithreading, OOP의 실제 구현·검증 근거다.
+Unity와 C#으로 플레이 가능한 시스템을 만들고 객체지향 설계, 알고리즘, 디버깅, 성능 측정, Editor Tool, 테스트와 사람 검증의 재현 가능한 근거를 남긴다. 최종 완료 하한은 Unity, Unreal Engine, Git, Apache Subversion(SVN), MySQL, network programming, socket programming, multithreading, OOP의 실제 구현·검증 근거다.
 
 ## 2. Current milestone
 
@@ -23,17 +23,20 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - `Unreal/ArenaObserver/`: Unreal Engine 5.8 C++ read-only leaderboard observer와 protocol automation
 - `Packages/`: Unity package 선언과 lock 파일
 - `ProjectSettings/`: Unity 프로젝트 설정
-- `README.md`: 프로젝트 소개, 실행, 검증, build entry point
+- `README.md`: 기술 문서 5종의 진입점
+- `docs/REQUIREMENTS.md`: 요구사항·수용 기준·범위
+- `docs/ARCHITECTURE.md`: 컴포넌트·수명·동시성
+- `docs/DATA_MODEL.md`: 현재 논리 ERD와 저장 규칙
 - `PROCESS.md`: 현재 상태와 다음 재개 지점의 단일 기준
 - `docs/`: 감사, 구현 계획, AI 사용 기록
 - `docs/GAME_DEV_GLOSSARY.md`: 게임·Unity·물리·검증 용어 백과사전
 - `docs/PERFORMANCE_BASELINE.md`: 측정 조건, 수치, 최적화 채택 여부
-- `docs/DEMO_GUIDE.md`: 3~5분 demo flow와 Windows player 수동 checklist
-- `docs/NETWORK_SECURITY.md`: network threat model, protocol limits, remote exposure gate
+- `docs/DEMO_GUIDE.md`: 환경·실행·검증 명령과 수동 checklist
+- `docs/NETWORK_SECURITY.md`: TCP 요청·응답·오류와 보안 경계
 - `docs/adr/`: 사람과 LLM이 함께 읽는 의사결정 기록
 - `.gitignore`: Unity/Unreal/IDE 생성물 제외 규칙
 
-다음 디렉터리는 [ADR 0006](docs/adr/0006-portfolio-technology-baseline.md)에 따라 필요한 milestone에서만 만든다. 아직 없으면 생성됐다고 가정하지 않는다.
+다음 디렉터리는 [ADR 0006](docs/adr/0006-technology-baseline.md)에 따라 필요한 milestone에서만 만든다. 아직 없으면 생성됐다고 가정하지 않는다.
 
 - `Database/`: planned MySQL schema와 migration
 - `docs/evidence/`: planned 재현 가능한 검증 evidence
@@ -41,6 +44,8 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 `Library/`, `Temp/`, `Logs/`, `UserSettings/`와 Unreal의 `Binaries/`, `Intermediate/`, `Saved/`, `DerivedDataCache/`는 생성 결과이며 소스의 기준이 아니다.
 
 ## 4. Verified development environment
+
+다음은 2026-09-03~05 감사·빌드의 환경 기록이다. 새 session에서는 실제 설치 상태를 다시 확인하며 source version과 installed version을 구분한다.
 
 - Unity Editor: `6000.5.1f1` (`0d9463e84828`), 프로젝트와 정확히 일치
 - Render Pipeline: Universal Render Pipeline `17.5.0`, 2D Renderer
@@ -52,8 +57,8 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - Product Name: `Arena Systems Lab`; project folder leaf: `Arena Systems Lab`
 - Version Control Mode: Visible Meta Files
 - Asset Serialization: Force Text
-- Git 저장소의 최초 검증 기준선은 `main`에 commit/push한다. Public `origin`은 `https://github.com/procloudkim/arena-systems-lab.git`이다. Git LFS도 설치돼 있지만 현재 필요한 대형 source asset은 없다.
-- Visual Studio는 설치돼 있으나 Unity workload/component는 확인되지 않았다.
+- Git 기준선은 `main`과 public `origin`으로 관리한다. 실제 원격은 Git 설정에서만 확인하고 개인 계정 URL을 문서에 복사하지 않는다. Git LFS는 설치 기록이 있으나 현재 필요한 대형 source asset은 없다.
+- Visual Studio는 설치돼 있으나 초기 `vswhere -requires` 검사에서 Unity workload/component 0건이었다. 새 session의 설치 상태는 다시 확인한다.
 - Unreal Engine: `5.8.0` / CL `55116800`, Development Editor build 확인
 - Visual Studio Native Game workload, MSVC `14.50`, C++ x64 tool과 Windows SDK `10.0.26100.0`: 실제 Unreal build로 확인됨
 - Windows .NET SDK: `10.0.400`, 전체 Windows executable 경로로 사용 가능
@@ -73,7 +78,9 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - build scenes: `ProjectSettings/EditorBuildSettings.asset`
 - 입력 액션: `Assets/InputSystem_Actions.inputactions`
 - 현재 진행 상태와 checkpoint: `PROCESS.md`
-- 프로젝트 진입점과 실행 방법: `README.md`
+- 프로젝트 진입점: `README.md`
+- 기술 명세의 책임·버전·정보 경계: `docs/adr/0012-technical-documentation-governance.md`
+- 요구사항·구조·데이터: `docs/REQUIREMENTS.md`, `docs/ARCHITECTURE.md`, `docs/DATA_MODEL.md`
 - 게임 개발 용어 정의: `docs/GAME_DEV_GLOSSARY.md`
 - 감사 상태: `docs/ENVIRONMENT_AUDIT.md`
 - AI 작업 기록: `docs/AI_USAGE.md`
@@ -86,7 +93,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고, 객체지향 설�
 - Unreal module dependency: `Unreal/ArenaObserver/Source/ArenaObserver/ArenaObserver.Build.cs`
 - Unreal observer 수동 검증: `docs/DEMO_GUIDE.md`
 - 작업·구조 의사결정: `docs/adr/`
-- 최종 필수 기술 baseline: `docs/adr/0006-portfolio-technology-baseline.md`
+- 최종 필수 기술 baseline: `docs/adr/0006-technology-baseline.md`
 - milestone과 완료 근거 matrix: `docs/IMPLEMENTATION_PLAN.md`
 - 생성물 제외 정책: `.gitignore`
 
@@ -108,9 +115,7 @@ Day 1에는 Spatial Hash, Object Pool, 정식 Enemy FSM, multiplayer, network, d
 
 Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태별 interface/class 계층은 실제로 서로 다른 행동 구현이 필요해질 때만 검토한다.
 
-최종 portfolio 확장은 ADR 0006 범위로 제한한다. Unity arena client, C#/.NET TCP leaderboard server, MySQL persistence, Unreal C++ read-only observer, isolated SVN workflow evidence만 만든다. multiplayer simulation, public deployment, authentication, cloud service, 별도 Unreal game은 만들지 않는다.
-
-실제 다직군 협업과 live-service 대응 경험은 사용자의 현재 결정에 따라 완료 기준과 포트폴리오 주장에 포함하지 않는다.
+최종 기술 확장은 ADR 0006 범위로 제한한다. Unity arena client, C#/.NET TCP leaderboard server, MySQL persistence, Unreal C++ read-only observer, isolated SVN workflow evidence만 만든다. multiplayer simulation, public deployment, authentication, cloud service, 별도 Unreal game은 만들지 않는다.
 
 명시적 사용자 승인 없이 기존 `.unity`, `.prefab`, package 파일과 Project Settings를 직접 수정하지 않는다. 승인된 naming 작업은 `productName`, `metroPackageName`, `metroApplicationDescription`에 한정한다. Scene 구성이 필요하면 기존 Scene을 보존하고 runtime 구성 또는 안전한 Editor API를 사용한다.
 
@@ -135,36 +140,13 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 
 ## 9. Testing and validation commands
 
-- 초기 import 검증: 현재 Editor 로그에서 C# compiler/import error 표식 0건을 확인했다.
-- EditMode Test Runner UI: **Not yet verified**. `Window > General > Test Runner`에서 EditMode 테스트를 실행한다.
-- 자동 EditMode 명령: **Verified on 2026-09-05**. 정확히 일치하는 Editor가 닫히고 Unity process와 `Temp/UnityLockfile`이 없을 때 다음 형태로 실행한다.
-  `"<UnityEditor>/Unity.exe" -batchmode -nographics -projectPath "<project-root>" -runTests -testPlatform EditMode -testFilter "ArenaSystemsLab.Tests.EditMode" -testResults "<project-root>/Logs/EditModeResults.xml" -logFile "<project-root>/Logs/EditModeTest.log"`
-- Test Framework 1.7에서는 command-line test에 `-quit`을 함께 지정하지 않는다. 설치 package source가 이 조합은 동작하지 않는다고 명시한다.
-- EditMode 결과: **Verified on 2026-09-05**, 20 passed / 0 failed / 0 skipped. Unity network client의 framing, retry, response limit, server-unavailable 검사를 포함한다.
-- 자동 PlayMode profiling 명령: **Verified on 2026-09-05**. 위 명령에서 `-testPlatform PlayMode -testFilter "ArenaSystemsLab.Tests.PlayMode"`를 사용하며 결과는 1 passed / 0 failed / 0 skipped.
-- Project validation command-line: **Verified on 2026-09-05**. Batchmode에서 `-executeMethod ArenaSystemsLab.Editor.ArenaProjectValidator.ValidateFromCommandLine`을 사용한다.
-- Project validation Editor menu: **Verified on 2026-09-04**. 사용자가 `Tools > Arena Systems Lab > Validate Project`를 포함한 Day 3 수동 검증 완료를 확인했다.
-- PlayMode 수동 검증: Day 1 흐름, Day 2 상태 색상·전이, Day 3 변경 후 기존 gameplay 회귀를 **Verified on 2026-09-04**.
-- Unity Console: Day 1~3 변경 후 **Verified on 2026-09-04**, 사용자 확인 오류 없음.
-- Windows Mono Development build command-line: **Verified on 2026-09-04**. Batchmode에서 `-executeMethod ArenaSystemsLab.Editor.ArenaWindowsBuilder.BuildWindowsFromCommandLine`을 사용하며 output은 `Builds/Windows/ArenaSystemsLab.exe`다.
-- Windows build Editor menu: **Not yet human verified**. `Tools > Arena Systems Lab > Build Windows Development`를 사용한다.
-- Windows player launch smoke: **Verified on 2026-09-04**. 생성된 x86-64 player가 8초 동안 생존했고 managed exception·crash 없이 종료됐다.
-- Windows player 전체 gameplay 수동 검증: **Verified on 2026-09-04**. 사용자가 `docs/DEMO_GUIDE.md`의 이동·공격·FSM·Game Over·restart checklist PASS와 오류 없음을 확인했다.
-- Windows .NET SDK version 명령: **Verified on 2026-09-04**. Windows `dotnet.exe --version` 결과 `10.0.400`.
-- .NET server restore/build/verification: **Verified on 2026-09-05** with Windows .NET SDK 10.0.400. `<dotnet>`을 감사된 executable로 바꿔 다음 argument를 사용한다.
-  - `"<dotnet>" restore Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configfile Server/NuGet.Config`
-  - `"<dotnet>" build Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configuration Release --no-restore`
-  - `"<dotnet>" run --project Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configuration Release --no-build --no-restore`
-- .NET Release build: **PASS**, warnings 0 / errors 0. Verification executable: **PASS**, 8 passed / 0 failed.
-- .NET server CLI smoke: **PASS on 2026-09-05**, port 7777에서 Windows PowerShell client `health` response와 `Ctrl+C` 정상 종료 확인.
-- Unity leaderboard client automated checks: **PASS on 2026-09-05**, 4 passed / 0 failed. Actual .NET server Game Over flow와 Console도 사용자가 **PASS**로 확인했다.
-- Unreal Development Editor build: **Verified on 2026-09-05**. `"<UnrealEngine>/Engine/Build/BatchFiles/Build.bat" ArenaObserverEditor Win64 Development "<project-root>/Unreal/ArenaObserver/ArenaObserver.uproject" -WaitMutex -NoHotReloadFromIDE`
-- Unreal protocol automation: **Verified on 2026-09-05**, 1 passed / 0 failed / 0 warnings. `"<UnrealEngine>/Engine/Binaries/Win64/UnrealEditor-Cmd.exe" "<project-root>/Unreal/ArenaObserver/ArenaObserver.uproject" -unattended -nop4 -NullRHI -NoSplash -NoSound -ExecCmds="Automation RunTests ArenaSystemsLab.ArenaObserver; Quit" -ReportExportPath="<project-root>/Unreal/ArenaObserver/Saved/Automation"`
-- Unreal native socket paths: **Verified on 2026-09-05**. port 7777 부재에서는 위 command에 `-ArenaObserverExpectNoServer`, 실제 local server에서는 `-ArenaObserverExpectServer`를 추가하며 각각 1/1 PASS했다.
-- Unreal server-unavailable, actual-server HUD와 Console 사람 검증: **Not yet verified**. `docs/DEMO_GUIDE.md` checklist를 사용한다.
-- SVN workflow와 MySQL integration: **Not yet verified**. 필요한 도구와 dependency가 승인·준비된 뒤 실행한다.
+검증된 명령 인수 패턴과 안전 조건은 [실행 및 검증 가이드](docs/DEMO_GUIDE.md)에만 관리한다. 이 문서에 복사하지 않는다. 결과의 최신 기준은 PROCESS, 시점별 원본 근거는 환경 감사와 ADR이다.
 
-검증하지 않은 명령을 성공한 명령처럼 기록하지 않는다.
+- 버전이 정확히 일치하고 같은 프로젝트의 Editor process·lock이 없을 때만 batch 검사를 시작한다.
+- Unity command-line test에 `-quit`을 넣지 않는다.
+- 새 환경에서 아직 실행하지 않은 명령은 `Not yet verified`로 표시한다.
+- 문서 전용 변경은 링크·스키마·소스 대조·변경 경계를 검사하고 엔진·runtime 검사는 `NOT RUN`으로 기록한다.
+- 소스 변경은 해당 엔진의 compile·자동 검사와 사람 화면 검증을 요구한다.
 
 ## 10. Git safety rules
 
@@ -180,6 +162,8 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 
 ## 11. AI-assisted development policy
 
+- 문서는 순수한 프로젝트 기술·운영 사실만 다룬다. 외부 목적, 개인 계정·연락처·장치 절대 경로를 넣지 않는다. 상대 경로·익명 예제·명시적 자리표시자를 사용한다.
+- README와 기술 문서 5종은 ADR 0012의 책임·버전 규칙을 따른다. 현재 소스, 미구현 계획, 날짜가 고정된 검증 결과를 구분한다.
 - AI가 조사한 근거, 생성·수정 파일, 실행한 검증과 미검증 항목을 `docs/AI_USAGE.md`에 기록한다.
 - AI 코드는 사람이 Unity/Unreal 화면 동작과 Console/Output Log 오류를 확인하기 전까지 runtime 완료로 간주하지 않는다.
 - AI 제안은 기존 코드, Unity 문서, compiler/test 결과와 대조한다.
@@ -189,12 +173,12 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 
 ## 12. Definition of done
 
-- 요청 범위가 실제 플레이 흐름으로 연결된다.
-- 변경된 C# 코드가 정확한 Unity Editor에서 compile된다.
+- 기능 변경은 요청 범위가 실제 플레이 흐름으로 연결된다. 문서 전용 변경에는 링크·사실·변경 경계 검증을 적용한다.
+- Unity C# 코드 변경은 정확한 Unity Editor에서, 서버 C# 변경은 해당 .NET target에서 compile된다.
 - 변경된 Unreal C++ 코드가 정확한 Unreal Engine에서 compile된다.
-- 전체 EditMode 테스트가 통과한다.
+- Unity runtime 변경에는 전체 EditMode 테스트가 통과한다.
 - Console에 이번 변경으로 생긴 error가 없다.
-- 사람이 변경된 PlayMode flow를 확인한다.
+- 사람이 변경된 runtime flow를 확인한다.
 - package와 Project Settings에 승인되지 않은 변경이 없다.
 - 문서와 AI 사용 기록이 실제 결과와 일치한다.
 - `PROCESS.md`가 현재 상태와 다음 작업을 단독으로 설명한다.
@@ -202,4 +186,4 @@ Day 2 enemy FSM은 `enum`과 작은 상태 결정 class로 유지한다. 상태�
 - 관련 ADR과 검증 근거가 commit에 포함되고 해당 branch가 remote에 push된다.
 - Unity, Unreal Engine, Git, SVN, MySQL, network programming, socket programming, multithreading, OOP 각각에 source와 재현 가능한 검증 근거가 있다.
 - Git만 canonical VCS로 사용하고 SVN metadata는 active Git working tree에 섞지 않는다.
-- 실제 협업·live-service 대응을 수행했다고 주장하지 않는다.
+- 구현되지 않은 기술·검증되지 않은 실행 결과를 완료로 기록하지 않는다.

@@ -2,8 +2,8 @@
 
 > Arena Systems Lab 개발 중 실제로 만난 게임·Unity·물리·검증 용어를 한국어로 설명하는 생활형 백과사전이다.
 
-- Version: `0.9.0`
-- Last updated: 2026-09-05 KST
+- Version: `0.10.0`
+- Last updated: 2026-09-07 KST
 - Governance: [ADR 0004](adr/0004-game-development-glossary-governance.md)
 
 ## 사용 방법
@@ -225,6 +225,24 @@
 
 ## Data Persistence
 
+### Entity Relationship Diagram (ERD, 개체 관계도)
+
+- 정의: 데이터 개체의 속성과 관계를 나타내는 도식이다. 논리 모델과 실제 테이블 모델 모두 표현할 수 있다. [Mermaid ERD](https://mermaid.js.org/syntax/entityRelationshipDiagram.html)
+- 프로젝트 예: [데이터 모델](DATA_MODEL.md)은 현재 메모리 저장소의 `playerId`·`score`를 단일 논리 엔터티로 표현한다.
+- 주의: ERD가 있다고 MySQL이나 SQL 테이블이 구현됐다는 뜻은 아니다. 없는 관계·외래 키를 사실처럼 추가하지 않는다.
+
+### Schema (스키마)
+
+- 정의: 데이터의 필드·타입·구조·제약을 설명하는 규칙이다. JSON의 경우에도 구조와 허용값을 명세할 수 있다. [JSON Schema 소개](https://json-schema.org/overview/what-is-jsonschema)
+- 프로젝트 예: `WireProtocol`이 요청의 필드 집합과 값 범위를 C#으로 검사한다.
+- 주의: 이 프로젝트는 JSON Schema 라이브러리나 스키마 파일을 사용하지 않는다. SQL 물리 스키마도 미구현이다.
+
+### Idempotency (멱등성)
+
+- 정의: 같은 작업을 반복해도 의도한 상태 변화가 한 번 수행한 결과와 같은 성질이다. HTTP에서도 이 개념을 재시도 가능성 설명에 사용한다. [RFC 9110 §9.2.2](https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2)
+- 프로젝트 예: 같은 ID의 같은 최고 점수를 재제출해도 저장 항목이 추가되거나 값이 낮아지지 않는다.
+- 주의: 현재 프로토콜은 HTTP가 아니다. 모든 run을 추가하는 미래 API에는 별도 중복 방지 키가 필요하며 응답 내용까지 항상 같다는 뜻도 아니다.
+
 ### Leaderboard (리더보드)
 
 - 정의: player들을 특정 성과 기준으로 정렬해 순위를 보여 주는 목록이며 보통 player별 대표 기록 하나를 사용한다.
@@ -248,7 +266,7 @@
 ### Finite State Machine (FSM, 유한 상태 머신)
 
 - 정의: 객체가 한 번에 하나의 유한한 상태를 가지며 조건에 따라 다른 상태로 전환되는 구조다.
-- 프로젝트 예: 적을 `Chase`, `Attack`, `Dead` 상태로 나누고 거리나 사망 여부에 따라 전환한다.
+- 프로젝트 예: 적을 `Idle`, `Chase`, `Attack`, `Dead` 상태로 나누고 행동 가능·물리 접촉·사망 여부에 따라 전환한다.
 - 주의: 적 한 종류에는 `enum`과 `switch`면 충분하며 상태별 class 계층은 필요할 때만 만든다.
 
 ### State (상태)
@@ -260,7 +278,7 @@
 ### Transition (상태 전이)
 
 - 정의: 조건이 충족됐을 때 현재 상태에서 다음 상태로 바뀌는 과정이다.
-- 프로젝트 예: 플레이어가 공격 거리 안에 들어오면 `Chase → Attack`, Health가 0이면 `Any → Dead`가 된다.
+- 프로젝트 예: 플레이어와 물리 접촉하면 `Chase → Attack`, Health가 0이면 살아 있는 상태에서 `Dead`가 된다.
 - 주의: 같은 frame에 여러 전이가 경쟁할 때 사망처럼 우선순위가 높은 조건을 먼저 처리한다.
 
 ### Terminal State (종료 상태)
@@ -495,12 +513,13 @@
 
 | Version | Date | 변경 | ADR |
 |---|---|---|---|
+| `0.10.0` | 2026-09-07 | ERD·schema·idempotency 3개 추가, 총 78개. FSM 예시를 실제 접촉 조건으로 정정 | [ADR 0012](adr/0012-technical-documentation-governance.md) |
 | `0.9.0` | 2026-09-05 | Unreal C++ 구현에서 확인한 Actor·Game Mode·HUD·module·UBT·UHT·thread pool·automation 8개 추가, 총 75개 | [ADR 0011](adr/0011-unreal-read-only-leaderboard-observer.md) |
 | `0.8.0` | 2026-09-05 | 사람 검증에서 확인한 leaderboard·run history 구분 2개 추가, 총 67개 | [ADR 0010](adr/0010-unity-loopback-leaderboard-client.md) |
 | `0.7.0` | 2026-09-05 | Unity network client의 cancellation·retry 용어 2개 추가, 총 65개 | [ADR 0010](adr/0010-unity-loopback-leaderboard-client.md) |
 | `0.6.0` | 2026-09-05 | network security·protocol·concurrency 용어 11개 추가, 총 63개 | [ADR 0009](adr/0009-loopback-first-bounded-tcp-protocol.md) |
 | `0.5.0` | 2026-09-04 | Day 4 build·regression·smoke 용어 4개 추가, 총 52개 | [ADR 0008](adr/0008-reproducible-windows-build-and-demo.md) |
 | `0.4.0` | 2026-09-04 | Day 3 측정·알고리즘·Editor Tool 용어 5개 추가, 총 48개 | [ADR 0007](adr/0007-measured-day3-tooling.md) |
-| `0.3.0` | 2026-09-04 | 필수 engine, language, VCS, network, concurrency, database 용어 14개 추가, 총 43개 | [ADR 0006](adr/0006-portfolio-technology-baseline.md) |
+| `0.3.0` | 2026-09-04 | 필수 engine, language, VCS, network, concurrency, database 용어 14개 추가, 총 43개 | [ADR 0006](adr/0006-technology-baseline.md) |
 | `0.2.0` | 2026-09-04 | Day 2 FSM에서 사용한 Terminal State 추가, 총 29개 | [ADR 0005](adr/0005-minimal-enemy-fsm.md) |
 | `0.1.0` | 2026-09-04 | 현재 코드와 Day 2~4 계획에서 사용한 기본 용어 28개 수록 | [ADR 0004](adr/0004-game-development-glossary-governance.md) |

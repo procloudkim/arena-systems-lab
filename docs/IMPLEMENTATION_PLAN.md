@@ -1,6 +1,8 @@
 # Arena Systems Lab Implementation Plan
 
-> Day 1~4는 Unity 게임 core를 완성하는 첫 milestone이다. 최종 포트폴리오 완료에는 [ADR 0006](adr/0006-portfolio-technology-baseline.md)의 필수 기술 확장도 모두 필요하다.
+> 이 문서는 작업 계획과 날짜가 고정된 구현 기록이다. 현재 상태는 [PROCESS](../PROCESS.md), 구현 명세는 [README의 기술 문서 5종](../README.md)을 따른다.
+
+> Day 1~4는 Unity 게임 core를 완성하는 첫 milestone이다. 최종 프로젝트 완료에는 [ADR 0006](adr/0006-technology-baseline.md)의 필수 기술 확장도 모두 필요하다.
 
 ## Day 1: Playable vertical slice
 
@@ -93,7 +95,7 @@ Unity Profiler, `UnityEngine.Pool`, UnityEditor API만 사용한다. Performance
 ## Day 4: Tests, build, documentation, demo
 
 ### 목적
-재현 가능한 검증과 채용 검토자가 빠르게 이해할 수 있는 결과물을 만든다.
+재현 가능한 검증과 제3자가 빠르게 이해할 수 있는 결과물을 만든다.
 
 ### 작업 항목
 
@@ -104,7 +106,7 @@ Unity Profiler, `UnityEngine.Pool`, UnityEditor API만 사용한다. Performance
 - AI 생성 코드의 사람 검증 결과 갱신
 
 ### 완료 기준
-깨끗한 환경에서 Unity 프로젝트를 열고 테스트·build·demo flow를 재현할 수 있다. 이 시점은 Unity MVP 완료이며 전체 포트폴리오 완료가 아니다.
+깨끗한 환경에서 Unity 프로젝트를 열고 테스트·build·demo flow를 재현할 수 있다. 이 시점은 Unity MVP 완료이며 전체 프로젝트 완료가 아니다.
 
 ### 검증 방법
 정확한 Editor에서 전체 테스트, Windows build 실행, Console 확인, 수동 checklist를 수행한다.
@@ -155,7 +157,7 @@ network input은 신뢰 경계다. message 길이 제한과 validation을 생략
 
 2026-09-05에 server foundation을 구현했다. `127.0.0.1` bind, 4-byte big-endian frame, 엄격한 JSON schema, bounded in-memory leaderboard, timeout·동시 client 제한을 적용했다. Release build 경고 0·오류 0, package 없는 verification executable 8/8이 통과했다. 세부 위협 모델과 remote exposure gate는 [Network Security Baseline](NETWORK_SECURITY.md)과 [ADR 0009](adr/0009-loopback-first-bounded-tcp-protocol.md)을 따른다.
 
-Unity와 Unreal client를 연결하는 end-to-end network flow는 Milestone 7·8에 남아 있다. TLS, authentication과 server-authoritative score는 remote exposure 전에 필요한 별도 범위이며 현재 구현으로 완료됐다고 주장하지 않는다.
+이 문단은 Milestone 5 구현 시점 기록이다. 이후 Milestone 7·8의 개별 client 통합·사람 검증은 완료했으며 최신 상태는 [PROCESS](../PROCESS.md)를 따른다. TLS, authentication과 server-authoritative score는 remote exposure 전에 필요한 별도 범위이며 현재 구현으로 완료됐다고 주장하지 않는다.
 
 ## Milestone 6: MySQL persistence
 
@@ -278,7 +280,7 @@ SVN revision history에 branch와 merge가 남고, conflict 해결 전후를 다
 
 Git과 SVN을 같은 source-of-truth로 운영하지 않는다. local lab 외의 원격 server나 실제 협업자를 요구하지 않는다.
 
-## Final Portfolio Coverage Matrix
+## 최종 기술 범위 Matrix
 
 | 필수 기술 | 구현 위치 | 완료 근거 | 현재 상태 |
 |---|---|---|---|

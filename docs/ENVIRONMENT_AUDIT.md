@@ -1,6 +1,6 @@
 # Environment Audit
 
-> 이 문서는 감사 시점의 역사적 snapshot이다. 현재 진행 상태와 다음 작업은 [PROCESS.md](../PROCESS.md)를 따른다.
+> 이 문서는 감사 시점의 역사적 snapshot이다. 현재 진행 상태와 다음 작업은 [PROCESS.md](../PROCESS.md)를 따른다. 아래 명령의 개인 식별 인수는 `<owner>`·`<repository-origin>`으로 치환했으며 실제 인수 그대로의 재실행 기록이 아니다.
 
 ## 감사 실행 시점
 
@@ -29,13 +29,13 @@
 | Input System | 직접 선언 | 1.19.0 | READY | manifest/lock depth 0 | 기존 API 사용 |
 | Active Input Handling | New Input System | 값 1 | READY | `ProjectSettings.asset` | Legacy API 미사용 |
 | Legacy Input | asset만 존재 | active하지 않음 | OPTIONAL | InputManager와 active setting | 사용하지 않음 |
-| Input Actions | 존재 | Player/UI, Move/Attack 포함 | READY | JSON parse | 의미 재사용 |
+| Input Actions | 존재 | Player/UI, Move/Attack 포함 | READY | JSON parse | 기존 에셋 보존, runtime은 장치 API 직접 사용 |
 | Unity Test Framework | 직접 선언 | 1.7.0 builtin | READY | manifest/lock depth 0 | EditMode 테스트 작성 |
 | Performance Testing API | 간접 의존성 | 3.5.0 / depth 2 | OPTIONAL | packages-lock | 직접 package로 간주하지 않음 |
 | Package 일관성 | 문제 없음 | direct/lock issue 0 | READY | JSON parse | 변경 없음 |
 | Git | 설치됨 | 2.43.0 | READY | version command | 없음 |
 | Git 저장소 | 초기화 및 기준선 기록 | `main`, initial checkpoint | READY | local/remote ref probe | 작업별 branch 사용 |
-| GitHub 원격 | 생성 및 연결됨 | public `procloudkim/arena-systems-lab` | READY | GitHub API와 `git remote -v` | 없음 |
+| GitHub 원격 | 생성 및 연결됨 | public `arena-systems-lab` | READY | GitHub API와 `git remote -v` | 없음 |
 | Git LFS | 설치됨 | 3.7.1 | OPTIONAL | version command | 현재 대상 없음 |
 | Codex CLI | 설치됨 | 0.152.1 | READY | version command | 없음 |
 | `.gitignore` | 있음 | Unity/IDE 생성물 제외 | READY | `git check-ignore` | source와 `.meta` 유지 |
@@ -129,13 +129,13 @@ Git stage, commit, remote 설정, Git LFS 초기화는 실행하지 않았다.
 
 | 명령 | 목적 | 결과 |
 |---|---|---|
-| GitHub public repository API 조회 | 기존 naming pattern 확인 | `webmcp-guardrail-labs`, `pubg-telemetry-watch`, `agri-weather-pipeline` 등 확인 |
-| `gh repo view procloudkim/arena-systems-lab` | 이름 충돌 확인 | 기존 repository 없음 |
-| `gh repo create procloudkim/arena-systems-lab --public ...` | public 원격 생성과 `origin` 연결 | 성공 |
+| GitHub public repository API 조회 | 기존 naming pattern 확인 | 소문자 kebab-case의 기능 중심 명명 규칙 확인 |
+| `gh repo view <owner>/arena-systems-lab` | 이름 충돌 확인 | 기존 repository 없음 |
+| `gh repo create <owner>/arena-systems-lab --public ...` | public 원격 생성과 `origin` 연결 | 성공 |
 | `gh repo view ... --json ...` | 원격 설정 검증 | public, 설명 일치 |
 | `git ls-remote --heads origin` | 원격 branch 확인 | 출력 없음, 아직 push되지 않은 빈 repository |
 
-원격 URL은 `https://github.com/procloudkim/arena-systems-lab`이다. stage, commit, push는 실행하지 않았다.
+원격은 로컬 Git의 `origin`으로 연결했다. stage, commit, push는 실행하지 않았다.
 
 ## 최초 원격 기준선
 
@@ -159,7 +159,7 @@ Git stage, commit, remote 설정, Git LFS 초기화는 실행하지 않았다.
 
 실행 시점: `2026-09-04T22:20:56+09:00`
 
-사용자가 최종 portfolio 하한으로 지정한 Unity, Unreal Engine, Git, SVN, MySQL, network programming, socket programming, multithreading, OOP를 대상으로 기존 설치와 repository 구현 상태를 읽기 전용으로 다시 확인했다. program 탐색은 command lookup, Windows registry, 일반 설치 경로로 제한했고 drive나 home 전체를 검색하지 않았다.
+사용자가 최종 기술 하한으로 지정한 Unity, Unreal Engine, Git, SVN, MySQL, network programming, socket programming, multithreading, OOP를 대상으로 기존 설치와 repository 구현 상태를 읽기 전용으로 다시 확인했다. program 탐색은 command lookup, Windows registry, 일반 설치 경로로 제한했고 drive나 home 전체를 검색하지 않았다.
 
 | 항목 | 감지 결과 | 버전/설정 | 상태 | 근거 | 필요한 조치 |
 |---|---|---|---|---|---|
@@ -378,7 +378,7 @@ Milestone 7 통합 뒤 clean `main`에서 Unreal project 유무, exact Engine, C
 
 **READY_WITH_GAPS**
 
-정확한 Engine과 native toolchain으로 C++ build, protocol automation, server-unavailable 및 actual-server HUD 사람 검증이 통과했다. 외부 dependency나 project upgrade는 필요하지 않다. 전체 portfolio gate는 승인 대기 중인 MySQL·SVN 때문에 `READY_WITH_GAPS`를 유지한다.
+정확한 Engine과 native toolchain으로 C++ build, protocol automation, server-unavailable 및 actual-server HUD 사람 검증이 통과했다. 외부 dependency나 project upgrade는 필요하지 않다. 전체 기술 gate는 승인 대기 중인 MySQL·SVN 때문에 `READY_WITH_GAPS`를 유지한다.
 
 ### 실행한 명령과 결과
 
@@ -402,3 +402,35 @@ Milestone 7 통합 뒤 clean `main`에서 Unreal project 유무, exact Engine, C
 첫 actual compile은 test source include 경로로 실패했고 source 이동 직후에는 UBT makefile cache가 이전 경로를 참조했다. test를 module root로 옮기고 `-NoUBTMakefiles`로 한 번 재수집한 뒤 일반 incremental build도 통과했다.
 
 Automation startup의 Engine `UnifiedErrorTests.cpp`가 의도적으로 출력하는 error test 15줄은 project test 시작 전 발생했다. exported report의 `ArenaSystemsLab.ArenaObserver.Protocol`은 success, warnings 0, errors 0이며 project fatal/assert/ensure는 없었다. 이 Engine 진단과 사람 HUD 검증을 구분했고, actual-server 화면과 실행 log의 project 오류 없음도 확인했다.
+
+## 2026-09-07 기술 문서 소스 대조
+
+이번 작업은 기존 환경 재설치나 엔진 실행이 아닌 문서 전용 감사다. `fa834cf`에서 시작했으며 runtime 요구 버전과 구현 소스를 읽고 기술 문서 5종의 명세를 확인했다. 상세 판정은 [ADR 0012](adr/0012-technical-documentation-governance.md)에 있다.
+
+| 확인 | 결과 | 근거 / 한계 |
+|---|---|---|
+| 시작 상태 | main, 미커밋 변경 없음 | Git status·ref |
+| Unity 요구 버전 | 6000.5.1f1 | ProjectVersion.txt, 이번 설치 재감사·실행 아님 |
+| 직접 패키지 선언 | Input System 1.19.0, URP 17.5.0, Test Framework 1.7.0 | manifest 읽기, 변경 없음 |
+| .NET target / dependency | net10.0, 외부 NuGet 참조 없음 | csproj와 NuGet.Config |
+| Unreal association | 5.8 | uproject, 이번 Engine 재실행 아님 |
+| 현재 저장소 | 메모리 Dictionary, player별 최고 score | LeaderboardStore, SQL schema 없음 |
+| 기존 테스트 XML | EditMode 20/20, PlayMode 1/1 | NetworkClient 결과 XML 읽기 전용 확인 |
+| 기존 Unreal 보고서 | 세 실행 모두 1/1, warning/error 0 | Saved/Automation 계열 index.json |
+| 기존 Windows 로그 | 빌드 성공 표식 존재 | Day4WindowsBuild.log, 새 네트워크 빌드 아님 |
+| 문서 구조 | 내부 링크·JSON 예제·ADR·glossary 검사 통과 | Node 표준 API 기반 읽기 전용 검사 |
+| 문서 정보 경계 | 검사 패턴 일치 0건 | 현재 Markdown만 대상, 과거 Git 이력은 범위 밖 |
+| 엔진·runtime 재검증 | NOT RUN | 문서만 수정 |
+| 웹 다이어그램 렌더링 | NOT RUN | 정적 도식 검토만 수행 |
+
+| 실행한 명령 / 도구 | 목적 | 종료·결과 |
+|---|---|---|
+| `pwd`, `git status --short --branch` | 작업 위치·기준 상태 | 성공 |
+| `rg --files`, `rg -n`, `sed -n`, `tail` | 제한된 저장소 문서·소스·package source 확인 | 조회 성공, 일부 검색은 일치 없음(exit 1) |
+| `git switch -c work/technical-documentation` | 문서 작업 branch 분리 | 성공 |
+| `command -v node`, `command -v mmdc` | 이미 사용 가능한 검사 도구 확인 | Node 확인, mmdc PATH 항목 없음 |
+| 공식 문서 웹 조회 | 표준/API 의미 교차 확인 | ADR 0012에 출처·판정 기록 |
+| Node 표준 fs/path/child_process 검사 | 링크·ADR·glossary·JSON 예제·기존 결과 집계 | 정적 검사 성공. 첫 Unreal JSON BOM 처리 실패 뒤 읽기 방식 정정으로 성공 |
+| `git diff --check`, `git diff --stat` | 공백 오류·변경 경계 | 문서 diff 확인, runtime 변경 없음 |
+
+새로운 compile·빌드·게임 수동 PASS를 추가하지 않는다. 기존 log와 generated binary는 계속 ignored 상태이며 이번 문서 변경에 포함하지 않는다.
