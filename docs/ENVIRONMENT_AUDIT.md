@@ -482,6 +482,7 @@ Gate는 `READY_WITH_GAPS`다. 승인된 설치 없이 기존 .NET과 exact Unity
 | exact Unity executeMethod ArenaProjectValidator.ValidateFromCommandLine | 실제 프로젝트 설정 검증 | exit 0, validation passed |
 | XML·log 읽기, 최종 process/lock 조회 | 종료 코드와 결과 교차 확인 | XML 성공 결과 일치, 최종 Editor·lock 없음 |
 | Node 표준 API 문서 검사, git diff --check | 링크·JSON·ADR·glossary·정보/변경 경계 | PASS, 문서 28개·링크 199개·JSON 9개·ADR 14개·용어 85개, 오류 0 |
+| git add/commit/push, git ls-remote --heads origin | 명시적 파일만 기록·원격 대조 | 구현 c6fec8c push·SHA 일치. main은 f896940 유지 |
 
 명령 전체 템플릿은 [DEMO_GUIDE](DEMO_GUIDE.md), 결과는 ignored `Logs/ContractHardening-*20260909.*`에 있다. .NET은 process 범위의 DOTNET_CLI_TELEMETRY_OPTOUT=1, DOTNET_GENERATE_ASPNET_CERTIFICATE=false를 적용했다. 별도 restore·외부 package 추가·engine upgrade는 없다.
 

@@ -496,3 +496,5 @@ f896940의 clean main에서 시작해 AGENTS·PROCESS·관련 ADR·명세와 코
 정상 0점 제출·높은 점수 갱신·server 없음·R 재시작·Unity Console을 이번 branch에서 사람이 확인해야 한다. Windows 최신 build·Unreal 재빌드·동일 server 연속 시연·MySQL·v2·SVN은 미실행이다. 과거 사람 PASS를 새 결과로 옮기지 않는다.
 
 새 JSON library, 모든 schema 검사를 수행하는 parser, object pooling·gameplay spatial hash, 임의의 새 성능 기준선을 추가하지 않았다. MySQL·SVN 설치와 외부 작업 공간은 별도 승인이며 main 통합도 보류했다. commit·원격 일치 근거는 PROCESS checkpoint에 둔다.
+
+구현 commit c6fec8c를 작업 branch에 push하고 local/remote SHA 일치를 확인했다. main 원격 ref는 f896940으로 유지됐다. 후속 CP-20260909-02는 이 구현 SHA와 자동 검사·사람 검증 대기를 기록한다.

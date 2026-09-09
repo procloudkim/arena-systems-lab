@@ -67,7 +67,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | 2026-09-09 변경 전 Unity baseline | PASS | exact 6000.5.1f1, EditMode 20/20, CompletionBaseline-20260909.xml |
 | 2026-09-09 변경 전 server baseline | PASS | SDK 10.0.401 Release 경고·오류 0, verification 8/8 |
 | 2026-09-09 설계 문서 정적 검사 | PASS | Markdown 27개·내부 링크 185개·JSON 9개·ADR 13개·glossary 84개, 누락 0, diff --check |
-| 2026-09-09 v1 문서 정적 검사 | PASS | Markdown 28개·내부 링크 199개·JSON 9개·ADR 14개·glossary 85개, 누락 0, 정보 경계·diff --check |
+| 2026-09-09 v1 문서 정적 검사 | PASS | 구현 시 Markdown 28개·링크 199개·JSON 9개·ADR 14개·glossary 85개, 누락 0. checkpoint 추가 후 링크 200개 재검사 PASS |
 | 2026-09-09 수정 전 추가 회귀 | FAIL | server 8 PASS / 2 FAIL, EditMode 26 PASS / 4 FAIL, ADR 0014에 재현 근거 |
 | Runtime/Editor/Test assembly compilation | PASS | 2026-09-09 exact 6000.5.1f1, 컴파일 오류 0. 기존 미변경 ArenaGame의 CS0618 경고 |
 | EditMode tests | PASS | 2026-09-09, 30 passed / 0 failed / 0 skipped |
@@ -145,6 +145,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260905-03` | Unreal C++ read-only leaderboard observer | `work/unreal-arena-observer` | `20b0d55`, human evidence `724a094` | [ADR 0011](docs/adr/0011-unreal-read-only-leaderboard-observer.md) | Development Editor build, protocol·server 없음·actual server 자동·사람 검증 PASS | Integrated as `b57db33` |
 | `CP-20260907-01` | README·기술 문서 5종·정보 경계 정리 | `work/technical-documentation` | `8cabddd`, checkpoint `15a01b3` | [ADR 0012](docs/adr/0012-technical-documentation-governance.md) | 문서 25개, 링크 누락 0, JSON 7개, ADR 12개, glossary 78개 PASS; runtime NOT RUN | Integrated as `77435fc` |
 | `CP-20260909-01` | 기술 완결성 설계와 설치 승인 경계 | `work/technical-completion-design` | `3afa91e` | [ADR 0013](docs/adr/0013-technical-completion-design.md) | 문서 정적 검사 PASS, 변경 전 EditMode 20/20·server 8/8 PASS | Branch pushed, remote SHA 일치; main 미통합 |
+| `CP-20260909-02` | v1 경계·공간 검색 회귀 보강 | `work/network-contract-hardening` | `c6fec8c` | [ADR 0014](docs/adr/0014-v1-contract-hardening.md) | 수정 전 실패 재현, server 10/10·EditMode 30/30·PlayMode 1/1·validator·문서 검사 PASS | Branch pushed, remote SHA 일치; 사람 검증 NOT RUN, main f896940 유지 |
 
 ## ADR Index and Naming
 
