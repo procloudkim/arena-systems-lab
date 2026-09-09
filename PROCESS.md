@@ -69,7 +69,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | 검증 | 결과 | 최근 근거 |
 |---|---|---|
 | 2026-09-10 미완료 사유·환경 사실 확인 | RECORDED | [감사 기록](docs/ENVIRONMENT_AUDIT.md#2026-09-10-미완료-사유와-환경-재확인), 소스·원격 ref·제한된 로컬 도구 조회와 공식 문서 대조 |
-| 2026-09-10 마감 문서 정적 검사 | PASS | Markdown 28개·내부 링크 234개·앵커 29개·JSON 예제 9개·ADR 14개, 과거 기록 3개 append-only·문서 4개 변경 경계·6단계 인계·NOT RUN 보존. runtime 재실행 없음 |
+| 2026-09-10 마감 문서 정적 검사 | PASS | 구현 commit a1bfc39 기준 Markdown 28개·내부 링크 234개·앵커 29개·JSON 예제 9개·ADR 14개, 과거 기록 3개 append-only·문서 4개 변경 경계·6단계 인계·NOT RUN 보존. runtime 재실행 없음 |
 | 2026-09-09 변경 전 Unity baseline | PASS | exact 6000.5.1f1, EditMode 20/20, CompletionBaseline-20260909.xml |
 | 2026-09-09 변경 전 server baseline | PASS | SDK 10.0.401 Release 경고·오류 0, verification 8/8 |
 | 2026-09-09 설계 문서 정적 검사 | PASS | Markdown 27개·내부 링크 185개·JSON 9개·ADR 13개·glossary 84개, 누락 0, diff --check |
@@ -161,6 +161,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260909-01` | 기술 완결성 설계와 설치 승인 경계 | `work/technical-completion-design` | `3afa91e` | [ADR 0013](docs/adr/0013-technical-completion-design.md) | 문서 정적 검사 PASS, 변경 전 EditMode 20/20·server 8/8 PASS | Branch pushed, remote SHA 일치; main 미통합 |
 | `CP-20260909-02` | v1 경계·공간 검색 회귀 보강 | `work/network-contract-hardening` | `c6fec8c` | [ADR 0014](docs/adr/0014-v1-contract-hardening.md) | 수정 전 실패 재현, server 10/10·EditMode 30/30·PlayMode 1/1·validator·문서 검사 PASS | Branch pushed, remote SHA 일치; 사람 검증 NOT RUN, main f896940 유지 |
 | `CP-20260909-03` | 승인된 문서 SSOT 통합과 sip 보완 보존 | `work/documentation-ssot` | `3f71d69` | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | 문서·링크·보존 12항목·staged diff 검사 PASS; runtime NOT RUN | Branch pushed, remote SHA 일치; main f896940 유지, v1 사람 검증 대기 |
+| `CP-20260910-01` | 미완료 사유 사실 확인과 문서 마감 | `work/session-closeout` | `a1bfc39` | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | 문서 정적·과거 기록 보존·문서 4개 변경 경계 검사 PASS; runtime·신규 사람 검증 NOT RUN | 구현 branch push·원격 SHA 일치 확인; main f896940 유지, 다음은 exact Unity의 v1 사람 검증 |
 
 ## ADR Index and Naming
 

@@ -602,3 +602,5 @@ compile·EditMode·PlayMode·server verification·Windows/Unreal build·MySQL·S
 설치 대기를 전체 작업 중단 사유로 확대하지 않았다. v2 일괄 전환은 프로젝트의 설계 선택이며 MySQL 자체가 강제하는 조건으로 설명하지 않았다. Object Pool·gameplay Spatial Hash·추가 콘텐츠는 새 필수 작업으로 만들지 않았다. 공개 서버·실제 협업·미검증 완료 주장도 범위에 넣지 않았다.
 
 다음 session은 현재 소스의 exact Unity에서 사람이 checklist를 확인하는 지점부터 재개한다. MySQL·connector·SVN 설치와 저장소 외부 쓰기는 기존 별도 승인 경계를 유지한다.
+
+문서 commit a1bfc39를 work/session-closeout에 push하고 원격 SHA 일치를 확인했다. main은 f896940, 작업 트리는 clean이었다. 후속 CP-20260910-01에 구현 SHA·검증·사람 확인 대기를 기록하며 이번 종료를 runtime 완료나 main 통합으로 표시하지 않는다.
