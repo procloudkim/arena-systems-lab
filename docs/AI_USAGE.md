@@ -470,3 +470,29 @@ f896940의 clean main에서 시작해 AGENTS·PROCESS·관련 ADR·명세와 코
 ### 채택하지 않은 AI 제안
 
 콘텐츠 확장·새 프레임워크·memory fallback·v1 호환 계층·offline queue를 추가하지 않았다. 일반 JSON schema 완전 검증, 벽시계 timeout 보장, 측정하지 않은 성능 개선을 주장하지 않았다.
+
+## 2026-09-09 v1 경계와 회귀 검사 보강
+
+### 조사·변경 범위
+
+설계 branch의 commit 3afa91e와 checkpoint 5b29e49를 push하고 remote SHA를 대조한 뒤 `work/network-contract-hardening`으로 분기했다. 공통 정수 파서의 세 호출자, server dispatch·store, Unity submit/query·ArenaGame 수신 경로와 기존 mock, SpatialHash2D query를 읽었다.
+
+- runtime 수정: `WireProtocol.cs`의 Number guard, `LeaderboardClient.cs`의 누락 점수 초기값과 Ordinal HashSet. protocol v1·메모리 저장·gameplay·Unreal은 유지했다.
+- 회귀 검사: 기존 server verification, LeaderboardClientTests, SpatialHash2DTests만 확장했다. 새 test framework·추상화·package는 없다.
+- 문서: ADR 0014 생성, 통신·실행·요구사항의 현재 한계 정정, 성능 기준선의 과거 검사 범위와 새 검사 분리, PROCESS·감사·AI 기록 갱신. glossary 0.12.0에 Hash Set을 추가했다.
+
+### 실행·실패·통과
+
+- 테스트를 먼저 추가한 수정 전 실행: .NET build PASS, server 8 PASS / 2 FAIL. 문자열 숫자에서 일반 예외와 internal_error를 관측했다.
+- 수정 전 exact Unity EditMode: 26 PASS / 4 FAIL. 누락 bestScore가 즉시 invalid_response로 거부되지 않고 후속 요청 timeout으로 이어졌고, 누락 entry score와 두 중복 ID 응답은 수용됐다.
+- 최소 수정 후: .NET Release warnings/errors 0, server 10/10 PASS. exact Unity EditMode 30/30, PlayMode 1/1, validator PASS. API 설명만 믿지 않고 Unity의 실제 초기값 처리와 정상 0 수용을 확인했다.
+- Unity 배치 로그에 미변경 ArenaGame의 CS0618 경고가 출력됐다. 라이선스 갱신 진단은 변경 전 baseline에도 있으며 validator의 외부 설정 요청도 실패했다. 컴파일 실패나 테스트 실패로 확대 해석하지 않았고 로그 전체 무오류로 숨기지도 않았다.
+- PlayMode 검사 중 새로 생성된 기본 `ProjectSettings/SceneTemplateSettings.json`을 읽고 모든 userAdded 값이 false임을 확인했다. Editor와 lock이 없는 상태에서 이 생성 부작용만 제거했다. 같은 검사에서 재생성 가능한 기본 파일이며 기존 사용자 파일 삭제가 아니다.
+- XML 조회 뒤 process 없음으로 PowerShell 마지막 명령이 exit 1을 반환한 진단 호출이 있었다. XML은 정상 집계됐으며 후속 명시적 process/lock 검사에서 없음으로 확인했다.
+- .NET 명령에는 인증서 최초 실행 생성을 억제하는 process 환경변수를 사용했다. restore·설치·신뢰·인증서 저장소 접근은 실행하지 않았다.
+
+### 사람 확인·미검증·채택하지 않은 변경
+
+정상 0점 제출·높은 점수 갱신·server 없음·R 재시작·Unity Console을 이번 branch에서 사람이 확인해야 한다. Windows 최신 build·Unreal 재빌드·동일 server 연속 시연·MySQL·v2·SVN은 미실행이다. 과거 사람 PASS를 새 결과로 옮기지 않는다.
+
+새 JSON library, 모든 schema 검사를 수행하는 parser, object pooling·gameplay spatial hash, 임의의 새 성능 기준선을 추가하지 않았다. MySQL·SVN 설치와 외부 작업 공간은 별도 승인이며 main 통합도 보류했다. commit·원격 일치 근거는 PROCESS checkpoint에 둔다.

@@ -174,7 +174,9 @@ public static class WireProtocol
 
     private static int ReadRequiredInt(Dictionary<string, JsonElement> properties, string name)
     {
-        if (!properties.TryGetValue(name, out JsonElement value) || !value.TryGetInt32(out int result))
+        if (!properties.TryGetValue(name, out JsonElement value)
+            || value.ValueKind != JsonValueKind.Number
+            || !value.TryGetInt32(out int result))
         {
             throw new ProtocolException("invalid_request");
         }

@@ -465,3 +465,26 @@ Automation startup의 Engine `UnifiedErrorTests.cpp`가 의도적으로 출력�
 | git switch -c work/technical-completion-design | 문서 branch 분리 | 성공 |
 
 SDK 첫 build 출력에 HTTPS 개발 인증서 자동 생성 메시지가 있었다. 명시적 설치·신뢰 명령은 실행하지 않았으며 인증서 저장소를 읽거나 제거하지 않았다. 이는 도구 첫 실행 부작용이지 프로젝트에 HTTPS를 구현한 결과가 아니다. 이후 build에는 DOTNET_GENERATE_ASPNET_CERTIFICATE=false를 적용한다. Unity baseline 이후 tracked 파일의 자동 변경은 없었다.
+
+## 2026-09-09 v1 보강 실행 근거
+
+Gate는 `READY_WITH_GAPS`다. 승인된 설치 없이 기존 .NET과 exact Unity로 v1 코드를 검증했다. 현재 상태와 후속 승인은 PROCESS, 변경 이유는 [ADR 0014](adr/0014-v1-contract-hardening.md)를 따른다.
+
+| 실제 명령 / 인수 패턴 | 목적 | 종료 상태·관측 |
+|---|---|---|
+| git status/log/diff, rg, sed | 분기 기준·호출자·변경 경계 확인 | 설계 checkpoint 5b29e49, 해당 시점 clean |
+| git switch -c work/network-contract-hardening | 구현 작업 분리 | 성공 |
+| Get-Process, Test-Path, VersionInfo | 실행 전 Editor·lock·정확한 버전 확인 | 다른 Editor 없음, lock 없음, 6000.5.1f1 revision 일치 |
+| `<dotnet> build <verification.csproj> --configuration Release --no-restore` | 수정 전·후 검증 executable build | 두 실행 exit 0, warnings/errors 0 |
+| `<dotnet> run --project <verification.csproj> --configuration Release --no-build --no-restore` | 회귀 재현 → 수정 확인 | 전 exit 1, 8/10; 후 exit 0, 10/10 |
+| exact Unity batch EditMode | 회귀 재현 → 수정 확인 | 전 exit 2, 26/30; 후 exit 0, 30/30 |
+| exact Unity batch PlayMode | 기존 gameplay 자동 회귀 | exit 0, 1/1 |
+| exact Unity executeMethod ArenaProjectValidator.ValidateFromCommandLine | 실제 프로젝트 설정 검증 | exit 0, validation passed |
+| XML·log 읽기, 최종 process/lock 조회 | 종료 코드와 결과 교차 확인 | XML 성공 결과 일치, 최종 Editor·lock 없음 |
+| Node 표준 API 문서 검사, git diff --check | 링크·JSON·ADR·glossary·정보/변경 경계 | PASS, 문서 28개·링크 199개·JSON 9개·ADR 14개·용어 85개, 오류 0 |
+
+명령 전체 템플릿은 [DEMO_GUIDE](DEMO_GUIDE.md), 결과는 ignored `Logs/ContractHardening-*20260909.*`에 있다. .NET은 process 범위의 DOTNET_CLI_TELEMETRY_OPTOUT=1, DOTNET_GENERATE_ASPNET_CERTIFICATE=false를 적용했다. 별도 restore·외부 package 추가·engine upgrade는 없다.
+
+Unity green 로그의 컴파일 오류는 0건이다. 재컴파일한 미변경 ArenaGame의 CS0618 API 경고, 변경 전부터 있던 라이선스 갱신 진단, validator 종료 시 외부 설정 요청 실패는 별도 환경·기존 소스 진단이다. 이력과 달리 새 GUI Console 검사는 하지 않았으므로 수동 Console은 UNKNOWN이다.
+
+PlayMode가 새 기본 SceneTemplateSettings.json을 생성했다. 내용이 기본값이고 이번 실행 전 없던 파일임을 Git 상태·내용으로 확인한 뒤 Editor 종료 후 제거했다. 기본 파일은 다시 생성 가능하며 기존 설정의 최종 변경은 없다. 현재 Windows player·Unreal·MySQL·v2·SVN 실행과 사람 화면 검증은 NOT RUN이다.

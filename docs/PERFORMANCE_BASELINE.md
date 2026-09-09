@@ -34,7 +34,7 @@
 
 측정값은 Editor의 단일 microbenchmark 결과이며 합격 threshold로 사용하지 않는다. 현재 gameplay에는 neighbor query가 없으므로 `SpatialHash2D`를 runtime에 연결하지 않았다.
 
-검사 범위의 한계: 비교 테스트는 500개 query의 전체 match 수 합계를 비교한다. 모든 query의 개별 결과 집합이 일치하는지까지 검증하지 않는다. 별도 작은 음수 좌표 테스트는 예상 항목 집합을 검사한다. 근거는 [SpatialHash2DTests](../Assets/ArenaSystemsLab/Tests/EditMode/SpatialHash2DTests.cs)다.
+당시 검사 범위의 한계: 2026-09-04 비교 테스트는 500개 query의 전체 match 수 합계만 비교했다. 2026-09-09 [ADR 0014](adr/0014-v1-contract-hardening.md)에서 측정 구간 밖에 query별 결과 ID·개수 비교를 추가하고 반지름 0·정확한 경계 검사를 보강했다. [SpatialHash2DTests](../Assets/ArenaSystemsLab/Tests/EditMode/SpatialHash2DTests.cs)의 exact Editor 회귀 검사 PASS이며 위 과거 측정값을 새 성능 수치로 대체하지 않는다.
 
 ## Optimization Decision
 

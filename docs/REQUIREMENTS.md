@@ -1,8 +1,8 @@
 # 요구사항 명세
 
-- 문서 버전: `1.0.0`
-- 코드 확인일: 2026-09-07 KST
-- 확인 기준: `fa834cf`의 소스. 최신 진행 상태와 검증 결과는 [PROCESS.md](../PROCESS.md)에서 관리한다.
+- 문서 버전: `1.0.1`
+- 코드 확인일: 2026-09-09 KST
+- 확인 기준: `fa834cf`의 기능 명세와 [ADR 0014](adr/0014-v1-contract-hardening.md)의 v1 경계 보강. 최신 진행 상태와 대응 commit·검증 결과는 [PROCESS.md](../PROCESS.md)에서 관리한다.
 - 문서 체계: [README](../README.md), [ADR 0012](adr/0012-technical-documentation-governance.md)
 
 ## 목적과 범위
@@ -49,7 +49,7 @@ Arena Systems Lab은 직접 이동·조준·발사하는 Unity 2D 생존 게임�
 | ID | 경계 | 현재 적용과 한계 |
 |---|---|---|
 | NFR-01 | 환경 재현성 | Unity 버전은 프로젝트 파일과 정확히 일치해야 한다. .NET·Unreal 실행 환경은 [실행 가이드](DEMO_GUIDE.md)를 따른다. |
-| NFR-02 | 네트워크 입력 | 길이·JSON 깊이·필드·값 범위와 연결 수를 제한한다. 상세 제한과 알려진 예외 분류 문제는 [통신 명세](NETWORK_SECURITY.md)를 따른다. |
+| NFR-02 | 네트워크 입력 | 길이·JSON 깊이·필드·값 범위와 연결 수를 제한한다. 서버 정수 타입·Unity 누락 점수·중복 ID 검사와 잔여 한계는 [통신 명세](NETWORK_SECURITY.md)를 따른다. |
 | NFR-03 | 공유 상태 | 서버 저장소를 단일 lock으로 보호한다. 8개 Thread의 동시 쓰기 검사가 있으며 처리량 보장은 없다. |
 | NFR-04 | 실패 격리 | 네트워크 대기가 게임 스레드를 막지 않도록 처리한다. 서버 없이도 게임 루프를 실행할 수 있다. |
 | NFR-05 | 성능 근거 | [측정 기준선](PERFORMANCE_BASELINE.md)의 조건과 결과만 인용한다. 일반적인 FPS·무할당·개선율을 보장하지 않는다. |

@@ -2,7 +2,7 @@
 
 > Arena Systems Lab 개발 중 실제로 만난 게임·Unity·물리·검증 용어를 한국어로 설명하는 생활형 백과사전이다.
 
-- Version: `0.11.0`
+- Version: `0.12.0`
 - Last updated: 2026-09-09 KST
 - Governance: [ADR 0004](adr/0004-game-development-glossary-governance.md)
 
@@ -491,6 +491,12 @@
 - 프로젝트 예: 모든 point의 거리를 검사한 결과를 `SpatialHash2D` query correctness 기준으로 사용한다.
 - 주의: 작은 collection에는 단순하고 충분히 빠를 수 있으므로 항상 공간 분할로 교체할 필요는 없다.
 
+### Hash Set (해시 집합)
+
+- 정의: 해시와 동등성 비교를 사용해 같은 값을 중복 보관하지 않는 자료구조다.
+- 프로젝트 예: Unity leaderboard 응답에서 HashSet의 Add가 false이면 이미 나온 playerId이므로 응답을 거부한다. Ordinal 비교로 대소문자는 구분한다.
+- 주의: 집합은 순위 정렬을 대신하지 않는다. 중복 검사와 점수·동점 ID 순서 검사를 따로 유지한다.
+
 ### Spatial Hash (공간 해시)
 
 - 정의: 공간을 cell로 나누고 객체를 위치 기반 bucket에 넣어 가까운 후보만 조회하는 자료구조다.
@@ -551,6 +557,7 @@
 
 | Version | Date | 변경 | ADR |
 |---|---|---|---|
+| `0.12.0` | 2026-09-09 | v1 응답 중복 검사의 Hash Set 추가, 총 85개 | [ADR 0014](adr/0014-v1-contract-hardening.md) |
 | `0.11.0` | 2026-09-09 | 영속화 설계의 constraint·transaction·row lock·Read Committed·connection pool·migration 6개 추가, 총 84개 | [ADR 0013](adr/0013-technical-completion-design.md) |
 | `0.10.0` | 2026-09-07 | ERD·schema·idempotency 3개 추가, 총 78개. FSM 예시를 실제 접촉 조건으로 정정 | [ADR 0012](adr/0012-technical-documentation-governance.md) |
 | `0.9.0` | 2026-09-05 | Unreal C++ 구현에서 확인한 Actor·Game Mode·HUD·module·UBT·UHT·thread pool·automation 8개 추가, 총 75개 | [ADR 0011](adr/0011-unreal-read-only-leaderboard-observer.md) |

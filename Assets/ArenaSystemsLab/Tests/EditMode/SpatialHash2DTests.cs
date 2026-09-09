@@ -31,6 +31,22 @@ namespace ArenaSystemsLab.Tests.EditMode
             CollectionAssert.AreEquivalent(new[] { "left", "center" }, results);
         }
 
+        [TestCase(0f, 1)]
+        [TestCase(1f, 5)]
+        public void Query_IncludesExactRadiusBoundary(float radius, int expectedCount)
+        {
+            SpatialHash2D<int> index = new SpatialHash2D<int>(1f);
+            Vector2[] points = { Vector2.zero, Vector2.left, Vector2.right, Vector2.up, Vector2.down, new Vector2(1.01f, 0f) };
+            for (int i = 0; i < points.Length; i++)
+            {
+                index.Add(i, points[i]);
+            }
+
+            List<int> results = new List<int> { -1 };
+            Assert.That(index.Query(Vector2.zero, radius, results), Is.EqualTo(expectedCount));
+            CollectionAssert.AreEquivalent(radius == 0f ? new[] { 0 } : new[] { 0, 1, 2, 3, 4 }, results);
+        }
+
         [Test]
         public void Query_MatchesBruteForceAndReportsMeasuredCost()
         {
@@ -76,6 +92,23 @@ namespace ArenaSystemsLab.Tests.EditMode
             double bruteForceMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
 
             Assert.That(spatialMatchCount, Is.EqualTo(bruteForceMatchCount));
+            List<int> expectedResults = new List<int>();
+            for (int query = 0; query < centers.Length; query++)
+            {
+                expectedResults.Clear();
+                for (int point = 0; point < points.Length; point++)
+                {
+                    if ((points[point] - centers[query]).sqrMagnitude <= radius * radius)
+                    {
+                        expectedResults.Add(point);
+                    }
+                }
+
+                int count = index.Query(centers[query], radius, results);
+                Assert.That(count, Is.EqualTo(results.Count));
+                CollectionAssert.AreEquivalent(expectedResults, results, $"Query {query} returned different IDs.");
+            }
+
             TestContext.Out.WriteLine(
                 "SPATIAL_HASH_BENCHMARK "
                 + $"points={pointCount} queries={queryCount} matches={spatialMatchCount} "

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -98,10 +99,12 @@ namespace ArenaSystemsLab
                 throw new LeaderboardClientException("invalid_response");
             }
 
+            var playerIds = new HashSet<string>(StringComparer.Ordinal);
             for (int index = 0; index < entries.Length; index++)
             {
                 LeaderboardEntry entry = entries[index];
-                if (entry == null || !IsValidPlayerId(entry.PlayerId) || entry.Score is < 0 or > MaxScore)
+                if (entry == null || !IsValidPlayerId(entry.PlayerId) || entry.Score is < 0 or > MaxScore
+                    || !playerIds.Add(entry.PlayerId))
                 {
                     throw new LeaderboardClientException("invalid_response");
                 }
@@ -332,7 +335,7 @@ namespace ArenaSystemsLab
         {
             public int version;
             public bool ok;
-            public int bestScore;
+            public int bestScore = -1;
         }
 
         [Serializable]
@@ -348,7 +351,7 @@ namespace ArenaSystemsLab
     public sealed class LeaderboardEntry
     {
         [SerializeField] private string playerId;
-        [SerializeField] private int score;
+        [SerializeField] private int score = -1;
 
         public string PlayerId => playerId;
         public int Score => score;

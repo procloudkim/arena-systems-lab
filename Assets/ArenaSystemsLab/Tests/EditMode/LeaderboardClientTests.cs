@@ -11,6 +11,29 @@ namespace ArenaSystemsLab.Tests.EditMode
 {
     public sealed class LeaderboardClientTests
     {
+        private const string ZeroScoreResponse = "{\"version\":1,\"ok\":true,\"bestScore\":0}";
+
+        [TestCase("{\"version\":1,\"ok\":true}", null)]
+        [TestCase("{\"version\":1,\"ok\":true,\"bestScore\":-1}", null)]
+        [TestCase("{\"version\":1,\"ok\":true,\"bestScore\":1000001}", null)]
+        [TestCase(ZeroScoreResponse, "{\"version\":1,\"ok\":true,\"entries\":[{\"playerId\":\"UnityPlayer\"}]}")]
+        [TestCase(ZeroScoreResponse, "{\"version\":1,\"ok\":true,\"entries\":[{\"playerId\":\"UnityPlayer\",\"score\":0},{\"playerId\":\"UnityPlayer\",\"score\":0}]}")]
+        [TestCase(ZeroScoreResponse, "{\"version\":1,\"ok\":true,\"entries\":[{\"playerId\":\"UnityPlayer\",\"score\":3},{\"playerId\":\"OtherPlayer\",\"score\":2},{\"playerId\":\"UnityPlayer\",\"score\":1}]}")]
+        public void SubmitAndGetLeaderboard_WithInvalidSuccessResponse_RejectsResponse(string submitResponse, string queryResponse)
+        {
+            Task.Run(() => RunResponseCheckAsync(submitResponse, queryResponse, false)).GetAwaiter().GetResult();
+        }
+
+        [TestCase("{\"version\":1,\"ok\":true,\"entries\":[{\"playerId\":\"UnityPlayer\",\"score\":0}]}", 1)]
+        [TestCase("{\"version\":1,\"ok\":true,\"entries\":[{\"playerId\":\"UnityPlayer\",\"score\":0},{\"playerId\":\"unityPlayer\",\"score\":0}]}", 2)]
+        public void SubmitAndGetLeaderboard_WithZeroScoresAndOrdinalIds_AcceptsResponse(string queryResponse, int expectedCount)
+        {
+            LeaderboardEntry[] entries = Task.Run(() => RunResponseCheckAsync(ZeroScoreResponse, queryResponse, true))
+                .GetAwaiter().GetResult();
+            Assert.That(entries, Has.Length.EqualTo(expectedCount));
+            Assert.That(entries[0].Score, Is.Zero);
+        }
+
         [Test]
         public void SubmitAndGetLeaderboard_UsesBoundedFramedProtocol()
         {
@@ -33,6 +56,53 @@ namespace ArenaSystemsLab.Tests.EditMode
         public void SubmitAndGetLeaderboard_WithoutServer_ReportsUnavailable()
         {
             Task.Run(RunMissingServerCheck).GetAwaiter().GetResult();
+        }
+
+        private static async Task<LeaderboardEntry[]> RunResponseCheckAsync(
+            string submitResponse, string queryResponse, bool accepted)
+        {
+            var listener = new TcpListener(IPAddress.Loopback, 0);
+            listener.Start();
+            Task<string[]> server = ServeSuccessfulSessionAsync(listener, submitResponse, queryResponse);
+            try
+            {
+                var client = new LeaderboardClient(((IPEndPoint)listener.LocalEndpoint).Port, TimeSpan.FromSeconds(1));
+                LeaderboardEntry[] entries = null;
+                if (accepted)
+                {
+                    entries = await client.SubmitAndGetLeaderboardAsync("UnityPlayer", 0, 3, CancellationToken.None);
+                }
+                else
+                {
+                    LeaderboardClientException exception = Assert.ThrowsAsync<LeaderboardClientException>(async () =>
+                        await client.SubmitAndGetLeaderboardAsync("UnityPlayer", 0, 3, CancellationToken.None));
+                    Assert.That(exception.Code, Is.EqualTo("invalid_response"));
+                }
+
+                Assert.That(await Task.WhenAny(server, Task.Delay(TimeSpan.FromSeconds(3))), Is.SameAs(server));
+                Assert.That(await server, Has.Length.EqualTo(queryResponse == null ? 1 : 2));
+                if (queryResponse != null)
+                {
+                    Assert.That(listener.Pending(), Is.False, "Invalid responses must not trigger a retry.");
+                }
+
+                return entries;
+            }
+            finally
+            {
+                listener.Stop();
+                try
+                {
+                    await server;
+                }
+                catch (SocketException)
+                {
+                    // Observe the pending accept when a failed client assertion closes the test listener.
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+            }
         }
 
         private static async Task RunProtocolCheckAsync()
@@ -140,16 +210,21 @@ namespace ArenaSystemsLab.Tests.EditMode
                 Is.True);
         }
 
-        private static async Task<string[]> ServeSuccessfulSessionAsync(TcpListener listener)
-        {
-            string submit = await ReceiveAndRespondAsync(
-                listener,
-                "{\"version\":1,\"ok\":true,\"bestScore\":12}");
-            string query = await ReceiveAndRespondAsync(
-                listener,
-                "{\"version\":1,\"ok\":true,\"entries\":["
+        private static async Task<string[]> ServeSuccessfulSessionAsync(
+            TcpListener listener,
+            string submitResponse = "{\"version\":1,\"ok\":true,\"bestScore\":12}",
+            string queryResponse = "{\"version\":1,\"ok\":true,\"entries\":["
                 + "{\"playerId\":\"UnityPlayer\",\"score\":12},"
-                + "{\"playerId\":\"OtherPlayer\",\"score\":7}]}");
+                + "{\"playerId\":\"OtherPlayer\",\"score\":7}]}")
+        {
+            string submit = await ReceiveAndRespondAsync(listener, submitResponse);
+            if (queryResponse == null)
+            {
+                listener.Stop();
+                return new[] { submit };
+            }
+
+            string query = await ReceiveAndRespondAsync(listener, queryResponse);
             return new[] { submit, query };
         }
 
