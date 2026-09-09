@@ -6,8 +6,8 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: 작업 branch와 원격 ref를 확인하고 handoff 시 clean 유지
-- Active work: 기술 완결성 설계·ADR 기록, 기존 v1 검증 보강 준비
-- Next task: 설계 문서 검증·commit·push 후 v1 경계와 spatial test 보강
+- Active work: 기술 완결성 설계 기록 완료, 기존 v1 검증 보강 준비
+- Next task: `work/network-contract-hardening` 분기 후 v1 경계와 spatial test 보강
 
 ## Session Start
 
@@ -103,7 +103,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 ## Work Queue
 
-1. **현재 작업:** [기술 설계서](docs/TECHNICAL_COMPLETION_DESIGN.md)·ADR 0013 정적 검사와 기록, 기존 v1 숫자 타입·Unity 응답·spatial test 보강
+1. **다음 구현:** 설계·ADR 0013 기록 완료. 기존 v1 숫자 타입·Unity 응답·spatial test 보강
 2. **Approval-gated:** MySQL image·connector 직접/간접 dependency 승인 후 단일 DB store·전체 v2·runId 중복 방지 구현
 3. **Approval-gated:** SVN 도구·Git 외부 작업 공간 승인 후 isolated lab
 4. **최종 검증:** exact Windows 재빌드·같은 서버의 Unity 제출 → Unreal 표시·재시작 영속성, 사람 실행과 문서 최종 확인
@@ -138,6 +138,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260905-02` | Unity Game Over leaderboard client | `work/unity-network-client` | `ac1f24a`, human evidence `02e472a` | [ADR 0010](docs/adr/0010-unity-loopback-leaderboard-client.md) | Compile PASS, EditMode 20/20, PlayMode 1/1, validator·server 없음·actual server·Console PASS | Integrated as `b0a3f8e` |
 | `CP-20260905-03` | Unreal C++ read-only leaderboard observer | `work/unreal-arena-observer` | `20b0d55`, human evidence `724a094` | [ADR 0011](docs/adr/0011-unreal-read-only-leaderboard-observer.md) | Development Editor build, protocol·server 없음·actual server 자동·사람 검증 PASS | Integrated as `b57db33` |
 | `CP-20260907-01` | README·기술 문서 5종·정보 경계 정리 | `work/technical-documentation` | `8cabddd`, checkpoint `15a01b3` | [ADR 0012](docs/adr/0012-technical-documentation-governance.md) | 문서 25개, 링크 누락 0, JSON 7개, ADR 12개, glossary 78개 PASS; runtime NOT RUN | Integrated as `77435fc` |
+| `CP-20260909-01` | 기술 완결성 설계와 설치 승인 경계 | `work/technical-completion-design` | `3afa91e` | [ADR 0013](docs/adr/0013-technical-completion-design.md) | 문서 정적 검사 PASS, 변경 전 EditMode 20/20·server 8/8 PASS | Branch pushed, remote SHA 일치; main 미통합 |
 
 ## ADR Index and Naming
 
