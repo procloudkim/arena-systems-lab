@@ -4,6 +4,8 @@
 
 > Day 1~4는 Unity 게임 core를 완성하는 첫 milestone이다. 최종 프로젝트 완료에는 [ADR 0006](adr/0006-technology-baseline.md)의 필수 기술 확장도 모두 필요하다.
 
+2026-09-09 후속 설계는 [기술 완결성 설계서](TECHNICAL_COMPLETION_DESIGN.md)와 [ADR 0013](adr/0013-technical-completion-design.md)을 따른다. 순서는 v1 검증 보강 → 승인된 MySQL 구성 → 세 프로그램 v2 전환 → 격리 SVN lab → 최신 build·연속 시연이다. 기술 이외의 콘텐츠 확장은 완료 조건이 아니다. 아래 과거 구현 기록을 현재 검증 결과로 해석하지 않는다.
+
 ## Day 1: Playable vertical slice
 
 ### 목적
@@ -167,10 +169,10 @@ server의 score를 MySQL 8.4 LTS에 영속화하고 schema, query, rollback 가�
 
 ### 작업 항목
 
-- 최소 `players`, `runs`, `scores` schema와 versioned migration 작성
+- `players`, `runs`, `scores`와 용량·schema version 관리용 `storage_state`, versioned migration 작성
 - 모든 Game Over를 `runs`에 기록하고 player별 최고 score leaderboard와 분리
 - parameterized query로 run 저장, leaderboard와 최근 run history 조회 구현
-- client 1회 retry가 같은 run을 중복 저장하지 않도록 `runId` 또는 동등한 idempotency key 결정
+- round별 `runId`를 client 1회 retry에서도 유지하고 PK·transaction으로 중복 이력 방지
 - local MySQL container와 test database 구성
 - database unavailable, duplicate request, invalid score 처리
 - schema 적용과 integration test 절차 문서화
@@ -185,13 +187,13 @@ schema 적용 결과, database integration test, 재시작 후 데이터 조회,
 
 ### 의존성
 
-사용자 승인 후 Docker Official Image `mysql:8.4`와 .NET connector를 사용한다. 권장 connector는 `MySqlConnector` 2.6.2이며 대안은 Oracle `MySql.Data` 9.7.0이다. image download와 package 추가는 승인 전 실행하지 않는다.
+사용자 승인 후 Docker Official Image `mysql:8.4.11`과 `MySqlConnector` 2.6.2를 사용한다. 기존 설치 재조사·image digest·간접 dependency와 rollback을 포함한 승인 경계는 기술 완결성 설계서를 따른다. image download와 package 추가는 승인 전 실행하지 않는다.
 
 ### 위험 요소
 
 Docker daemon과 기존 image는 아직 확인되지 않았다. local password와 data volume의 수명 주기를 명시하고 public port 노출은 하지 않는다.
 
-protocol v1 submit은 retry 식별자가 없어 response 유실 뒤 재전송을 새 run과 구분할 수 없다. run history 구현 전에 idempotency key의 생성·보존·unique constraint를 ADR로 결정한다.
+protocol v1 submit에는 retry 식별자가 없다. ADR 0013에서 MySQL 단일 모드, 전체 v2 전환, round별 runId·transaction을 설계했다. 구현 승인 단계 전에는 현재 memory store와 v1을 유지하며 offline run 저장을 보장하지 않는다.
 
 ## Milestone 7: Unity network client
 

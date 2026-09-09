@@ -445,3 +445,28 @@ MySQL 구현을 가정한 물리 ERD, 공간 해시의 gameplay 적용, 전역 3
 구현 commit `8cabddd`를 `origin/work/technical-documentation`에 push하고 SHA 일치를 확인했다. 문서 25개, 내부 링크 누락 0, JSON 예제 7개, ADR 12개, glossary 78개와 정보 경계 검사 PASS이며 runtime·엔진 설정 변경은 없다.
 
 Checkpoint commit `15a01b3`을 원격 작업 branch에 기록했다. GitHub 소개에 남은 비기술적 목적 설명도 현재 Unity·.NET·Unreal 구성의 기술 요약으로 변경하고 재조회했다. 이어 merge `77435fc`으로 main에 통합·push하고 원격 SHA 일치를 확인했다. 공개 범위·homepage·계정은 변경하지 않았다.
+
+## 2026-09-09 기술 완결성 설계
+
+### 조사와 선택
+
+f896940의 clean main에서 시작해 AGENTS·PROCESS·관련 ADR·명세와 코드·테스트를 읽었다. factchk로 JSON 숫자 예외·Unity 필드 초기값·MySQL transaction/DDL·connector 사용 규칙·배포 명세를 확인했다. 출처는 [설계서](TECHNICAL_COMPLETION_DESIGN.md)에 기록했다. 사용자는 MySQL 단일 모드와 전체 v2 전환을 선택했다. 설치 승인은 별도로 남겼다.
+
+### 변경 파일과 확인할 항목
+
+설계서·ADR 0013을 생성하고 README·AGENTS·PROCESS·구현 계획·glossary·감사·AI 기록을 연결했다. glossary는 0.11.0, 84개다. 사람이 확인할 항목은 저장/재시도 계약·승인 범위·최종 수동 시연이며 v2·DB·SVN 구현을 완료로 기록하지 않는다.
+
+### 실행한 검사와 부작용
+
+- 변경 전 exact Unity 6000.5.1f1 EditMode: PASS, 20/20. 결과는 ignored Logs/CompletionBaseline-20260909.xml이다.
+- 변경 전 .NET 10.0.401 Release build: PASS, 경고·오류 0. 기존 server verification: PASS, 8/8. restore·package 설치 명령은 실행하지 않았다.
+- Hub 목록에는 다른 Editor만 있었으나 기존 로그가 가리킨 설치에서 exact Editor를 확인했다. Hub 목록만으로 미설치라고 단정하지 않았다. Editor process와 project lock은 없었다.
+- 첫 process 조회의 PowerShell 인용이 잘못되어 CIM query가 실패했다. Get-Process와 명시적 경로 조회로 재확인했다.
+- SDK 첫 build가 ASP.NET Core HTTPS 개발 인증서를 자동 생성했다고 출력했다. AI가 별도로 요청한 설치가 아니며 인증서 저장소 접근·신뢰·제거는 하지 않았다. 이후 명령에서는 해당 첫 실행 생성을 비활성화한다.
+- 첫 문서 patch는 AGENTS 문맥 불일치로 전체 미적용이었다. Git·파일 부재를 확인한 뒤 분리 적용했다. 중단 뒤 설계서 한 파일만 저장된 상태를 확인하고 이어서 작업했다.
+- 새로운 dependency, engine upgrade, Scene/Prefab/ProjectSettings 변경, v2 코드와 SQL 생성은 이 설계 checkpoint에 포함하지 않는다.
+- 문서 검사와 commit·remote 근거는 PROCESS checkpoint에서 관리한다.
+
+### 채택하지 않은 AI 제안
+
+콘텐츠 확장·새 프레임워크·memory fallback·v1 호환 계층·offline queue를 추가하지 않았다. 일반 JSON schema 완전 검증, 벽시계 timeout 보장, 측정하지 않은 성능 개선을 주장하지 않았다.

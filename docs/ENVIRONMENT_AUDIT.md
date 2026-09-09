@@ -438,3 +438,30 @@ Automation startup의 Engine `UnifiedErrorTests.cpp`가 의도적으로 출력�
 | `gh repo edit --description <technical-summary>` 후 재조회 | 현재 구현 요약으로 소개 정리 | 성공, PUBLIC·빈 homepage·main 유지. 문구 인수는 요약 표기 |
 
 새로운 compile·빌드·게임 수동 PASS를 추가하지 않는다. 기존 log와 generated binary는 계속 ignored 상태이며 이번 문서 변경에 포함하지 않는다.
+
+## 2026-09-09 기술 완결성 작업 재감사
+
+이 절은 새 작업의 시점별 근거다. 위 2026-09-07 문서 작업 결과를 소급 변경하지 않는다. 장치 경로는 자리표시자로 치환했다.
+
+| 항목 | 관측 | 상태·영향 |
+|---|---|---|
+| Git | f896940 main, 미커밋 변경 없음 | READY |
+| Unity source | 6000.5.1f1 / 0d9463e84828 | READY |
+| Unity Hub 목록 | 다른 patch 등록, exact version 등록 없음 | 목록만으로 부재 판정 불가 |
+| 기존 설치 경로 | exact Editor executable과 ProductVersion 일치 | READY, 재사용 |
+| Editor process·UnityLockfile | 실행 전 없음 | batch 검사 가능 |
+| Windows .NET SDK | 10.0.401 | 과거 10.0.400과 차이, 실제 build·8/8 검사로 재검증 |
+| Unity baseline | EditMode 20/20, process exit 0 | PASS, CompletionBaseline-20260909.xml |
+| 의존성 확장 | MySQL·connector·SVN 설치 및 외부 쓰기 미승인 | 계획의 별도 승인 gate 유지 |
+
+| 실제 명령 종류 | 목적 | 결과 |
+|---|---|---|
+| git status/log, rg, sed, tail | repo 상태·명세·소스·기존 engine 경로 | 조회 성공. 존재하지 않는 tools/.github 조회는 exit 2 |
+| PowerShell Hub JSON·Test-Path·VersionInfo·Get-Process | exact Editor와 잠금 확인 | 성공. 첫 CIM filter 인용 오류는 재조회로 해결 |
+| `<dotnet> --version` | SDK 실측 | 10.0.401 |
+| `<dotnet> build <verification.csproj> --configuration Release --no-restore` | 변경 전 build | exit 0, warnings/errors 0 |
+| `<dotnet> run --project <verification.csproj> --configuration Release --no-build --no-restore` | 변경 전 server 검사 | exit 0, 8/8 |
+| exact Unity batch EditMode, 별도 testResults/logFile | 변경 전 Unity 검사 | exit 0, 20/20 |
+| git switch -c work/technical-completion-design | 문서 branch 분리 | 성공 |
+
+SDK 첫 build 출력에 HTTPS 개발 인증서 자동 생성 메시지가 있었다. 명시적 설치·신뢰 명령은 실행하지 않았으며 인증서 저장소를 읽거나 제거하지 않았다. 이는 도구 첫 실행 부작용이지 프로젝트에 HTTPS를 구현한 결과가 아니다. 이후 build에는 DOTNET_GENERATE_ASPNET_CERTIFICATE=false를 적용한다. Unity baseline 이후 tracked 파일의 자동 변경은 없었다.

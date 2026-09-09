@@ -2,12 +2,12 @@
 
 > 이 문서는 현재 진행 상태와 다음 재개 지점의 단일 기준(SSOT)이다. 환경·AI·ADR 문서는 역사적 근거이며 현재 상태를 이 문서와 중복 관리하지 않는다.
 
-- Last updated: 2026-09-07 KST
+- Last updated: 2026-09-09 KST
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
-- Expected handoff state: `main...origin/main`, clean
-- Active work: README와 기술 문서 5종·GitHub 기술 소개 정리, 검증·main 통합 완료
-- Next task: 문서 최종 검토 후 현재 소스의 Windows 재빌드·연속 시연 및 알려진 검증 한계 보강
+- Expected handoff state: 작업 branch와 원격 ref를 확인하고 handoff 시 clean 유지
+- Active work: 기술 완결성 설계·ADR 기록, 기존 v1 검증 보강 준비
+- Next task: 설계 문서 검증·commit·push 후 v1 경계와 spatial test 보강
 
 ## Session Start
 
@@ -38,7 +38,8 @@ git remote -v
 | GitHub | public `arena-systems-lab`, 기술 소개 정리 완료. 원격 주소는 Git 설정에서 확인 |
 | Process governance | ADR 0003·0012, PROCESS 상태와 기술 명세 책임 분리 |
 | Technical documentation | 요구사항·아키텍처·논리 ERD·TCP 보안 명세·실행 가이드 `1.0.0`, README에서 연결 |
-| Game development glossary | `0.10.0`, 78개 용어, ADR 0004·0012 적용 |
+| Game development glossary | `0.11.0`, 84개 용어, ADR 0004·0013 적용 |
+| Technical completion design | MySQL 단일 모드·전체 v2·검증·승인 gate 설계 채택, 실제 전환은 미구현 |
 | Day 2 enemy FSM | `Idle`, `Chase`, `Attack`, `Dead` 구현·수동 검증 완료 |
 | Day 3 measured tooling | `SpatialHash2D` 실험, profile 기준선, project validator 자동·사람 검증 완료 |
 | Day 4 build and demo | Windows Mono Development build·launch smoke·standalone 수동 flow PASS |
@@ -50,7 +51,7 @@ git remote -v
 | Reusable extension tools | Unreal 5.8, VS Native Game/C++, Windows .NET SDK 10.0.400 |
 | Approval-gated gaps | SVN MISSING, MySQL runtime MISSING, Docker image UNKNOWN |
 | Integrated branch | `main`, 기술 문서 merge `77435fc`으로 통합 |
-| Active branch | 없음, `main` handoff |
+| Active branch | `work/technical-completion-design` |
 
 Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사망, Game Over, 재시작이 포함된다. Scene과 Prefab 대신 runtime bootstrap을 사용한다.
 
@@ -62,6 +63,9 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 | 검증 | 결과 | 최근 근거 |
 |---|---|---|
+| 2026-09-09 변경 전 Unity baseline | PASS | exact 6000.5.1f1, EditMode 20/20, CompletionBaseline-20260909.xml |
+| 2026-09-09 변경 전 server baseline | PASS | SDK 10.0.401 Release 경고·오류 0, verification 8/8 |
+| 2026-09-09 설계 문서 정적 검사 | PASS | Markdown 27개·내부 링크 185개·JSON 9개·ADR 13개·glossary 84개, 누락 0, diff --check |
 | Runtime/Editor/Test assembly compilation | PASS | 2026-09-05 exact Editor 6000.5.1f1, Milestone 7 batch 기록 |
 | EditMode tests | PASS | 20 passed / 0 failed / 0 skipped |
 | Automated PlayMode profile test | PASS | 1 passed / 0 failed / 0 skipped, 5초 sampling |
@@ -99,9 +103,10 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 ## Work Queue
 
-1. **검증:** README·5대 문서의 웹 렌더링 확인, 현재 소스 Windows 재빌드와 같은 서버 세션의 Unity 제출 → Unreal 표시 시연
-2. **별도 코드 작업:** 숫자 ValueKind 오류 분류와 Unity 응답의 필수 필드·중복 ID 검증 보강 및 회귀 검사. 상세 한계는 [통신 명세](docs/NETWORK_SECURITY.md)
-3. **Approval-gated:** Milestone 6 MySQL의 모든 run 이력·최고 score 영속화, Milestone 9 isolated SVN workflow lab
+1. **현재 작업:** [기술 설계서](docs/TECHNICAL_COMPLETION_DESIGN.md)·ADR 0013 정적 검사와 기록, 기존 v1 숫자 타입·Unity 응답·spatial test 보강
+2. **Approval-gated:** MySQL image·connector 직접/간접 dependency 승인 후 단일 DB store·전체 v2·runId 중복 방지 구현
+3. **Approval-gated:** SVN 도구·Git 외부 작업 공간 승인 후 isolated lab
+4. **최종 검증:** exact Windows 재빌드·같은 서버의 Unity 제출 → Unreal 표시·재시작 영속성, 사람 실행과 문서 최종 확인
 
 알려진 gap:
 
@@ -150,6 +155,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | [ADR 0010](docs/adr/0010-unity-loopback-leaderboard-client.md) | Accepted | Unity Game Over submit/query, bounded client와 single retry |
 | [ADR 0011](docs/adr/0011-unreal-read-only-leaderboard-observer.md) | Accepted | Unreal C++ native Top 5 query와 read-only HUD |
 | [ADR 0012](docs/adr/0012-technical-documentation-governance.md) | Accepted | 기술 문서 5종·사실/계획 분리·문서 정보 경계와 ADR 0006 파일명 정리 |
+| [ADR 0013](docs/adr/0013-technical-completion-design.md) | Accepted | MySQL 단일 모드·전체 v2·runId·동시성·검증·승인 경계 설계 |
 
 ADR 파일명은 `NNNN-short-kebab-case-title.md`, checkpoint ID는 `CP-YYYYMMDD-NN` 형식을 사용한다. 전체 규칙은 ADR 0003을 따른다.
 
@@ -175,6 +181,7 @@ ADR 파일명은 `NNNN-short-kebab-case-title.md`, checkpoint ID는 `CP-YYYYMMDD
 | `docs/ARCHITECTURE.md` | 시스템·컴포넌트·상태·수명·동시성 |
 | `docs/DATA_MODEL.md` | 현재 논리 ERD·데이터 사전·저장 수명·미구현 영속화 경계 |
 | `docs/IMPLEMENTATION_PLAN.md` | 4일 Unity core와 필수 기술 확장 계획 |
+| `docs/TECHNICAL_COMPLETION_DESIGN.md` | 향후 기술 완결성의 계약·데이터·동시성·검증·승인 설계 |
 | `docs/ENVIRONMENT_AUDIT.md` | 날짜가 고정된 환경·검증 증거 |
 | `docs/AI_USAGE.md` | AI 작업의 시간순 기록 |
 | `docs/GAME_DEV_GLOSSARY.md` | 게임·Unity·물리·검증 용어와 project example |
