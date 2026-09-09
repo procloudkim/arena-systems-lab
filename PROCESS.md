@@ -6,10 +6,10 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: 작업 branch와 원격 ref를 확인하고 handoff 시 clean 유지
-- Active work: 문서 SSOT 통합 정적 검증 완료, commit·push 및 checkpoint 기록 대기
-- Next task: 문서 인계 후 exact Unity에서 v1 보강 변경의 정상 0점·최고 점수 갱신·server 없음·restart·Console 확인 후 통합 판단. MySQL·SVN은 별도 승인
+- Active work: 문서 SSOT 통합 완료, v1 보강 변경의 사람 검증 대기
+- Next task: exact Unity 6000.5.1f1에서 v1 보강 변경의 정상 0점·최고 점수 갱신·server 없음·restart·Console 확인 후 통합 판단. MySQL·SVN은 별도 승인
 
-승인된 문서 중복 통합을 `work/documentation-ssot`에서 진행한다. 시작 시 직전 sip의 미커밋 문서 4개와 `work/network-contract-hardening`의 local/remote 4194a4f 일치를 확인했다. 그 변경을 보존해 이번 작업에 포함하며 v1 사람 검증·MySQL/SVN 승인은 별도로 남는다. 이전 sip의 Git 미실행 기록은 [AI 기록](docs/AI_USAGE.md#2026-09-09-sip-자체-점검)에 보존한다.
+문서 통합의 commit·원격 확인 근거는 [Checkpoints](#checkpoints)에 기록했다. runtime은 v1 보강 상태를 유지하며 이번 문서 작업에서 엔진 검사나 사람 검증을 새로 수행하지 않았다. 문서 통합 완료와 v1 사람 검증 완료를 구분한다.
 
 ## Session Start
 
@@ -153,6 +153,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260907-01` | README·기술 문서 5종·정보 경계 정리 | `work/technical-documentation` | `8cabddd`, checkpoint `15a01b3` | [ADR 0012](docs/adr/0012-technical-documentation-governance.md) | 문서 25개, 링크 누락 0, JSON 7개, ADR 12개, glossary 78개 PASS; runtime NOT RUN | Integrated as `77435fc` |
 | `CP-20260909-01` | 기술 완결성 설계와 설치 승인 경계 | `work/technical-completion-design` | `3afa91e` | [ADR 0013](docs/adr/0013-technical-completion-design.md) | 문서 정적 검사 PASS, 변경 전 EditMode 20/20·server 8/8 PASS | Branch pushed, remote SHA 일치; main 미통합 |
 | `CP-20260909-02` | v1 경계·공간 검색 회귀 보강 | `work/network-contract-hardening` | `c6fec8c` | [ADR 0014](docs/adr/0014-v1-contract-hardening.md) | 수정 전 실패 재현, server 10/10·EditMode 30/30·PlayMode 1/1·validator·문서 검사 PASS | Branch pushed, remote SHA 일치; 사람 검증 NOT RUN, main f896940 유지 |
+| `CP-20260909-03` | 승인된 문서 SSOT 통합과 sip 보완 보존 | `work/documentation-ssot` | `3f71d69` | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | 문서·링크·보존 12항목·staged diff 검사 PASS; runtime NOT RUN | Branch pushed, remote SHA 일치; main f896940 유지, v1 사람 검증 대기 |
 
 ## ADR Index and Naming
 

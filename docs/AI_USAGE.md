@@ -573,3 +573,5 @@ README·AGENTS·PROCESS·docs의 Markdown 28개를 정수 결과·version·proto
 - 보존 검사 12항목 PASS: Matrix 9행의 구현 위치·완료 근거, M5와 DEMO의 날짜별 결과, 이전 AI·ADR 기록, 설계 승인 표를 대조했다. 제거한 최신 상태·후보 버전은 참조로 연결되고 Git/OOP·8-thread 범위가 PROCESS에 남아 있다.
 - sip: 별도 문맥 없는 검토자가 계획·실행 가이드·PROCESS의 변경 관련 발췌 전체를 읽어 minor gaps로 판정했다. 전체 원문이나 링크를 검토한 것으로 확대하지 않는다. re0로 문서 작업의 마무리 순서와 v1 보강 변경의 사람 검증을 구분하고 일반 텍스트 참조를 링크로 정리했다.
 - 이번 통합에는 새 외부 기술 주장·검사 설계가 없어 factchk·mandela 재감사는 생략했다. 기존 출처·검사 내용은 유지했다. detool은 도구별 실행·운영 기록이어서 변환하지 않았다. sip 중에는 Git을 호출하지 않았으며 완료 뒤 일반 commit·push workflow로 복귀한다.
+
+구현 commit 3f71d69를 `origin/work/documentation-ssot`에 push하고 local/remote SHA 일치를 확인했다. 변경은 직전 sip 보완을 포함한 문서 6개이며 코드·package·설정·Scene·Prefab 변경은 없다. main은 f896940, 기존 v1 작업 branch는 4194a4f를 유지했다. 구현 시 내부 링크 220개·앵커 17개, staged diff 검사도 PASS였으며 후속 CP-20260909-03에 구현 SHA와 인계 상태를 기록한다.
