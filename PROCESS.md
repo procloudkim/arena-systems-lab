@@ -2,14 +2,14 @@
 
 > 이 문서는 현재 진행 상태와 다음 재개 지점의 단일 기준(SSOT)이다. 환경·AI·ADR 문서는 역사적 근거이며 현재 상태를 이 문서와 중복 관리하지 않는다.
 
-- Last updated: 2026-09-09 KST
+- Last updated: 2026-09-10 KST
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: 작업 branch와 원격 ref를 확인하고 handoff 시 clean 유지
-- Active work: 문서 SSOT 통합 완료, v1 보강 변경의 사람 검증 대기
+- Active work: 미완료 사유·환경 재확인·다음 검증 인계 문서 정리 완료, v1 보강 변경의 사람 검증 대기
 - Next task: exact Unity 6000.5.1f1에서 v1 보강 변경의 정상 0점·최고 점수 갱신·server 없음·restart·Console 확인 후 통합 판단. MySQL·SVN은 별도 승인
 
-문서 통합의 commit·원격 확인 근거는 [Checkpoints](#checkpoints)에 기록했다. runtime은 v1 보강 상태를 유지하며 이번 문서 작업에서 엔진 검사나 사람 검증을 새로 수행하지 않았다. 문서 통합 완료와 v1 사람 검증 완료를 구분한다.
+문서 작업의 commit·원격 확인 근거는 [Checkpoints](#checkpoints)에 기록한다. runtime은 v1 보강 상태를 유지하며 이번 문서 작업에서 엔진 검사나 사람 검증을 새로 수행하지 않았다. 사용자의 작업 종료 요청은 새 수동 PASS나 최종 DONE 선언이 아니다.
 
 ## Session Start
 
@@ -54,9 +54,9 @@ git remote -v
 | OOP | Unity runtime의 책임 분리·테스트 근거 완료. 이후 server/client 범위의 완료 기준은 [구현 계획 Matrix](docs/IMPLEMENTATION_PLAN.md#최종-기술-범위-matrix)를 따름 |
 | Technology baseline | 9개 필수 기술과 연결 구조 확정, ADR 0006 적용 |
 | Reusable extension tools | Unreal 5.8, VS Native Game/C++, Windows .NET SDK 10.0.401 재검증 |
-| Approval-gated gaps | 초기 감사의 SVN/MySQL runtime MISSING·Docker image UNKNOWN. 새 설치 승인 전 재확인 필요 |
-| Integrated branch | `main`, 기술 문서 merge `77435fc`으로 통합 |
-| Active branch | `work/documentation-ssot`, v1 보강 checkpoint `4194a4f`에서 분기 |
+| Approval-gated gaps | 2026-09-10 MySQL/SVN 명령·일반 설치 미탐지, 로컬 Docker daemon READY·mysql:* image 0건. 포터블 설치·커스텀 image UNKNOWN, 설치·외부 작업 공간 승인 유지 |
+| Integrated branch | `main` f896940, 2026-09-10 원격 ref 확인. 기존 기술 문서 merge는 77435fc |
+| Active branch | `work/session-closeout`, 문서 SSOT checkpoint `3ce607a`에서 분기 |
 
 Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사망, Game Over, 재시작이 포함된다. Scene과 Prefab 대신 runtime bootstrap을 사용한다.
 
@@ -68,6 +68,8 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 | 검증 | 결과 | 최근 근거 |
 |---|---|---|
+| 2026-09-10 미완료 사유·환경 사실 확인 | RECORDED | [감사 기록](docs/ENVIRONMENT_AUDIT.md#2026-09-10-미완료-사유와-환경-재확인), 소스·원격 ref·제한된 로컬 도구 조회와 공식 문서 대조 |
+| 2026-09-10 마감 문서 정적 검사 | PASS | Markdown 28개·내부 링크 234개·앵커 29개·JSON 예제 9개·ADR 14개, 과거 기록 3개 append-only·문서 4개 변경 경계·6단계 인계·NOT RUN 보존. runtime 재실행 없음 |
 | 2026-09-09 변경 전 Unity baseline | PASS | exact 6000.5.1f1, EditMode 20/20, CompletionBaseline-20260909.xml |
 | 2026-09-09 변경 전 server baseline | PASS | SDK 10.0.401 Release 경고·오류 0, verification 8/8 |
 | 2026-09-09 설계 문서 정적 검사 | PASS | Markdown 27개·내부 링크 185개·JSON 9개·ADR 13개·glossary 84개, 누락 0, diff --check |
@@ -114,10 +116,14 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 ## Work Queue
 
-1. **사람 검증 대기:** v1 보강 자동 검사 PASS. exact Unity의 [leaderboard checklist](docs/DEMO_GUIDE.md) 확인 후 main 통합 판단
-2. **Approval-gated:** MySQL image·connector 직접/간접 dependency 승인 후 단일 DB store·전체 v2·runId 중복 방지 구현
-3. **Approval-gated:** SVN 도구·Git 외부 작업 공간 승인 후 isolated lab
-4. **최종 검증:** exact Windows 재빌드·같은 서버의 Unity 제출 → Unreal 표시·재시작 영속성, 사람 실행과 문서 최종 확인
+1. **현재 v1 사람 검증:** exact Unity의 [leaderboard checklist](docs/DEMO_GUIDE.md#unity-leaderboard-수동-체크리스트)와 기본 이동·조준·공격 확인. 정상 0점·최고 점수 갱신·server 없음·R 재시작·Console·정상 종료를 확인하고 결과를 받은 뒤 통합 판단
+2. **설계·승인:** [기술 완결성 설계](docs/TECHNICAL_COMPLETION_DESIGN.md)의 부분 성공 처리·오류 검사 순서·DB 취소 예산 범위를 확정. MySQL image·connector 직접/간접 dependency와 SVN 도구·격리 경로의 구체적인 승인 확보
+3. **MySQL·v2 구현:** 승인 후 단일 DB store·이력·최고 점수·runId 중복 방지·schema 적용/복구와 Unity·서버·Unreal 전환
+4. **SVN 실습:** 승인된 Git 외부 공간의 두 working copy에서 branch·충돌 해결·merge와 revision 근거 확보
+5. **최종 실행 검증:** [필수 검사](docs/TECHNICAL_COMPLETION_DESIGN.md#5-검증과-완료-기준), 최신 Windows build·실제 플레이 측정·사람 실행. 같은 서버에서 Unity 제출 → MySQL 저장 → Unreal 표시 → 서버 재시작 후 재조회 일치 확인
+6. **문서·Git 마감:** [9개 기술 Matrix](docs/IMPLEMENTATION_PLAN.md#최종-기술-범위-matrix)의 source·검증 근거와 기술 문서·ADR·AI 기록 일치 확인. 검증된 변경의 승인된 main 통합·push·원격 SHA·clean 확인
+
+현재 프로젝트는 최종 DONE이 아니다. MySQL·v2는 미구현, SVN은 미실행, 최신 Windows build와 v1 사람 검증은 재실행 대기다. MySQL 설치 승인이 미결 설계 정리나 현재 v1 검증 자체를 차단하지는 않는다. Object Pool·gameplay Spatial Hash는 [측정 기반 미적용 결정](docs/PERFORMANCE_BASELINE.md#optimization-decision)을 유지하며 필수 추가 기능으로 바꾸지 않는다.
 
 알려진 gap:
 
@@ -128,8 +134,9 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 - 정보 경계 정리는 현재 문서와 GitHub 소개에 한정한다. Git 과거 이력·작성자·remote 주소는 재작성하지 않았다.
 - Visual Studio Unity workload는 초기 검사에서 0건이었지만 현재 작업의 차단 요소가 아니다.
 - Unreal source·build·native socket test와 실제 HUD 사람 검증은 완료됐다.
-- SVN client/admin과 native MySQL runtime은 확인되지 않았다. 설치·download·package 추가는 사용자 승인 전 실행하지 않는다.
-- Docker client는 있으나 daemon이 꺼져 기존 `mysql:8.4` image는 확인하지 못했다.
+- 2026-09-10 SVN client/admin과 native MySQL은 명령·일반 설치 경로·관련 registry에서 미탐지이며 MySQL service도 0건이다. 비표준 설치까지 없다고 단정하지 않는다. 설치·download·package 추가는 사용자 승인 전 실행하지 않는다.
+- 2026-09-10 로컬 Docker daemon `29.7.2`가 응답했다. `mysql:*` image 조회는 0건이며 커스텀 image는 확인하지 않았다. 초기 감사의 daemon 미응답 기록은 과거 근거로 보존한다.
+- 이번 작업 종료 시 신규 사람 PASS는 받지 않았다. 이전 사람 PASS를 v1 보강의 새 결과로 옮기지 않으며, 과거 Windows executable 대신 현재 소스의 exact Editor에서 먼저 확인한다.
 - Unity Game Over submit/query와 Unreal actual-server Top 5는 각각 사람 검증했다. 동일 server session을 연속 시연하는 최종 demo capture는 남아 있다.
 - 현재 leaderboard는 player별 최고 score만 보존한다. 과거 run 이력은 MySQL milestone에서 별도 `runs` data로 구현하며 retry 중복 방지 key가 필요하다.
 - server는 loopback 전용이며 TLS, authentication, rate limiting과 server-authoritative score가 없다. remote interface 공개는 금지한다.

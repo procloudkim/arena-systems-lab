@@ -575,3 +575,30 @@ README·AGENTS·PROCESS·docs의 Markdown 28개를 정수 결과·version·proto
 - 이번 통합에는 새 외부 기술 주장·검사 설계가 없어 factchk·mandela 재감사는 생략했다. 기존 출처·검사 내용은 유지했다. detool은 도구별 실행·운영 기록이어서 변환하지 않았다. sip 중에는 Git을 호출하지 않았으며 완료 뒤 일반 commit·push workflow로 복귀한다.
 
 구현 commit 3f71d69를 `origin/work/documentation-ssot`에 push하고 local/remote SHA 일치를 확인했다. 변경은 직전 sip 보완을 포함한 문서 6개이며 코드·package·설정·Scene·Prefab 변경은 없다. main은 f896940, 기존 v1 작업 branch는 4194a4f를 유지했다. 구현 시 내부 링크 220개·앵커 17개, staged diff 검사도 PASS였으며 후속 CP-20260909-03에 구현 SHA와 인계 상태를 기록한다.
+
+## 2026-09-10 사실 확인과 문서 마감
+
+### 조사와 변경 범위
+
+사용자가 미구현 사유·최종 완료 조건·사람 검증 항목을 확인한 뒤 문서 정리와 당일 작업 종료를 요청했다. `factchk`로 외부 명세와 저장소 관측을 구분해 대조했다. 이번 요청을 신규 수동 PASS, 설치 승인, 미결 설계 선택 또는 main 통합 승인으로 해석하지 않았다.
+
+분기 전 work/documentation-ssot 3ce607a와 원격 SHA 일치·clean을 확인하고 `work/session-closeout`으로 분기했다. 조사 근거는 [환경 감사](ENVIRONMENT_AUDIT.md#2026-09-10-미완료-사유와-환경-재확인)에 기록했다.
+
+- `PROCESS.md`: Docker 현재 상태 정정, 미구현·미실행·미검증 구분, 최종 완료까지의 work queue와 다음 사람 검증 참조 정리.
+- `docs/ENVIRONMENT_AUDIT.md`: 제한된 설치 탐색·로컬 daemon/image·Git 관측, 공식 출처와 판단 한계 추가. 과거 관측은 보존.
+- `docs/adr/0003-process-and-adr-governance.md`: 기존 운영 결정의 적용 기록 추가. 새 구조 결정이 없어 새 ADR은 생성하지 않음.
+- `docs/AI_USAGE.md`: 이번 조사·수정 범위·실패·미검증 기록.
+
+기존 수동 체크리스트를 복제하지 않고 [Unity 절차](DEMO_GUIDE.md#unity-leaderboard-수동-체크리스트)를 재사용했다. 현재 기본 플레이·정상 0점·최고 점수·server 없음·R 재시작·Console 확인과 향후 Windows·Unreal·MySQL 통합 검증을 구분했다. 새 기술 용어를 도입하지 않아 glossary 버전은 유지한다.
+
+### 검증과 한계
+
+첫 patch는 환경 감사의 마지막 문장과 문맥이 달라 거부됐다. 직후 git diff가 비어 있음을 확인하고 실제 원문으로 다시 적용했다. 사용자 파일을 되돌리거나 기존 기록을 삭제하지 않았다.
+
+compile·EditMode·PlayMode·server verification·Windows/Unreal build·MySQL·SVN·사람 화면 검사는 NOT RUN이다. 새로운 Console 무오류 확인도 없으며 과거 사람 PASS를 승계하지 않았다. 문서 정적 검사는 PASS이며 Markdown 28개·내부 링크 234개·앵커 29개·JSON 예제 9개·ADR 14개, 과거 기록 3개 보존·문서 4개 변경 경계·6단계 인계·NOT RUN 유지·추가 문구의 정보 경계를 확인했다. commit·원격 인계 결과는 [PROCESS checkpoint](../PROCESS.md#checkpoints)에 기록한다.
+
+### 채택하지 않은 제안과 다음 확인
+
+설치 대기를 전체 작업 중단 사유로 확대하지 않았다. v2 일괄 전환은 프로젝트의 설계 선택이며 MySQL 자체가 강제하는 조건으로 설명하지 않았다. Object Pool·gameplay Spatial Hash·추가 콘텐츠는 새 필수 작업으로 만들지 않았다. 공개 서버·실제 협업·미검증 완료 주장도 범위에 넣지 않았다.
+
+다음 session은 현재 소스의 exact Unity에서 사람이 checklist를 확인하는 지점부터 재개한다. MySQL·connector·SVN 설치와 저장소 외부 쓰기는 기존 별도 승인 경계를 유지한다.
