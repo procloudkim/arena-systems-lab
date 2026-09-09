@@ -6,8 +6,10 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: 작업 branch와 원격 ref를 확인하고 handoff 시 clean 유지
-- Active work: v1 경계 보강·자동 검증 완료, 이번 변경의 사람 검증 대기
-- Next task: exact Unity에서 정상 0점·최고 점수 갱신·server 없음·restart·Console 확인 후 통합 판단. MySQL·SVN은 별도 승인
+- Active work: 문서 SSOT 통합 정적 검증 완료, commit·push 및 checkpoint 기록 대기
+- Next task: 문서 인계 후 exact Unity에서 v1 보강 변경의 정상 0점·최고 점수 갱신·server 없음·restart·Console 확인 후 통합 판단. MySQL·SVN은 별도 승인
+
+승인된 문서 중복 통합을 `work/documentation-ssot`에서 진행한다. 시작 시 직전 sip의 미커밋 문서 4개와 `work/network-contract-hardening`의 local/remote 4194a4f 일치를 확인했다. 그 변경을 보존해 이번 작업에 포함하며 v1 사람 검증·MySQL/SVN 승인은 별도로 남는다. 이전 sip의 Git 미실행 기록은 [AI 기록](docs/AI_USAGE.md#2026-09-09-sip-자체-점검)에 보존한다.
 
 ## Session Start
 
@@ -36,10 +38,11 @@ git remote -v
 | Day 1 vertical slice | 완료 |
 | Project naming | `Arena Systems Lab`로 정리 완료 |
 | GitHub | public `arena-systems-lab`, 기술 소개 정리 완료. 원격 주소는 Git 설정에서 확인 |
+| Git workflow | 기존 branch·ADR·commit·push·remote SHA 검증 근거 완료. 이번 문서 작업의 commit·인계 근거는 [Checkpoints](#checkpoints)에서 관리 |
 | Process governance | ADR 0003·0012, PROCESS 상태와 기술 명세 책임 분리 |
-| Technical documentation | 통신·실행 `1.1.0`, 요구사항 `1.0.1`, 아키텍처·논리 ERD `1.0.0`, README에서 연결 |
+| Technical documentation | 통신 `1.1.0`, 실행 `1.1.2`, 요구사항 `1.0.1`, 아키텍처·논리 ERD `1.0.0`, README에서 연결 |
 | Game development glossary | `0.12.0`, 85개 용어, ADR 0004·0013·0014 적용 |
-| Technical completion design | MySQL 단일 모드·전체 v2·검증·승인 gate 설계 채택, 실제 전환은 미구현 |
+| Technical completion design | `0.1.1`, MySQL 단일 모드·전체 v2·검증·승인 gate 설계 채택, 실제 전환은 미구현. 부분 성공·DB 예산 등 미결 항목 명시 |
 | Day 2 enemy FSM | `Idle`, `Chase`, `Attack`, `Dead` 구현·수동 검증 완료 |
 | Day 3 measured tooling | `SpatialHash2D` 실험, profile 기준선, project validator 자동·사람 검증 완료 |
 | Day 4 build and demo | Windows Mono Development build·launch smoke·standalone 수동 flow PASS |
@@ -48,11 +51,12 @@ git remote -v
 | Milestone 7 Unity network client | Game Over submit·상위 5개 조회 구현, 자동 검사와 server 없음·실제 server 사람 검증 PASS |
 | Milestone 8 Unreal observer | C++ Top 5 HUD, protocol fixture, server 없음·actual server 자동·사람 검증 PASS |
 | v1 contract hardening | 숫자 타입·누락 점수·중복 ID·query별 ID 비교 자동 검사 PASS, 이번 화면/Console 사람 검증 NOT RUN |
+| OOP | Unity runtime의 책임 분리·테스트 근거 완료. 이후 server/client 범위의 완료 기준은 [구현 계획 Matrix](docs/IMPLEMENTATION_PLAN.md#최종-기술-범위-matrix)를 따름 |
 | Technology baseline | 9개 필수 기술과 연결 구조 확정, ADR 0006 적용 |
 | Reusable extension tools | Unreal 5.8, VS Native Game/C++, Windows .NET SDK 10.0.401 재검증 |
 | Approval-gated gaps | 초기 감사의 SVN/MySQL runtime MISSING·Docker image UNKNOWN. 새 설치 승인 전 재확인 필요 |
 | Integrated branch | `main`, 기술 문서 merge `77435fc`으로 통합 |
-| Active branch | `work/network-contract-hardening`, 설계 checkpoint `5b29e49`에서 분기 |
+| Active branch | `work/documentation-ssot`, v1 보강 checkpoint `4194a4f`에서 분기 |
 
 Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사망, Game Over, 재시작이 포함된다. Scene과 Prefab 대신 runtime bootstrap을 사용한다.
 
@@ -68,6 +72,8 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | 2026-09-09 변경 전 server baseline | PASS | SDK 10.0.401 Release 경고·오류 0, verification 8/8 |
 | 2026-09-09 설계 문서 정적 검사 | PASS | Markdown 27개·내부 링크 185개·JSON 9개·ADR 13개·glossary 84개, 누락 0, diff --check |
 | 2026-09-09 v1 문서 정적 검사 | PASS | 구현 시 Markdown 28개·링크 199개·JSON 9개·ADR 14개·glossary 85개, 누락 0. checkpoint 추가 후 링크 200개 재검사 PASS |
+| 2026-09-09 sip 문서 검사 | PASS | Markdown 28개·내부 링크 208개(앵커 4개 포함)·JSON 9개·ADR 14개·glossary 85개. 111개 파일의 전후 해시 대조에서 문서 4개만 변경, runtime 재실행·Git 조회 없음 |
+| 2026-09-09 승인된 SSOT 통합 검사 | PASS | Matrix 9행의 고유 기준·과거 기록·승인 표 보존 12항목, 내부 링크·앵커·JSON·문서 구조 검사. runtime 재실행 없음 |
 | 2026-09-09 수정 전 추가 회귀 | FAIL | server 8 PASS / 2 FAIL, EditMode 26 PASS / 4 FAIL, ADR 0014에 재현 근거 |
 | Runtime/Editor/Test assembly compilation | PASS | 2026-09-09 exact 6000.5.1f1, 컴파일 오류 0. 기존 미변경 ArenaGame의 CS0618 경고 |
 | EditMode tests | PASS | 2026-09-09, 30 passed / 0 failed / 0 skipped |
@@ -85,7 +91,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | Windows player launch smoke | PASS | 8초 process 생존, managed exception·crash 없음 |
 | Windows player full manual flow | PASS | 사용자 확인, [standalone checklist](docs/DEMO_GUIDE.md)와 오류 없음 |
 | .NET server Release build | PASS | 2026-09-09 SDK 10.0.401, warnings 0 / errors 0 |
-| Protocol/security/thread verification | PASS | 2026-09-09 기존 8개 + 공통 숫자 검사·실제 거부 후 저장소 불변, 10/10 |
+| Protocol/security/thread verification | PASS | 2026-09-09 기존 8개(실제 8-thread store 일관성 포함) + 공통 숫자 검사·실제 거부 후 저장소 불변, 10/10 |
 | .NET server CLI smoke | PASS | Windows port 7777 health response, `Ctrl+C` graceful shutdown |
 | Unity network client checks | PASS | 2026-09-09 기존 4개 + 누락 점수·중복 ID·정상 0·Ordinal ID 8개, 12/12 |
 | Milestone 7 EditMode regression | PASS | 20 passed / 0 failed / 0 skipped |
@@ -117,6 +123,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 - Windows build output과 log는 local ignored generated artifact이며 repository에 포함하지 않는다.
 - 2026-09-09 작업 branch는 자동 검증까지만 완료됐다. 이전 사람 PASS는 이번 변경의 수동 근거가 아니며 main에 아직 통합하지 않았다.
+- sip에서 확인한 v2 부분 성공 처리·검사 우선순위·DB 취소 예산 범위는 구현 전에 결정한다. 문서 중복 통합 승인은 이 설계 결정이나 MySQL/SVN 설치 승인을 뜻하지 않는다.
 - 문서의 기존 PASS는 날짜가 고정된 기록이다. 2026-09-07에는 엔진·서버 runtime을 재실행하지 않았다.
 - 정보 경계 정리는 현재 문서와 GitHub 소개에 한정한다. Git 과거 이력·작성자·remote 주소는 재작성하지 않았다.
 - Visual Studio Unity workload는 초기 검사에서 0건이었지만 현재 작업의 차단 요소가 아니다.

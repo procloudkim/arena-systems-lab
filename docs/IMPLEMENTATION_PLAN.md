@@ -155,11 +155,11 @@ Unity와 Unreal이 공통으로 사용할 수 있는 최소 leaderboard 경계�
 
 network input은 신뢰 경계다. message 길이 제한과 validation을 생략하지 않으며 최초 범위는 loopback으로 제한한다.
 
-### 현재 상태
+### 2026-09-05 구현 기록
 
 2026-09-05에 server foundation을 구현했다. `127.0.0.1` bind, 4-byte big-endian frame, 엄격한 JSON schema, bounded in-memory leaderboard, timeout·동시 client 제한을 적용했다. Release build 경고 0·오류 0, package 없는 verification executable 8/8이 통과했다. 세부 위협 모델과 remote exposure gate는 [Network Security Baseline](NETWORK_SECURITY.md)과 [ADR 0009](adr/0009-loopback-first-bounded-tcp-protocol.md)을 따른다.
 
-이 문단은 Milestone 5 구현 시점 기록이다. 이후 Milestone 7·8의 개별 client 통합·사람 검증은 완료했으며 최신 상태는 [PROCESS](../PROCESS.md)를 따른다. TLS, authentication과 server-authoritative score는 remote exposure 전에 필요한 별도 범위이며 현재 구현으로 완료됐다고 주장하지 않는다.
+이 문단은 Milestone 5 구현 시점 기록이다. 후속 client 통합·사람 검증 상태는 [PROCESS 검증표](../PROCESS.md#validation-ledger)를 따른다. TLS, authentication과 server-authoritative score는 remote exposure 전에 필요한 별도 범위이며 현재 구현으로 완료됐다고 주장하지 않는다.
 
 ## Milestone 6: MySQL persistence
 
@@ -187,11 +187,11 @@ schema 적용 결과, database integration test, 재시작 후 데이터 조회,
 
 ### 의존성
 
-사용자 승인 후 Docker Official Image `mysql:8.4.11`과 `MySqlConnector` 2.6.2를 사용한다. 기존 설치 재조사·image digest·간접 dependency와 rollback을 포함한 승인 경계는 기술 완결성 설계서를 따른다. image download와 package 추가는 승인 전 실행하지 않는다.
+MySQL·connector의 후보 버전, 기존 설치 재조사, image digest, 간접 dependency, 영향과 rollback은 [기술 완결성 설계의 승인 표](TECHNICAL_COMPLETION_DESIGN.md#6-실행-순서와-승인-gate)에서 관리한다. image download와 package 추가는 승인 전 실행하지 않는다.
 
 ### 위험 요소
 
-Docker daemon과 기존 image는 아직 확인되지 않았다. local password와 data volume의 수명 주기를 명시하고 public port 노출은 하지 않는다.
+Docker daemon과 기존 image의 확인 상태는 [PROCESS](../PROCESS.md#current-state)를 따른다. local password와 data volume의 수명 주기를 명시하고 public port 노출은 하지 않는다.
 
 protocol v1 submit에는 retry 식별자가 없다. ADR 0013에서 MySQL 단일 모드, 전체 v2 전환, round별 runId·transaction을 설계했다. 구현 승인 단계 전에는 현재 memory store와 v1을 유지하며 offline run 저장을 보장하지 않는다.
 
@@ -276,7 +276,7 @@ SVN revision history에 branch와 merge가 남고, conflict 해결 전후를 다
 
 ### 의존성
 
-현재 SVN client와 `svnadmin`은 MISSING이다. 설치 command는 사용자 승인 후에만 실행한다.
+SVN client·svnadmin의 확인 상태는 [PROCESS](../PROCESS.md#current-state), 도구·격리 작업 공간의 승인 범위는 [설계의 승인 표](TECHNICAL_COMPLETION_DESIGN.md#6-실행-순서와-승인-gate)를 따른다. 설치 command는 사용자 승인 후에만 실행한다.
 
 ### 위험 요소
 
@@ -284,16 +284,18 @@ Git과 SVN을 같은 source-of-truth로 운영하지 않는다. local lab 외의
 
 ## 최종 기술 범위 Matrix
 
-| 필수 기술 | 구현 위치 | 완료 근거 | 현재 상태 |
-|---|---|---|---|
-| Unity | 현재 arena game | compile, EditMode, PlayMode, Windows build | 부분 완료 |
-| Unreal Engine | `Unreal/ArenaObserver` | C++ build, protocol automation, server 연결·수동 실행 | 완료 |
-| Git | repository 전체 | branch, ADR, commit, push, remote SHA | 완료 |
-| SVN | local isolated lab 예정 | revision, branch, merge, conflict log | 도구 MISSING |
-| MySQL | `Database/`와 server persistence 예정 | migration, integration test, restart persistence | runtime MISSING |
-| Network Programming | .NET server와 두 engine client | loopback end-to-end test | in-memory 범위 완료 |
-| Socket Programming | 공통 TCP framing | fragmentation/malformed message test | .NET server·Unity·Unreal fixture 완료 |
-| Multithreading | concurrent server shared state | actual-thread consistency test | 8-thread store 검증 완료 |
-| OOP | Unity runtime, 이후 server/client | 책임 분리된 code와 test | Unity 범위 완료 |
+이 표는 기술별 구현 위치와 완료 기준만 관리한다. 실제 완료 범위는 [PROCESS 현재 상태](../PROCESS.md#current-state), 실행 결과는 [검증표](../PROCESS.md#validation-ledger)를 따른다.
+
+| 필수 기술 | 구현 위치 | 완료 근거 |
+|---|---|---|
+| Unity | 현재 arena game | compile, EditMode, PlayMode, Windows build |
+| Unreal Engine | `Unreal/ArenaObserver` | C++ build, protocol automation, server 연결·수동 실행 |
+| Git | repository 전체 | branch, ADR, commit, push, remote SHA |
+| SVN | local isolated lab 예정 | revision, branch, merge, conflict log |
+| MySQL | `Database/`와 server persistence 예정 | migration, integration test, restart persistence |
+| Network Programming | .NET server와 두 engine client | loopback end-to-end test |
+| Socket Programming | 공통 TCP framing | fragmentation/malformed message test |
+| Multithreading | concurrent server shared state | actual-thread consistency test |
+| OOP | Unity runtime, 이후 server/client | 책임 분리된 code와 test |
 
 최종 `DONE`은 표의 모든 행이 완료 근거를 가진 뒤에만 선언한다. 실제 협업과 live-service 대응은 사용자 결정에 따라 이 matrix에서 제외한다.

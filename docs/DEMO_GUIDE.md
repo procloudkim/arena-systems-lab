@@ -1,6 +1,6 @@
 # 실행 및 검증 가이드
 
-- 문서 버전: `1.1.0`
+- 문서 버전: `1.1.2`
 - 코드·기록 확인일: 2026-09-09 KST
 - 적용 소스: 기존 `fa834cf`와 [ADR 0014](adr/0014-v1-contract-hardening.md)의 v1 보강. 2026-09-09에 .NET no-restore build·verification, Unity EditMode·PlayMode·validator 인수 패턴을 재검증했다. Windows player·Unreal 재빌드와 사람 검사는 이번 실행에서 수행하지 않았다.
 - 최신 결과: [PROCESS](../PROCESS.md). 테스트 범위는 [요구사항](REQUIREMENTS.md), 통신 오류 의미는 [프로토콜](NETWORK_SECURITY.md)을 따른다.
@@ -42,11 +42,13 @@ $env:DOTNET_GENERATE_ASPNET_CERTIFICATE = "false"
 & "<dotnet>" run --project Server/ArenaSystemsLab.Server/ArenaSystemsLab.Server.csproj --configuration Release --no-build --no-restore -- --port 7777
 ```
 
-기대 결과는 Release 빌드 오류·경고 0, 검증 10 passed / 0 failed, 서버의 `127.0.0.1:7777` listening 표시다. 마지막 명령은 서버를 계속 실행하므로 별도 창을 사용한다. 종료는 Ctrl+C다. 포트가 사용 중이면 다른 프로세스를 강제 종료하지 말고 소유자를 확인한다.
+기대 결과는 Release 빌드 오류·경고 0, 모든 검증 통과·실패 0, 서버의 `127.0.0.1:7777` listening 표시다. 비교할 최신 실행 개수·범위는 [PROCESS 검증표](../PROCESS.md#validation-ledger)에서 확인한다. 마지막 명령은 서버를 계속 실행하므로 별도 창을 사용한다. 종료는 Ctrl+C다. 포트가 사용 중이면 다른 프로세스를 강제 종료하지 말고 소유자를 확인한다.
 
-환경변수는 현재 PowerShell process에만 설정한다. SDK 첫 실행의 불필요한 HTTPS 개발 인증서 생성을 억제하기 위한 값이며, 인증서 저장소를 변경·정리하는 명령이 아니다. 2026-09-09 재검증은 기존 restore 결과를 재사용했으며 새 restore·package 설치는 실행하지 않았다.
+환경변수는 현재 PowerShell process에만 설정한다. DOTNET_CLI_TELEMETRY_OPTOUT은 도구 사용 정보 전송을 끄고, DOTNET_GENERATE_ASPNET_CERTIFICATE는 SDK 첫 실행의 HTTPS 개발 인증서 생성을 억제한다. 인증서 저장소를 변경·정리하는 명령이 아니다. [Microsoft 환경변수 명세](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-environment-variables). 2026-09-09 재검증은 기존 restore 결과를 재사용했으며 새 restore·package 설치는 실행하지 않았다.
 
 ## Unity 자동 검사와 Windows 빌드
+
+아래 네 줄은 각각 별도 실행이다. 필요한 명령을 한 줄씩 실행하고 Editor 종료·잠금 해제와 해당 결과 XML 또는 로그를 확인한 뒤 다음 명령을 실행한다. 네 줄을 한꺼번에 붙여 넣거나 프롬프트가 돌아온 것만으로 완료를 판단하지 않는다.
 
 ```powershell
 & "<UnityEditor>\Unity.exe" -batchmode -nographics -projectPath "<project-root>" -runTests -testPlatform EditMode -testFilter "ArenaSystemsLab.Tests.EditMode" -testResults "<project-root>\Logs\EditModeResults.xml" -logFile "<project-root>\Logs\EditModeTest.log"
@@ -92,8 +94,6 @@ Editor 메뉴는 `Tools > Arena Systems Lab > Validate Project`, `Build Windows 
 
 ## 시연 준비 조건
 
-## 준비 조건
-
 - Unity Editor `6000.5.1f1` exact match
 - `Assets/Scenes/SampleScene.unity`가 Build Settings에서 활성화
 - 실행 전 `git status --short --branch`로 예상하지 않은 변경이 없는지 확인
@@ -114,7 +114,7 @@ Editor 메뉴는 `Tools > Arena Systems Lab > Validate Project`, `Build Windows 
 | 1:00~2:30 | `SampleScene` Play | 이동·조준·공격, spawn·chase, HP·score 증가 |
 | 2:30~3:00 | enemy와 접촉 후 Hierarchy/색상 확인 | Gray `Idle`, Red `Chase`, Orange `Attack`; death는 terminal state |
 | 3:00~3:40 | player 사망 후 leaderboard와 `R` 확인 | score 제출·상위 5개 조회 후 새 round 시작 |
-| 3:40~4:30 | Test Runner와 `PERFORMANCE_BASELINE.md` | EditMode 30/30, PlayMode 1/1, 측정 전 최적화를 채택하지 않은 판단 |
+| 3:40~4:30 | Test Runner와 `PERFORMANCE_BASELINE.md` | [PROCESS의 EditMode·PlayMode 결과](../PROCESS.md#validation-ledger), 측정 전 최적화를 채택하지 않은 판단 |
 | 4:30~5:00 | Windows build 근거 확인 | 독립 player build와 launch 기록 |
 
 ## Unity leaderboard 수동 체크리스트
@@ -208,5 +208,7 @@ Unreal 화면 검증의 `ObserverFixture 42`는 새 in-memory server session에 
 
 | Version | Date | 변경 |
 |---|---|---|
+| 1.1.2 | 2026-09-09 | 최신 테스트 개수를 PROCESS 참조로 통합. 명령·합격 조건·날짜별 검증 기록 보존 |
+| 1.1.1 | 2026-09-09 | 중복 준비 제목 제거, Unity 명령별 종료 확인과 SDK 환경변수 역할 명확화. 명령 변경·재실행 없음 |
 | 1.1.0 | 2026-09-09 | v1 회귀 범위·실측 결과·SDK 실행 조건·정상 0점 수동 검사 추가 |
 | 1.0.0 | 2026-09-07 | 기존 환경·명령·검증·수동 시연 책임 통합 |

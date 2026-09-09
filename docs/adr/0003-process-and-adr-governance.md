@@ -35,3 +35,9 @@ ADR 0001의 commit/push 안전 규칙은 계속 유효하다. 다만 branch와 A
 - Current-status duplicate search: PASS
 - Runtime/Unity tests: NOT RUN, documentation-only change
 - Remote branch SHA: PASS, commit `c6a7fb0`가 `origin/work/process-governance`와 일치
+
+### 2026-09-09 승인된 적용 기록
+
+ssotize 감사 후 사용자 승인으로 구현 계획의 현재 상태와 실행 가이드의 최신 테스트 수를 PROCESS 참조로 바꿨다. 후보 dependency의 버전·영향·rollback은 기술 완결성 설계 §6을 참조한다. Matrix의 구현 위치·완료 기준, Git/OOP 범위·8-thread 근거와 날짜별 결과는 보존했다. 기존 Decision을 실행한 정리이며 새 정책이나 runtime 변경은 아니다.
+
+검증·commit·원격 근거는 [PROCESS checkpoint](../../PROCESS.md#checkpoints), 조사와 미검증 범위는 [AI 기록](../AI_USAGE.md#2026-09-09-승인된-문서-ssot-통합)을 따른다.

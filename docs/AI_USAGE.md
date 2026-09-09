@@ -498,3 +498,78 @@ f896940의 clean main에서 시작해 AGENTS·PROCESS·관련 ADR·명세와 코
 새 JSON library, 모든 schema 검사를 수행하는 parser, object pooling·gameplay spatial hash, 임의의 새 성능 기준선을 추가하지 않았다. MySQL·SVN 설치와 외부 작업 공간은 별도 승인이며 main 통합도 보류했다. commit·원격 일치 근거는 PROCESS checkpoint에 둔다.
 
 구현 commit c6fec8c를 작업 branch에 push하고 local/remote SHA 일치를 확인했다. main 원격 ref는 f896940으로 유지됐다. 후속 CP-20260909-02는 이 구현 SHA와 자동 검사·사람 검증 대기를 기록한다.
+
+## 2026-09-09 sip 자체 점검
+
+### 범위와 독립 검토
+
+직전 기술 완결성 설계와 v1 보강 코드·검사·기록을 `sip`으로 검토했다. Git 호출·commit·push는 하지 않았고 이전 SHA의 현재 일치를 주장하지 않는다. `shower` 지침에 따라 별도 검토자에게 설계서 본문 전체만 제공했으며, 저장소·대화 배경·외부 탐색 없이 처음부터 끝까지 읽은 판정은 `minor gaps`였다.
+
+`factchk`는 외부 명세를 대조하고 `mandela`는 검사 독립성을 읽기 전용으로 감사했다. `ssotize`는 중복 위치와 통합안만 보고했다. `re0`는 기존 문구를 정리했다. 도구별 실행 안내·설계·작업 기록은 도구 중립 이식성을 약속하지 않으므로 `detool` 변환은 생략했다.
+
+### 사실 확인
+
+| 주장 | 판정과 독립 근거 |
+|---|---|
+| TryGetInt32의 비숫자 타입 처리 | API 예외는 사실. Number guard로 invalid_request를 반환하는 서버 동작과 구분해 설명 수정. [Microsoft](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonelement.trygetint32?view=net-10.0) |
+| Unity 누락 필드의 초기값 유지 | 명세와 일치. exact Editor의 기존 실패/통과 XML도 대조했으며 재실행은 아님. [Unity](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/JsonUtility.FromJson.html) |
+| MySQL transaction 잠금·DDL 복구 | 명시적 transaction의 관리 행 잠금과 일반 ROLLBACK으로 DDL을 되돌릴 수 없다는 경계 확인. [잠금](https://dev.mysql.com/doc/refman/8.4/en/innodb-locking-reads.html), [암묵적 commit](https://dev.mysql.com/doc/refman/8.4/en/implicit-commit.html) |
+| Connector 연결 공유·취소 | 동시 연결 사용 금지와 CommandTimeout이 전체 벽시계 상한이 아니라는 설명 확인. 프로젝트의 2초 적용 범위는 외부 명세로 대신 결정할 수 없음. [연결](https://mysqlconnector.net/troubleshooting/connection-reuse/), [취소](https://mysqlconnector.net/overview/command-cancellation/) |
+| MySqlConnector 2.6.2 후보 | MIT·net10.0 의존성 두 개의 이름·최소 버전과 일치. 로컬 설치·해석 결과 검증은 아님. [NuGet 배포 명세](https://www.nuget.org/packages/MySqlConnector/2.6.2) |
+| MySQL image·SVN binary 후보 | mysql:8.4.11 태그 존재 확인. Apache가 연결된 binary를 유지·보증한다는 뜻은 아님. 다운로드·실행·보안 인증은 하지 않음. [공식 image 목록](https://raw.githubusercontent.com/docker-library/official-images/master/library/mysql), [Apache 안내](https://subversion.apache.org/packages.html) |
+| SDK 환경변수 두 개의 역할 | 인증서 생성 억제와 사용 정보 전송 중단은 서로 다른 역할. 실행 안내에서 분리 설명. [Microsoft](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-environment-variables) |
+
+### 검사 독립성 감사
+
+대상은 서버 parser·Unity client·SpatialHash2D이며, 판정자는 verification executable과 NUnit assertion, 설계자는 구현 AI다. 데이터는 공개된 literal JSON, 고정 seed 좌표와 수기로 기대 ID를 정한 경계 사례다. 외부 API 명세·실제 엔진 XML·bucket 검색을 사용하지 않는 brute-force 경로를 근거로 8개 누출 유형을 점검했다.
+
+`Tautology`의 국소적 중복을 확인했다. [Query](../Assets/ArenaSystemsLab/Runtime/SpatialHash2D.cs)는 results.Count를 반환하고 [테스트](../Assets/ArenaSystemsLab/Tests/EditMode/SpatialHash2DTests.cs)는 그 반환값을 다시 results.Count와 비교한다. 이 단언만으로 검색 정답을 증명할 수는 없다. 독립 기대값인 expectedResults.Count와 비교하도록 바꾸거나 중복 단언을 제거하는 것이 개선안이다. 다만 뒤의 query별 예상 ID·중복 개수 비교와 수기 경계 사례가 별도로 있으므로 기존 테스트 전체가 순환 검증이라는 뜻은 아니다.
+
+감사 자체에도 shared hallucination·tautology·verifier=designer 여부를 재적용했다. 두 코드 위치와 공개 fixture·기존 XML에서 독자가 판정을 재현할 수 있게 했으며 새 독립 실험이나 보안 인증으로 표현하지 않았다. `mandela`는 읽기 전용이므로 테스트 변경과 엔진 재실행은 보류했다.
+
+### SSOT 감사와 승인 대기 통합안
+
+README·AGENTS·PROCESS·docs의 Markdown 28개를 정수 결과·version·protocol·dependency 문자열로 검색하고, 두 번째로 동의어를 포함한 문서별 열거와 원문 읽기로 범위를 대조했다. 현재 값과 날짜가 고정된 과거 결과 사이에 모순은 확인하지 못했다.
+
+| 위치 | 분류·기준 문서 | 승인 후 제안 |
+|---|---|---|
+| PROCESS 검증표, IMPLEMENTATION_PLAN의 현재 상태·Matrix, DEMO의 최신 결과 수 | 부분 중복. 실제 작업 종료 때 갱신하는 PROCESS가 현재 상태 기준 | 구현 계획의 현재 상태 문장·열과 시연표의 최신 결과 수를 PROCESS 참조로 교체. 고유 완료 기준·실행 기대 형식은 유지 |
+| README·DEMO의 날짜별 결과, ENVIRONMENT_AUDIT·AI_USAGE·ADR | 시점별 정확/부분 복사, 원본 실행의 역사적 근거 | 과거 실패·결과·도구 버전 보존. 최신 결과로 일괄 치환하지 않음 |
+| 설계 §6, 구현 계획 Milestone 6 의존성, ADR 0013 | 승인 범위 요약·부분 중복. 정확한 package·영향·rollback은 설계 기준 | 계획의 반복 승인 설명을 설계 참조로 교체. ADR의 당시 결정은 보존 |
+| NETWORK_SECURITY·DATA_MODEL, 기술 완결성 설계 | 현재 v1·미래 v2의 서로 다른 범위 | 모순이 아니므로 합치지 않음. 현재 source와 미래 설계 경계 유지 |
+
+위 표와 변경 대상을 편집 전에 보고했으며 통합 승인은 아직 없다. 중복 제거·상태표 재구성은 실행하지 않았다. 이번 문구 정정과 링크 보완은 통합 작업이 아니다.
+
+### 적용·보류와 검증
+
+- 수정: 설계 0.1.1의 API 설명·구체적인 코드/Matrix 링크·간접 package 이름, 실행 가이드 1.1.1의 중복 제목·명령별 종료 확인·환경변수 설명, PROCESS와 이 기록. 새 파일·ADR·의존성·runtime 변경은 없다.
+- 미결: v2 제출 성공 후 조회 실패의 반환·UI·retry, version 거부와 필수 속성 검사 우선순위, DB 2초 예산의 시작점·공유 범위. 새 계약을 임의 선택하지 않고 구현 전에 확정하도록 표시했다.
+- 검토자에게 전달한 본문의 공백 지적 1건은 실제 파일에서는 이미 올바르므로 채택하지 않았다.
+- 첫 메모리 snapshot 집계는 긴 출력이 잘려 JSON 해석에 실패했다. 파일 쓰기 없이 SHA-256 전용 집계로 바꿨다.
+- compile·EditMode·PlayMode·수동 화면·Console·Windows/Unreal build: NOT RUN. 기존 XML의 수정 전 26/30, 수정 후 30/30·1/1과 validator 성공 표식만 읽기 전용 재확인했다.
+- 문서 정적 검사: PASS. Markdown 28개·내부 링크 208개(앵커 4개 포함)·JSON 예제 9개·ADR 14개 연속 번호/필수 section·glossary 85개 구조·수정 문서 버전/이력·fence 짝·정보 경계 패턴을 검사했다. Mermaid 최종 웹 렌더링은 NOT RUN이다.
+- 범위 대조: 수정 전후 111개 파일의 SHA-256을 비교해 위 문서 4개만 변경됐고 추가·삭제·비Markdown 변경은 없었다. 범위는 루트 문서·docs의 Markdown, Assets/ArenaSystemsLab, Server의 bin/obj 제외 파일, Packages, ProjectSettings다. 저장소 전체나 Git 상태를 검사한 것으로 확대하지 않는다.
+
+## 2026-09-09 승인된 문서 SSOT 통합
+
+### 승인·보존 범위
+
+사용자가 앞선 ssotize 통합안에 적용을 승인했다. 시작 상태는 `work/network-contract-hardening`, local/remote 4194a4f 일치, 직전 sip 문서 4개만 미커밋이며 staged 변경은 없었다. 해당 diff를 대조한 뒤 `work/documentation-ssot`으로 분기해 기존 변경을 보존했다. main 통합·설치·v2 미결 설계 결정은 승인 범위에 포함하지 않는다.
+
+### 적용 내용
+
+- 구현 계획: 현재 상태 열을 PROCESS 참조로 바꾸고 9개 기술의 구현 위치·완료 근거를 유지했다. Git/OOP 완료 범위와 실제 8-thread 검증 정보는 PROCESS에서 보존했다. M5는 날짜별 구현 기록임을 제목에 표시했다.
+- 의존성: M6 후보 버전·승인 설명은 기술 완결성 설계 §6, Docker·SVN 확인 상태는 PROCESS로 연결했다. 승인·rollback 내용 자체는 바꾸지 않았다.
+- 실행 가이드: 1.1.2. 최신 테스트 개수는 PROCESS 참조로 바꾸고 명령·합격 조건·수동 절차·날짜별 결과는 유지했다.
+- 운영 기록: PROCESS와 ADR 0003에 이번 적용을 기록했다. 기존 결정의 변경이 아니므로 새 ADR은 만들지 않았다. 직전 sip의 설계 0.1.1 변경도 보존해 함께 기록한다.
+
+### 검증과 미검증
+
+`rg` 검색과 동의어 기반 문서별 열거로 대상 위치를 재확인했다. 첫 patch는 긴 문장의 일부만 일치시켜 문맥 검사에서 거부됐고 파일은 변경되지 않았다. 실제 문장을 다시 읽은 뒤 정확한 문맥으로 적용했다.
+
+엔진·runtime·자동/수동 게임 검사는 NOT RUN이다. 이번 변경은 문서 참조 통합이며 과거 PASS를 새 실행 결과로 옮기지 않는다.
+
+- 문서 정적 검사: Markdown 28개·JSON 예제 9개·ADR 14개·glossary 85개 구조와 내부 링크·앵커·문서 버전 검사 PASS.
+- 보존 검사 12항목 PASS: Matrix 9행의 구현 위치·완료 근거, M5와 DEMO의 날짜별 결과, 이전 AI·ADR 기록, 설계 승인 표를 대조했다. 제거한 최신 상태·후보 버전은 참조로 연결되고 Git/OOP·8-thread 범위가 PROCESS에 남아 있다.
+- sip: 별도 문맥 없는 검토자가 계획·실행 가이드·PROCESS의 변경 관련 발췌 전체를 읽어 minor gaps로 판정했다. 전체 원문이나 링크를 검토한 것으로 확대하지 않는다. re0로 문서 작업의 마무리 순서와 v1 보강 변경의 사람 검증을 구분하고 일반 텍스트 참조를 링크로 정리했다.
+- 이번 통합에는 새 외부 기술 주장·검사 설계가 없어 factchk·mandela 재감사는 생략했다. 기존 출처·검사 내용은 유지했다. detool은 도구별 실행·운영 기록이어서 변환하지 않았다. sip 중에는 Git을 호출하지 않았으며 완료 뒤 일반 commit·push workflow로 복귀한다.

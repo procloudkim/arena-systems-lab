@@ -1,16 +1,18 @@
 # Arena Systems Lab 기술 완결성 설계서
 
-- 문서 버전: `0.1.0`
+- 문서 버전: `0.1.1`
 - 설계 승인일: 2026-09-09
 - 코드 기준선: `f896940`
 - 결정: [ADR 0013](adr/0013-technical-completion-design.md)
 - 현재 구현·검증 상태: [PROCESS](../PROCESS.md)
 
-이 문서는 앞으로 적용할 설계다. MySQL 테이블과 protocol v2가 현재 구현됐다는 뜻이 아니다. 현재 명세는 [기술 문서 5종](../README.md), 실행 명령은 [검증 가이드](DEMO_GUIDE.md)가 기준이다.
+이 문서는 단계적으로 적용할 목표 설계다. 단계별 적용 여부는 PROCESS에서 확인하며, MySQL 테이블과 protocol v2가 현재 구현됐다는 뜻이 아니다. 현재 명세는 [기술 문서 5종](../README.md), 실행 명령은 [검증 가이드](DEMO_GUIDE.md)가 기준이다.
 
 ## 1. 목적과 범위
 
 기존 게임을 기반으로 Unity, Unreal, Git, SVN, MySQL, network programming, socket programming, multithreading, OOP의 구현과 검증 근거를 완결한다. 코드 존재가 아니라 구현 → 자동 검사 → 사람 실행 → 재현 가능한 기록을 완료 기준으로 삼는다.
+
+기술별 소스와 완료 근거는 [9개 기술 Matrix](IMPLEMENTATION_PLAN.md#최종-기술-범위-matrix)를 따른다. 아래 검증 표는 그 기준을 대체하지 않고 이번 변경의 검사 항목을 구체화한다.
 
 확정한 선택:
 
@@ -57,6 +59,8 @@ IPv4 `127.0.0.1:7777`, 4-byte big-endian 길이 접두사, UTF-8 JSON, 연결당
 
 `health`, `submit_score`, `get_leaderboard`를 유지한다. ID 1~32자 ASCII 영문·숫자·밑줄·하이픈, score 0~1,000,000, query limit 1~100 규칙을 유지한다. 두 engine은 Top 5를 요청한다. 실행 이력은 SQL·검증 도구로 조회하며 별도 이력 화면이나 network API는 만들지 않는다.
 
+기존 본문 구조는 [요청과 정상 응답](NETWORK_SECURITY.md#요청과-정상-응답), 오류 형식은 [오류 계약](NETWORK_SECURITY.md#오류-계약과-알려진-한계)을 참조한다. 해당 명세는 현재 v1이며, v2 변경점은 아래에 구분한다.
+
 ### 제출과 응답
 
 다음은 길이 접두사를 제외한 v2 본문 예제다.
@@ -77,7 +81,7 @@ IPv4 `127.0.0.1:7777`, 4-byte big-endian 길이 접두사, UTF-8 JSON, 연결당
 
 ### 검증 보강
 
-서버 공통 정수 읽기 함수에서 ValueKind.Number를 확인한 뒤 TryGetInt32를 호출한다. Number 이외에는 예외가 발생한다. [Microsoft API 명세](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonelement.trygetint32?view=net-10.0)
+TryGetInt32 API는 Number 이외의 값에 직접 호출하면 InvalidOperationException을 발생시킨다. 서버 공통 정수 읽기 함수는 호출 전에 ValueKind.Number를 검사해 잘못된 타입을 invalid_request로 거부한다. v1 거부와 v2 필수 속성 검사의 우선순위는 v2 구현 전 회귀 예제로 명확히 한다. [Microsoft API 명세](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonelement.trygetint32?view=net-10.0)
 
 Unity는 JsonUtility를 유지한다. score DTO의 초기값을 -1로 두어 누락과 정상 0을 구별한다. version·ok·배열·ID·범위·정렬·반환 runId를 검사하고 HashSet의 Ordinal 비교로 중복 ID를 거부한다. 초기값의 동작은 exact Editor 테스트로 확인한다. [Unity FromJson 명세](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/JsonUtility.FromJson.html)
 
@@ -90,6 +94,8 @@ Unity는 JsonUtility를 유지한다. score DTO의 초기값을 -1로 두어 누
 - 재시작·OnDestroy는 이전 요청을 취소한다. 성공·실패 모두 UI 반영 직전에 취소 여부와 현재 runId를 확인한다.
 - 저장 후 응답만 유실될 수 있으므로 통신 실패를 미저장으로 단정하지 않는다. 확인 불가 상태를 표시한다.
 - offline queue는 없다. 서버 부재·취소로 제출되지 않은 round의 영속 저장을 보장하지 않는다.
+
+구현 전 미결 사항: 제출 성공 응답을 받은 뒤 순위 조회만 실패한 경우의 반환값·UI·재시도 대상을 확정해야 한다. 저장 성공이 확인된 경우와 제출 응답 유실로 저장 여부가 불명확한 경우를 구별해야 하며, 이 문서에서는 새 반환 모델을 임의로 선택하지 않는다.
 
 ## 4. MySQL 데이터와 동시성
 
@@ -133,6 +139,8 @@ InnoDB와 ASCII 대소문자를 구분하는 열 비교를 사용한다. score�
 - DB port도 host loopback에만 게시한다. 실행 계정은 필요한 SELECT/INSERT/UPDATE만 허용하고 migration 계정은 분리한다.
 - 연결 정보는 process별 환경 설정으로 주입한다. credential·volume·원본 log를 Git에 넣지 않으며 loopback을 인증으로 간주하지 않는다.
 
+구현 전 미결 사항: DB 2초 예산의 시작점과 적용 단위, 연결·pool 대기·transaction·commit의 포함 범위를 확정해야 한다. 각 호출마다 2초를 새로 부여하는지 전체 DB 작업이 공유하는지 현재 문구만으로 가정하지 않는다.
+
 ### migration과 복구
 
 버전이 있는 SQL을 명시적으로 적용하고 서버 시작 시 자동 DDL은 하지 않는다. 부분 적용·알 수 없는 schema는 자동 수정하지 않는다. DDL은 일반 ROLLBACK으로 복구되지 않으므로 백업 복원과 빈 test schema 재생성을 구분한다. 실제 데이터 삭제는 별도 승인이다. [MySQL 암묵적 commit](https://dev.mysql.com/doc/refman/8.4/en/implicit-commit.html)
@@ -154,7 +162,7 @@ InnoDB와 ASCII 대소문자를 구분하는 열 비교를 사용한다. score�
 | Unity gameplay | 서버 없음·DB 장애·정상 연결·요청 중 R에도 게임 유지, 이전 응답의 새 round 반영 없음 |
 | Unreal | v2 fixture·server 없음·actual server 검사, C++ build와 HUD 사람 확인 |
 | End-to-end | 같은 서버의 Unity 제출 → Unreal 표시 → server 재시작 → 재조회 일치 |
-| Data structure | query마다 brute-force 결과 ID 집합과 동등, 개수 합계만 비교하지 않음 |
+| Data structure | [SpatialHash2D.Query](../Assets/ArenaSystemsLab/Runtime/SpatialHash2D.cs)를 [기존 테스트](../Assets/ArenaSystemsLab/Tests/EditMode/SpatialHash2DTests.cs)에서 query마다 brute-force 결과 ID·중복 개수와 비교, 개수 합계만 비교하지 않음 |
 | Engineering | Health·FSM 회귀, 이동·충돌·공격·사망·재시작, Editor validator·builder 유지 |
 
 DB 검사는 전용 database와 계정에서만 실행한다. 안전한 test 대상이 확인되지 않으면 중단하고 부분 PASS를 전체 PASS로 표시하지 않는다. async/await 사용과 실제 Thread 일관성 검사를 별도 근거로 기록한다.
@@ -180,7 +188,7 @@ v2는 한 통합 작업 branch에서 진행하고 v1/v2 혼재 상태를 완료 
 |---|---|---|
 | MySQL image | mysql:8.4.11, DB·volume 필요. digest는 다운로드 전 조회·고정 | 기존 설치 재사용 조사. 미승인 시 중단. volume 보존, 삭제·downgrade 자동 실행 금지 |
 | MySqlConnector | 2.6.2, MIT. Server NuGet.Config·csproj·lock 변경 | Oracle connector는 별도 승인 대안. 철회 시 이전 executable set 사용, package 제거는 검토 후 별도 commit |
-| 간접 dependency | net10.0 명세의 DI/Logging abstractions >=8.0.2, 해석 결과 lock 고정 | 숨기거나 DI framework 도입으로 확대하지 않음. 미승인 시 connector 도입 중단 |
+| 간접 dependency | net10.0 명세의 Microsoft.Extensions.DependencyInjection.Abstractions와 Microsoft.Extensions.Logging.Abstractions, 각각 >=8.0.2. 해석 결과 lock 고정 | 숨기거나 DI framework 도입으로 확대하지 않음. 미승인 시 connector 도입 중단 |
 | SVN·외부 공간 | svn·svnadmin·격리 working copy. binary version·출처·권한·대상 먼저 확인 | 기존 도구 재사용 우선. 미승인 시 lab 중단. 결과 보존 후 승인으로 정리 |
 
 설계의 배포 근거: [Docker Official Images](https://raw.githubusercontent.com/docker-library/official-images/master/library/mysql), [MySqlConnector 2.6.2](https://www.nuget.org/packages/MySqlConnector/2.6.2), [Apache SVN binary 안내](https://subversion.apache.org/packages.html). 로컬 설치나 보안 검증이 완료됐다는 뜻은 아니다.
@@ -197,4 +205,5 @@ v2는 한 통합 작업 branch에서 진행하고 v1/v2 혼재 상태를 완료 
 
 | Version | Date | 변경 |
 |---|---|---|
+| 0.1.1 | 2026-09-09 | API 예외 설명·기술/검사 링크·간접 package 이름 명확화, v2 부분 성공·검사 우선순위·DB 예산 미결 사항 표시. 구현 계약 추가 확정 없음 |
 | 0.1.0 | 2026-09-09 | MySQL 단일 모드·v2·중복 방지·동시성·검증·승인 경계 |
