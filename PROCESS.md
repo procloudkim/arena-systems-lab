@@ -2,14 +2,14 @@
 
 > 이 문서는 현재 진행 상태와 다음 재개 지점의 단일 기준(SSOT)이다. 환경·AI·ADR 문서는 역사적 근거이며 현재 상태를 이 문서와 중복 관리하지 않는다.
 
-- Last updated: 2026-09-10 KST
+- Last updated: 2026-09-11 KST
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: 작업 branch와 원격 ref를 확인하고 handoff 시 clean 유지
-- Active work: 미완료 사유·환경 재확인·다음 검증 인계 문서 정리 완료, v1 보강 변경의 사람 검증 대기
-- Next task: exact Unity 6000.5.1f1에서 v1 보강 변경의 정상 0점·최고 점수 갱신·server 없음·restart·Console 확인 후 통합 판단. MySQL·SVN은 별도 승인
+- Active work: v1 보강 변경의 오프라인·서버 연결·Console 사람 검증 PASS 기록, 정상 종료 확인 대기
+- Next task: Unity와 서버 정상 종료 후 process·port·lock·파일 변경 확인, 검증 기록 push와 별도 승인된 main 통합 판단. MySQL·SVN은 별도 승인
 
-문서 작업의 commit·원격 확인 근거는 [Checkpoints](#checkpoints)에 기록한다. runtime은 v1 보강 상태를 유지하며 이번 문서 작업에서 엔진 검사나 사람 검증을 새로 수행하지 않았다. 사용자의 작업 종료 요청은 새 수동 PASS나 최종 DONE 선언이 아니다.
+검증 기록의 commit·원격 확인 근거는 [Checkpoints](#checkpoints)에 기록한다. 2026-09-11 사용자가 현재 소스의 기본 플레이·server 없음·restart·정상 0점·최고 점수 갱신·중복 없음·Console 오류 없음을 확인했다. 이는 사람 검증 결과이며 자동 테스트 재실행·정상 종료·main 통합 또는 최종 DONE을 뜻하지 않는다.
 
 ## Session Start
 
@@ -50,13 +50,13 @@ git remote -v
 | Milestone 5 server foundation | BCL-only v1·loopback server·bounded store, 숫자 타입 보강 후 verification 10/10 PASS |
 | Milestone 7 Unity network client | Game Over submit·상위 5개 조회 구현, 자동 검사와 server 없음·실제 server 사람 검증 PASS |
 | Milestone 8 Unreal observer | C++ Top 5 HUD, protocol fixture, server 없음·actual server 자동·사람 검증 PASS |
-| v1 contract hardening | 숫자 타입·누락 점수·중복 ID·query별 ID 비교 자동 검사 PASS, 이번 화면/Console 사람 검증 NOT RUN |
+| v1 contract hardening | 2026-09-09 자동 검사 PASS, 2026-09-11 오프라인·서버 연결·Console 사람 검증 PASS. 정상 종료 확인 대기 |
 | OOP | Unity runtime의 책임 분리·테스트 근거 완료. 이후 server/client 범위의 완료 기준은 [구현 계획 Matrix](docs/IMPLEMENTATION_PLAN.md#최종-기술-범위-matrix)를 따름 |
 | Technology baseline | 9개 필수 기술과 연결 구조 확정, ADR 0006 적용 |
 | Reusable extension tools | Unreal 5.8, VS Native Game/C++, Windows .NET SDK 10.0.401 재검증 |
 | Approval-gated gaps | 2026-09-10 MySQL/SVN 명령·일반 설치 미탐지, 로컬 Docker daemon READY·mysql:* image 0건. 포터블 설치·커스텀 image UNKNOWN, 설치·외부 작업 공간 승인 유지 |
-| Integrated branch | `main` f896940, 2026-09-10 원격 ref 확인. 기존 기술 문서 merge는 77435fc |
-| Active branch | `work/session-closeout`, 문서 SSOT checkpoint `3ce607a`에서 분기 |
+| Integrated branch | `main` f896940, 2026-09-11 원격 ref 재확인. 기존 기술 문서 merge는 77435fc |
+| Active branch | `work/v1-manual-validation`, 문서 마감 checkpoint `5242a5c`에서 분기 |
 
 Day 1에는 2D top-down 이동, 공격, 적 생성·추적, Health/Damage, 사망, Game Over, 재시작이 포함된다. Scene과 Prefab 대신 runtime bootstrap을 사용한다.
 
@@ -68,6 +68,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 | 검증 | 결과 | 최근 근거 |
 |---|---|---|
+| 2026-09-11 수동 검증 기록 정적 검사 | PASS | Markdown 28개·내부 링크 239개·앵커 33개·JSON 예제 9개·ADR 14개, 과거 기록 2개 보존·문서 3개 변경 경계·미실행 상태·정보 경계·diff 검사 |
 | 2026-09-10 미완료 사유·환경 사실 확인 | RECORDED | [감사 기록](docs/ENVIRONMENT_AUDIT.md#2026-09-10-미완료-사유와-환경-재확인), 소스·원격 ref·제한된 로컬 도구 조회와 공식 문서 대조 |
 | 2026-09-10 마감 문서 정적 검사 | PASS | 구현 commit a1bfc39 기준 Markdown 28개·내부 링크 234개·앵커 29개·JSON 예제 9개·ADR 14개, 과거 기록 3개 append-only·문서 4개 변경 경계·6단계 인계·NOT RUN 보존. runtime 재실행 없음 |
 | 2026-09-09 변경 전 Unity baseline | PASS | exact 6000.5.1f1, EditMode 20/20, CompletionBaseline-20260909.xml |
@@ -81,7 +82,8 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | EditMode tests | PASS | 2026-09-09, 30 passed / 0 failed / 0 skipped |
 | Automated PlayMode profile test | PASS | 2026-09-09, 1 passed / 0 failed / 0 skipped, 5초 sampling |
 | Project validator command line | PASS | 2026-09-09 exact Editor validation passed, exit 0 |
-| v1 hardening human/Console flow | NOT RUN | 이번 정상 0점·최고 점수·server 없음·restart 화면 검사 대기 |
+| v1 hardening human/Console flow | PASS | 2026-09-11 사용자 확인: 기본 플레이·server 없음·restart·정상 0점·최고 점수 갱신·중복 없음·Console 오류 없음. [당일 근거](docs/adr/0014-v1-contract-hardening.md#2026-09-11-사람-검증) |
+| v1 manual session shutdown | NOT RUN | Unity·서버 정상 종료 사용자 확인과 process·port 7777·lock 해제 검사 대기. 마지막 조회에서는 exact Editor와 loopback 서버 실행 중 |
 | v1 hardening batch log review | RECORDED | 기존 라이선스 갱신 진단·미변경 소스 API 경고·외부 설정 요청 실패, 로그 전체 무오류 아님 |
 | Day 3 performance baseline | RECORDED | [측정 조건과 수치](docs/PERFORMANCE_BASELINE.md) |
 | Day 3 human validation | PASS | 사용자 확인, Editor menu·기존 gameplay·Console checklist 완료 |
@@ -92,7 +94,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | Current network-enabled Windows build | NOT RUN | 현재 소스에 대한 재빌드·standalone network 검증 대기 |
 | Windows player launch smoke | PASS | 8초 process 생존, managed exception·crash 없음 |
 | Windows player full manual flow | PASS | 사용자 확인, [standalone checklist](docs/DEMO_GUIDE.md)와 오류 없음 |
-| .NET server Release build | PASS | 2026-09-09 SDK 10.0.401, warnings 0 / errors 0 |
+| .NET server Release build | PASS | 2026-09-11 SDK 10.0.401, server project `--configuration Release --no-restore`, warnings 0 / errors 0. verification executable 재실행은 아님 |
 | Protocol/security/thread verification | PASS | 2026-09-09 기존 8개(실제 8-thread store 일관성 포함) + 공통 숫자 검사·실제 거부 후 저장소 불변, 10/10 |
 | .NET server CLI smoke | PASS | Windows port 7777 health response, `Ctrl+C` graceful shutdown |
 | Unity network client checks | PASS | 2026-09-09 기존 4개 + 누락 점수·중복 ID·정상 0·Ordinal ID 8개, 12/12 |
@@ -116,19 +118,19 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 ## Work Queue
 
-1. **현재 v1 사람 검증:** exact Unity의 [leaderboard checklist](docs/DEMO_GUIDE.md#unity-leaderboard-수동-체크리스트)와 기본 이동·조준·공격 확인. 정상 0점·최고 점수 갱신·server 없음·R 재시작·Console·정상 종료를 확인하고 결과를 받은 뒤 통합 판단
+1. **현재 v1 검증 마감:** [leaderboard checklist](docs/DEMO_GUIDE.md#unity-leaderboard-수동-체크리스트)의 플레이·서버 연결·Console은 2026-09-11 사람 PASS. Unity·서버 정상 종료 확인 후 process·port·lock·보호 파일 변경을 검사하고 기록 push·별도 승인된 main 통합 판단
 2. **설계·승인:** [기술 완결성 설계](docs/TECHNICAL_COMPLETION_DESIGN.md)의 부분 성공 처리·오류 검사 순서·DB 취소 예산 범위를 확정. MySQL image·connector 직접/간접 dependency와 SVN 도구·격리 경로의 구체적인 승인 확보
 3. **MySQL·v2 구현:** 승인 후 단일 DB store·이력·최고 점수·runId 중복 방지·schema 적용/복구와 Unity·서버·Unreal 전환
 4. **SVN 실습:** 승인된 Git 외부 공간의 두 working copy에서 branch·충돌 해결·merge와 revision 근거 확보
 5. **최종 실행 검증:** [필수 검사](docs/TECHNICAL_COMPLETION_DESIGN.md#5-검증과-완료-기준), 최신 Windows build·실제 플레이 측정·사람 실행. 같은 서버에서 Unity 제출 → MySQL 저장 → Unreal 표시 → 서버 재시작 후 재조회 일치 확인
 6. **문서·Git 마감:** [9개 기술 Matrix](docs/IMPLEMENTATION_PLAN.md#최종-기술-범위-matrix)의 source·검증 근거와 기술 문서·ADR·AI 기록 일치 확인. 검증된 변경의 승인된 main 통합·push·원격 SHA·clean 확인
 
-현재 프로젝트는 최종 DONE이 아니다. MySQL·v2는 미구현, SVN은 미실행, 최신 Windows build와 v1 사람 검증은 재실행 대기다. MySQL 설치 승인이 미결 설계 정리나 현재 v1 검증 자체를 차단하지는 않는다. Object Pool·gameplay Spatial Hash는 [측정 기반 미적용 결정](docs/PERFORMANCE_BASELINE.md#optimization-decision)을 유지하며 필수 추가 기능으로 바꾸지 않는다.
+현재 프로젝트는 최종 DONE이 아니다. MySQL·v2는 미구현, SVN은 미실행, 최신 Windows build는 재실행 대기다. v1 플레이·서버 연결·Console 사람 검증은 완료됐으며 정상 종료 확인은 남아 있다. MySQL 설치 승인이 미결 설계 정리나 현재 v1 검증 자체를 차단하지는 않는다. Object Pool·gameplay Spatial Hash는 [측정 기반 미적용 결정](docs/PERFORMANCE_BASELINE.md#optimization-decision)을 유지하며 필수 추가 기능으로 바꾸지 않는다.
 
 알려진 gap:
 
 - Windows build output과 log는 local ignored generated artifact이며 repository에 포함하지 않는다.
-- 2026-09-09 작업 branch는 자동 검증까지만 완료됐다. 이전 사람 PASS는 이번 변경의 수동 근거가 아니며 main에 아직 통합하지 않았다.
+- 2026-09-09 자동 검증에 이어 2026-09-11 v1 보강 소스의 새 사람 PASS를 받았다. main에는 아직 통합하지 않았으며 통합 승인은 별도다.
 - sip에서 확인한 v2 부분 성공 처리·검사 우선순위·DB 취소 예산 범위는 구현 전에 결정한다. 문서 중복 통합 승인은 이 설계 결정이나 MySQL/SVN 설치 승인을 뜻하지 않는다.
 - 문서의 기존 PASS는 날짜가 고정된 기록이다. 2026-09-07에는 엔진·서버 runtime을 재실행하지 않았다.
 - 정보 경계 정리는 현재 문서와 GitHub 소개에 한정한다. Git 과거 이력·작성자·remote 주소는 재작성하지 않았다.
@@ -136,7 +138,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 - Unreal source·build·native socket test와 실제 HUD 사람 검증은 완료됐다.
 - 2026-09-10 SVN client/admin과 native MySQL은 명령·일반 설치 경로·관련 registry에서 미탐지이며 MySQL service도 0건이다. 비표준 설치까지 없다고 단정하지 않는다. 설치·download·package 추가는 사용자 승인 전 실행하지 않는다.
 - 2026-09-10 로컬 Docker daemon `29.7.2`가 응답했다. `mysql:*` image 조회는 0건이며 커스텀 image는 확인하지 않았다. 초기 감사의 daemon 미응답 기록은 과거 근거로 보존한다.
-- 이번 작업 종료 시 신규 사람 PASS는 받지 않았다. 이전 사람 PASS를 v1 보강의 새 결과로 옮기지 않으며, 과거 Windows executable 대신 현재 소스의 exact Editor에서 먼저 확인한다.
+- 2026-09-10 문서 마감 당시의 사람 검증 대기 기록은 과거 근거로 보존한다. 2026-09-11 PASS는 현재 소스의 exact Unity Editor 검증이며 과거 Windows executable 또는 새 standalone 검증 결과가 아니다.
 - Unity Game Over submit/query와 Unreal actual-server Top 5는 각각 사람 검증했다. 동일 server session을 연속 시연하는 최종 demo capture는 남아 있다.
 - 현재 leaderboard는 player별 최고 score만 보존한다. 과거 run 이력은 MySQL milestone에서 별도 `runs` data로 구현하며 retry 중복 방지 key가 필요하다.
 - server는 loopback 전용이며 TLS, authentication, rate limiting과 server-authoritative score가 없다. remote interface 공개는 금지한다.

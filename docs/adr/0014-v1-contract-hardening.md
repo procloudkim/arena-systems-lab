@@ -38,3 +38,17 @@
 Unity 로그의 CS0618은 변경하지 않은 ArenaGame의 API 사용 경고다. 라이선스 갱신 진단은 변경 전 baseline에도 있으며 validator 종료 시 외부 설정 요청 실패가 출력됐다. 테스트 XML과 종료 코드를 함께 확인했으며 이를 gameplay error로 단정하거나 로그 전체 무오류라고 기록하지 않는다.
 
 검사 중 Unity가 새로 생성한 기본 SceneTemplateSettings.json은 모든 userAdded 값이 false임을 확인하고 Editor 종료 후 제거했다. 기존 설정·Scene·Prefab·package 파일의 최종 diff는 없다. 실패/성공 원본은 ignored Logs에 분리 보존하며 실행 명령은 DEMO_GUIDE, commit·remote 근거는 PROCESS에 기록한다.
+
+### 2026-09-11 사람 검증
+
+위 2026-09-09 자동 검사와 당시 NOT RUN 기록은 보존한다. 문서 마감 기준선 `5242a5c`의 runtime을 exact Unity `6000.5.1f1`에서 실행했고, 이번 기록 작업에서는 소스를 바꾸지 않았다. 사용자는 기존 수동 체크리스트에 따라 다음 결과를 보고했다.
+
+| 항목 | 결과 | 근거 |
+|---|---|---|
+| 기본 플레이·server 없음·재시작 | PASS | 사용자 수동 확인 |
+| 정상 0점·최고 점수 갱신·중복 없음 | PASS | 실제 loopback 서버 연결 후 사용자 수동 확인. 구체적인 비영점 점수는 보고되지 않아 기록하지 않음 |
+| Unity Console | PASS | 오프라인·서버 연결 두 단계 모두 사용자가 오류 없음 확인 |
+| 서버 Release build | PASS | SDK 10.0.401, server project `--configuration Release --no-restore`, warnings 0 / errors 0 |
+| 정상 종료 | NOT RUN | Unity·서버 정상 종료 사용자 확인과 process·port·lock 해제 검사 대기 |
+
+서버의 `127.0.0.1:7777` 수신을 확인했다. PASS는 AI의 화면 관찰이나 자동 검사 결과로 바꾸어 기록하지 않는다. EditMode·PlayMode·server verification·Windows/Unreal 재빌드·MySQL·v2·SVN은 이번에 실행하지 않았다. 기존 결정의 검증 근거 추가이므로 새 ADR은 만들지 않으며 main 통합은 별도 승인 사항이다. 이후 상태와 commit은 [PROCESS](../../PROCESS.md#checkpoints)를 따른다.

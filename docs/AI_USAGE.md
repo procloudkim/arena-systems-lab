@@ -604,3 +604,29 @@ compile·EditMode·PlayMode·server verification·Windows/Unreal build·MySQL·S
 다음 session은 현재 소스의 exact Unity에서 사람이 checklist를 확인하는 지점부터 재개한다. MySQL·connector·SVN 설치와 저장소 외부 쓰기는 기존 별도 승인 경계를 유지한다.
 
 문서 commit a1bfc39를 work/session-closeout에 push하고 원격 SHA 일치를 확인했다. main은 f896940, 작업 트리는 clean이었다. 후속 CP-20260910-01에 구현 SHA·검증·사람 확인 대기를 기록하며 이번 종료를 runtime 완료나 main 통합으로 표시하지 않는다.
+
+## 2026-09-11 v1 수동 검증
+
+### 실행과 사람 확인
+
+시작 기준선은 clean인 `work/session-closeout`의 `5242a5c`다. 프로젝트 버전과 일치하는 Unity `6000.5.1f1` (`0d9463e84828`), 동일 프로젝트 Editor·lock 부재와 port 7777 부재를 확인한 뒤 승인된 GUI 실행으로 수동 검증을 준비했다. 기존 [체크리스트](DEMO_GUIDE.md#unity-leaderboard-수동-체크리스트)를 재사용하고 소스·설정·package를 수정하지 않았다.
+
+- 오프라인: 사용자가 기본 플레이 PASS, 서버 없음 PASS, 재시작 PASS, Console 오류 없음을 확인했다.
+- 서버 준비: 기존 Windows .NET SDK `10.0.401`과 복원된 의존성으로 `dotnet build Server/ArenaSystemsLab.Server/ArenaSystemsLab.Server.csproj --configuration Release --no-restore` 실행, exit 0·경고 0·오류 0. 최초 인증서 생성·telemetry 억제 환경변수는 해당 process에만 적용했다. restore·다운로드·설치는 없다.
+- 온라인: 별도 PowerShell 창에서 Release 서버 DLL을 `--port 7777`로 실행하고 실제 해당 서버의 `127.0.0.1:7777` 수신을 확인했다. 사용자가 0점 PASS, 최고 점수 갱신 PASS, 중복 없음, Console 오류 없음을 확인했다. 보고되지 않은 비영점 점수는 추정하지 않았다.
+- Unity 실행 로그 `Logs/ManualValidation-20260911-001506.log`에서 exact version·Asset Pipeline Refresh 완료를 확인했다. 이 시작 로그 조회를 전체 Console 무오류의 자동 증명으로 취급하지 않으며 Console PASS의 근거는 사용자 보고다.
+- 정상 종료는 사용자에게 Unity Play 종료·서버 Ctrl+C·Editor 종료를 안내한 상태다. 마지막 진단에서는 exact Editor와 해당 loopback 서버가 실행 중이고 lock이 있어 종료를 PASS로 기록하지 않았다.
+
+첫 CIM 조회는 shell 인용 문제로 실패했고 읽기 전용 filter를 수정해 다시 확인했다. 서버 실행 직후 최초 port 조회는 0건이었으나 후속 조회에서 정상 수신을 확인했으며 중복 서버를 띄우지 않았다. 문서 조회 2건은 파일명 불일치로 실패해 실제 링크의 파일명으로 다시 읽었다. 문서 하위 AGENTS 조회의 exit 1은 일치 파일 없음이며 검증 실패가 아니다.
+
+### 변경 범위와 미검증
+
+`work/v1-manual-validation`을 기준선에서 분기해 `PROCESS.md`, `docs/adr/0014-v1-contract-hardening.md`, 이 기록만 갱신한다. PROCESS는 현재 사람 PASS와 다음 종료 확인을 구분하고 ADR·AI의 과거 결과는 보존한다. 기존 결정의 evidence 추가여서 새 ADR·기술 문서 버전·glossary 항목은 만들지 않는다.
+
+기본 플레이·오프라인·온라인·Console은 사용자 확인 PASS다. 새 EditMode·PlayMode·server verification·validator·Windows/Unreal build·MySQL·v2·SVN은 NOT RUN이며 기존 날짜별 자동 PASS를 새 실행으로 옮기지 않는다. 정상 종료·종료 후 파일 변경 검사는 아직 대기다. 서버 실행 후와 이번 문서 편집 전 git status는 clean이며 package 2개·ProjectVersion·ProjectSettings·EditorSettings·SampleScene의 SHA-256 6개가 Unity 실행 전과 일치했다.
+
+추가 기능·dependency·엔진 업그레이드·main 통합은 실행하지 않는다. 문서 검사와 commit·원격 SHA 확인은 [PROCESS checkpoint](../PROCESS.md#checkpoints)에 기록한다.
+
+문서 정적 검사 PASS: Markdown 28개·내부 링크 239개·앵커 33개·JSON 예제 9개·ADR 14개, 과거 기록 2개 보존·문서 3개 변경 경계·미실행 상태·정보 경계·diff 검사. 첫 검사 호출은 JavaScript 문자열 인용 오류로 실행 전에 거부됐고, 수정 후 sandbox의 Git 하위 process EPERM으로 중단됐다. 승인된 재실행에서 exit 0으로 확인했으며 문서 오류나 runtime 실패로 분류하지 않았다.
+
+사용자의 resume 요청 후 미커밋 문서 3개와 기준선 SHA가 유지됨을 확인했다. Unity·해당 서버·loopback port·lock은 여전히 존재해 정상 종료는 대기로 유지했다. 원격 main은 f896940, 이전 마감 branch는 5242a5c였으며 새 검증 branch의 원격 ref는 아직 없었다. 중단된 검증 기록을 보존하고 commit·push부터 이어간다.
