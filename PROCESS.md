@@ -6,7 +6,7 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: 작업 branch와 원격 ref를 확인하고 handoff 시 clean 유지
-- Active work: v1 보강 변경의 오프라인·서버 연결·Console 사람 검증과 정상 종료 확인 완료, 기록 마감
+- Active work: v1 보강 변경의 오프라인·서버 연결·Console 사람 검증과 정상 종료 확인·기록 마감 완료
 - Next task: 검증된 작업 branch의 main 통합 여부 승인·변경 범위 검토. MySQL·v2 미결 설계와 MySQL·SVN 의존성 승인은 별도
 
 검증 기록의 commit·원격 확인 근거는 [Checkpoints](#checkpoints)에 기록한다. 2026-09-11 사용자가 현재 소스의 기본 플레이·server 없음·restart·정상 0점·최고 점수 갱신·중복 없음·Console 오류 없음을 확인했다. 이후 사용자 종료 보고와 process·port·lock 해제·보호 파일 불변을 대조해 정상 종료도 확인했다. 자동 테스트 재실행·main 통합 또는 최종 DONE을 뜻하지 않는다.
@@ -68,7 +68,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 | 검증 | 결과 | 최근 근거 |
 |---|---|---|
-| 2026-09-11 수동 검증 기록 정적 검사 | PASS | 정상 종료 기록: Markdown 28개·내부 링크 240개·앵커 33개·JSON 예제 9개·ADR 14개, 과거 기록 2개 보존·문서 3개 변경 경계·미실행 상태·정보 경계·diff 검사 |
+| 2026-09-11 수동 검증 기록 정적 검사 | PASS | 정상 종료 기록 commit d8634a9 기준 Markdown 28개·내부 링크 240개·앵커 33개·JSON 예제 9개·ADR 14개, 과거 기록 2개 보존·문서 3개 변경 경계·미실행 상태·정보 경계·diff 검사 |
 | 2026-09-10 미완료 사유·환경 사실 확인 | RECORDED | [감사 기록](docs/ENVIRONMENT_AUDIT.md#2026-09-10-미완료-사유와-환경-재확인), 소스·원격 ref·제한된 로컬 도구 조회와 공식 문서 대조 |
 | 2026-09-10 마감 문서 정적 검사 | PASS | 구현 commit a1bfc39 기준 Markdown 28개·내부 링크 234개·앵커 29개·JSON 예제 9개·ADR 14개, 과거 기록 3개 append-only·문서 4개 변경 경계·6단계 인계·NOT RUN 보존. runtime 재실행 없음 |
 | 2026-09-09 변경 전 Unity baseline | PASS | exact 6000.5.1f1, EditMode 20/20, CompletionBaseline-20260909.xml |
@@ -165,6 +165,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260909-03` | 승인된 문서 SSOT 통합과 sip 보완 보존 | `work/documentation-ssot` | `3f71d69` | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | 문서·링크·보존 12항목·staged diff 검사 PASS; runtime NOT RUN | Branch pushed, remote SHA 일치; main f896940 유지, v1 사람 검증 대기 |
 | `CP-20260910-01` | 미완료 사유 사실 확인과 문서 마감 | `work/session-closeout` | `a1bfc39` | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | 문서 정적·과거 기록 보존·문서 4개 변경 경계 검사 PASS; runtime·신규 사람 검증 NOT RUN | 구현 branch push·원격 SHA 일치 확인; main f896940 유지, 다음은 exact Unity의 v1 사람 검증 |
 | `CP-20260911-01` | v1 오프라인·서버 연결 사람 검증 기록 | `work/v1-manual-validation` | `68d8da7` | [ADR 0014](docs/adr/0014-v1-contract-hardening.md) | 기본 플레이·server 없음·재시작·0점·최고 점수 갱신·중복 없음·Console 사람 PASS, 서버 Release·문서 검사 PASS; 자동 테스트 재실행·정상 종료 NOT RUN | 검증 기록 push·원격 SHA 일치 확인; main f896940 유지, 다음은 Unity·서버 정상 종료 확인 |
+| `CP-20260911-02` | v1 정상 종료 확인과 수동 검증 마감 | `work/v1-manual-validation` | `d8634a9` | [ADR 0014](docs/adr/0014-v1-contract-hardening.md) | 사용자 종료 확인·해당 process 0개·port 7777 해제·lock 없음·보호 파일 해시 6개 불변·문서 검사 PASS; 엔진·자동 테스트 재실행 NOT RUN | 종료 기록 push·원격 SHA 일치·clean 확인; main f896940 유지, 다음은 별도 승인된 통합 판단 |
 
 ## ADR Index and Naming
 

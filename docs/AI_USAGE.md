@@ -642,3 +642,5 @@ compile·EditMode·PlayMode·server verification·Windows/Unreal build·MySQL·S
 엔진·서버 재실행, compile·EditMode·PlayMode·server verification·Windows/Unreal build는 이번 종료 확인에서 NOT RUN이다. 강제 종료·lock 삭제·package·설정·Scene 수정과 main 통합은 수행하지 않았다. v1 수동 검증 마감은 MySQL·v2·SVN·최신 Windows build의 최종 완료를 뜻하지 않는다.
 
 기존 읽기 전용 문서 검사의 비교 기준을 991f40e, 종료 상태를 PASS로 갱신해 재사용했다. Markdown 28개·내부 링크 240개·앵커 33개·JSON 예제 9개·ADR 14개·과거 기록 2개 보존·문서 3개 변경 경계·미실행 상태·정보 경계·diff 검사 PASS, exit 0이다.
+
+종료 기록 commit d8634a9를 같은 작업 branch에 push하고 원격 SHA 일치·clean을 확인했다. main은 f896940을 유지했다. 후속 CP-20260911-02는 해당 SHA와 종료 PASS를 연결하며 다음 재개 지점을 별도 승인된 main 통합 판단으로 바꾼다. 전체 기술 범위의 최종 DONE 선언은 아니다.
