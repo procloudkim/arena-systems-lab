@@ -15,9 +15,11 @@ internal static class ServerVerification
             ("fragmented frame", FrameCodecReadsFragmentedStreamAsync),
             ("invalid frame length", FrameCodecRejectsInvalidLengthAsync),
             ("strict request validation", ParserRejectsUnexpectedInputAsync),
+            ("numeric field validation", ParserValidatesAllNumericFieldsAsync),
             ("bounded store", StoreRejectsUnboundedPlayersAsync),
             ("multithreaded store", StoreRemainsConsistentAcrossThreadsAsync),
             ("loopback health", ServerAnswersHealthAsync),
+            ("invalid score leaves store unchanged", ServerRejectsInvalidScoreAsync),
             ("slow client timeout", ServerDisconnectsSlowClientAsync),
             ("concurrent clients", ServerHandlesConcurrentScoresAsync)
         ];
@@ -100,6 +102,62 @@ internal static class ServerVerification
         return Task.CompletedTask;
     }
 
+    private static Task ParserValidatesAllNumericFieldsAsync()
+    {
+        object?[] invalidValues = ["1", null, true, false, Array.Empty<int>(), new { value = 1 }, 1.5, 2147483648L, -2147483649L];
+        foreach (string field in new[] { "version", "score", "limit" })
+        {
+            var request = new Dictionary<string, object?>
+            {
+                ["version"] = 1,
+                ["type"] = field == "score" ? "submit_score" : field == "limit" ? "get_leaderboard" : "health"
+            };
+            if (field == "score")
+            {
+                request["playerId"] = "valid-player";
+            }
+
+            foreach (object? value in invalidValues)
+            {
+                request[field] = value;
+                AssertProtocolError("invalid_request", () => WireProtocol.ParseRequest(WireProtocol.Serialize(request)));
+            }
+
+            request.Remove(field);
+            AssertProtocolError("invalid_request", () => WireProtocol.ParseRequest(WireProtocol.Serialize(request)));
+        }
+
+        foreach (int score in new[] { -1, 0, WireProtocol.MaxScore, WireProtocol.MaxScore + 1 })
+        {
+            byte[] payload = WireProtocol.Serialize(new { version = 1, type = "submit_score", playerId = "valid-player", score });
+            if (score is < 0 or > WireProtocol.MaxScore)
+            {
+                AssertProtocolError("invalid_score", () => WireProtocol.ParseRequest(payload));
+            }
+            else
+            {
+                Assert(WireProtocol.ParseRequest(payload).Score == score, "Valid score boundary changed.");
+            }
+        }
+
+        foreach (int limit in new[] { 0, 1, WireProtocol.MaxLeaderboardEntries, WireProtocol.MaxLeaderboardEntries + 1 })
+        {
+            byte[] payload = WireProtocol.Serialize(new { version = 1, type = "get_leaderboard", limit });
+            if (limit is < 1 or > WireProtocol.MaxLeaderboardEntries)
+            {
+                AssertProtocolError("invalid_limit", () => WireProtocol.ParseRequest(payload));
+            }
+            else
+            {
+                Assert(WireProtocol.ParseRequest(payload).Limit == limit, "Valid limit boundary changed.");
+            }
+        }
+
+        AssertProtocolError("unsupported_version", () => WireProtocol.ParseRequest(
+            WireProtocol.Serialize(new { version = 2, type = "health" })));
+        return Task.CompletedTask;
+    }
+
     private static Task StoreRemainsConsistentAcrossThreadsAsync()
     {
         const int threadCount = 8;
@@ -156,6 +214,21 @@ internal static class ServerVerification
             JsonElement response = await SendAsync(port, new { version = 1, type = "health" });
             Assert(response.GetProperty("ok").GetBoolean(), "Health response was not successful.");
             Assert(response.GetProperty("type").GetString() == "health", "Health response type changed.");
+        });
+    }
+
+    private static Task ServerRejectsInvalidScoreAsync()
+    {
+        return WithServerAsync(async port =>
+        {
+            JsonElement response = await SendAsync(port, new
+            {
+                version = 1, type = "submit_score", playerId = "valid-player", score = "11"
+            });
+            Assert(!response.GetProperty("ok").GetBoolean(), "Invalid score was accepted.");
+            Assert(response.GetProperty("error").GetString() == "invalid_request", "Wrong error for a nonnumeric score.");
+            JsonElement leaderboard = await SendAsync(port, new { version = 1, type = "get_leaderboard", limit = 5 });
+            Assert(leaderboard.GetProperty("entries").GetArrayLength() == 0, "Rejected score changed the store.");
         });
     }
 

@@ -2,8 +2,8 @@
 
 > Arena Systems Lab 개발 중 실제로 만난 게임·Unity·물리·검증 용어를 한국어로 설명하는 생활형 백과사전이다.
 
-- Version: `0.10.0`
-- Last updated: 2026-09-07 KST
+- Version: `0.12.0`
+- Last updated: 2026-09-09 KST
 - Governance: [ADR 0004](adr/0004-game-development-glossary-governance.md)
 
 ## 사용 방법
@@ -261,6 +261,44 @@
 - 프로젝트 예: 계획된 server가 player run과 leaderboard score를 MySQL 8.4 LTS에 저장한다.
 - 주의: query는 parameterized 형태로 실행하고 credential, connection string, local data volume을 Git에 넣지 않는다.
 
+### Database Constraint (데이터베이스 제약)
+
+- 정의: 저장 가능한 데이터의 규칙을 DB가 검사하는 장치다. PK는 행의 고유 식별자, FK는 다른 행과의 참조 관계, CHECK는 값 조건을 나타낸다.
+- 프로젝트 예: 영속화 설계에서 run_id PK로 중복 실행을 막고 score CHECK로 범위를 제한한다. 아직 SQL 구현은 아니다.
+- 주의: unique key만으로 재전송 내용이 같은지는 확인되지 않는다. 같은 runId의 playerId·score도 비교해야 한다.
+
+### Database Transaction (데이터베이스 트랜잭션)
+
+- 정의: 여러 변경을 commit으로 확정하거나 rollback으로 취소하도록 묶는 처리 단위다.
+- 프로젝트 예: 설계에서 player·run·최고 score·counter를 하나의 transaction에 포함한다.
+- 주의: 응답 유실이 commit 실패를 뜻하지 않는다. MySQL DDL은 일반 DML rollback과 다르다.
+
+### Row Lock (행 잠금)
+
+- 정의: transaction이 접근한 행을 다른 transaction이 동시에 변경하지 못하도록 조정하는 DB 잠금이다.
+- 프로젝트 예: 계획된 storage_state 행에 SELECT FOR UPDATE를 사용해 player 상한 검사와 갱신을 직렬화한다.
+- 주의: 잠금 대기와 deadlock 가능성이 있다. 성공한 동시성 검사는 모든 실행 순서나 처리량을 보증하지 않는다.
+
+### Read Committed (커밋된 데이터 읽기)
+
+- 정의: 다른 transaction의 미확정 변경을 읽지 않는 격리 수준이다. 같은 transaction 안의 후속 읽기 결과가 달라질 수 있다.
+- 프로젝트 예: 영속화 설계의 제출 transaction이 사용하며, read-modify-write 경계는 명시적 행 잠금으로 보호한다.
+- 주의: 격리 수준 설정만으로 재시도 중복이나 모든 경쟁 상태가 해결되지는 않는다.
+
+### Connection Pool (연결 풀)
+
+- 정의: 사용이 끝난 DB 연결을 재사용해 반복적인 연결 생성 비용을 줄이는 기능이다.
+- 프로젝트 예: MySqlConnector가 제공하는 pool을 쓰되 각 동시 요청에는 별도 연결 객체를 사용하도록 설계했다.
+- 주의: 하나의 MySqlConnection에서 여러 작업을 동시에 실행해도 된다는 뜻이 아니다.
+
+### Schema Migration (스키마 마이그레이션)
+
+- 정의: DB 구조 변경을 버전이 있는 절차로 적용하는 작업이다. DDL은 테이블 생성·변경 같은 구조 명령이다.
+- 프로젝트 예: 계획된 MySQL schema를 명시적 SQL과 버전 검사로 관리하고 시작 시 자동 변경하지 않는다.
+- 주의: MySQL DDL은 암묵적 commit을 일으킬 수 있어 일반 ROLLBACK 대신 백업 복구 절차가 필요하다.
+
+위 DB 개념의 공식 근거는 [기술 설계서](TECHNICAL_COMPLETION_DESIGN.md)의 MySQL·connector 출처를 따른다.
+
 ## Architecture and State
 
 ### Finite State Machine (FSM, 유한 상태 머신)
@@ -453,6 +491,12 @@
 - 프로젝트 예: 모든 point의 거리를 검사한 결과를 `SpatialHash2D` query correctness 기준으로 사용한다.
 - 주의: 작은 collection에는 단순하고 충분히 빠를 수 있으므로 항상 공간 분할로 교체할 필요는 없다.
 
+### Hash Set (해시 집합)
+
+- 정의: 해시와 동등성 비교를 사용해 같은 값을 중복 보관하지 않는 자료구조다.
+- 프로젝트 예: Unity leaderboard 응답에서 HashSet의 Add가 false이면 이미 나온 playerId이므로 응답을 거부한다. Ordinal 비교로 대소문자는 구분한다.
+- 주의: 집합은 순위 정렬을 대신하지 않는다. 중복 검사와 점수·동점 ID 순서 검사를 따로 유지한다.
+
 ### Spatial Hash (공간 해시)
 
 - 정의: 공간을 cell로 나누고 객체를 위치 기반 bucket에 넣어 가까운 후보만 조회하는 자료구조다.
@@ -513,6 +557,8 @@
 
 | Version | Date | 변경 | ADR |
 |---|---|---|---|
+| `0.12.0` | 2026-09-09 | v1 응답 중복 검사의 Hash Set 추가, 총 85개 | [ADR 0014](adr/0014-v1-contract-hardening.md) |
+| `0.11.0` | 2026-09-09 | 영속화 설계의 constraint·transaction·row lock·Read Committed·connection pool·migration 6개 추가, 총 84개 | [ADR 0013](adr/0013-technical-completion-design.md) |
 | `0.10.0` | 2026-09-07 | ERD·schema·idempotency 3개 추가, 총 78개. FSM 예시를 실제 접촉 조건으로 정정 | [ADR 0012](adr/0012-technical-documentation-governance.md) |
 | `0.9.0` | 2026-09-05 | Unreal C++ 구현에서 확인한 Actor·Game Mode·HUD·module·UBT·UHT·thread pool·automation 8개 추가, 총 75개 | [ADR 0011](adr/0011-unreal-read-only-leaderboard-observer.md) |
 | `0.8.0` | 2026-09-05 | 사람 검증에서 확인한 leaderboard·run history 구분 2개 추가, 총 67개 | [ADR 0010](adr/0010-unity-loopback-leaderboard-client.md) |

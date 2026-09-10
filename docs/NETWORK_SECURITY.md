@@ -1,9 +1,9 @@
 # TCP 프로토콜 및 보안 명세
 
-- 문서 버전: `1.0.0` / wire protocol: `1` (서로 다른 버전)
-- 최초 보안 조사: 2026-09-05 KST / 코드 재확인: 2026-09-07 KST
-- 구현 기준: `fa834cf`의 [WireProtocol](../Server/ArenaSystemsLab.Server/WireProtocol.cs), [LeaderboardServer](../Server/ArenaSystemsLab.Server/LeaderboardServer.cs)
-- 관련 결정: [ADR 0009](adr/0009-loopback-first-bounded-tcp-protocol.md), [ADR 0010](adr/0010-unity-loopback-leaderboard-client.md), [ADR 0011](adr/0011-unreal-read-only-leaderboard-observer.md)
+- 문서 버전: `1.1.0` / wire protocol: `1` (서로 다른 버전)
+- 최초 보안 조사: 2026-09-05 KST / 코드 재확인: 2026-09-09 KST
+- 구현 기준: [WireProtocol](../Server/ArenaSystemsLab.Server/WireProtocol.cs), [LeaderboardServer](../Server/ArenaSystemsLab.Server/LeaderboardServer.cs), [LeaderboardClient](../Assets/ArenaSystemsLab/Runtime/LeaderboardClient.cs). 대응 commit은 [PROCESS checkpoint](../PROCESS.md)에 기록한다.
+- 관련 결정: [ADR 0009](adr/0009-loopback-first-bounded-tcp-protocol.md), [ADR 0010](adr/0010-unity-loopback-leaderboard-client.md), [ADR 0011](adr/0011-unreal-read-only-leaderboard-observer.md), [ADR 0014](adr/0014-v1-contract-hardening.md)
 
 ## 적용 범위와 신뢰 경계
 
@@ -92,7 +92,7 @@ TCP는 메시지 경계가 아닌 바이트 스트림을 제공한다. 한 번�
 | `invalid_frame_length` | 접두사가 0 이하 또는 16 KiB 초과 |
 | `incomplete_frame` | 접두사·본문을 채우기 전 EOF |
 | `invalid_json` | JSON 문법·깊이 등 JsonException |
-| `invalid_request` | 루트/필수 필드/속성 수/필드 표현 검사 실패. 아래 숫자 타입 예외는 별도 |
+| `invalid_request` | 루트/필수 필드/속성 수/필드 표현 검사 실패. 정수 필드의 Number 이외 타입·소수·int32 범위 초과 포함 |
 | `duplicate_property` | 같은 이름의 속성이 두 번 등장 |
 | `unsupported_version` / `unsupported_type` | 지원하지 않는 버전 / 요청 종류 |
 | `invalid_player_id` | ID 길이·문자 규칙 위반 |
@@ -103,7 +103,7 @@ TCP는 메시지 경계가 아닌 바이트 스트림을 제공한다. 한 번�
 
 `request_timeout`, `connection_io_error`, `socket_error`는 서버 로그 코드이며 해당 catch 경로는 JSON 오류 응답을 보내지 않는다. 클라이언트는 연결 종료·취소·부분 응답도 실패로 처리해야 한다. 로그에는 고정 코드와 일반 예외 타입만 남기며 원문 요청·스택 추적을 출력하지 않는다.
 
-숫자 타입 오류 분류의 알려진 문제: `ReadRequiredInt`는 `ValueKind` 검사 없이 `TryGetInt32`를 호출한다. `score: "11"`처럼 Number가 아닌 값은 InvalidOperationException을 일으켜 서버의 일반 예외 처리로 이동하고 `internal_error` 응답을 시도한다. “모든 잘못된 숫자 타입이 invalid_request가 된다”는 설명은 틀리다. API 명세와 코드 경로로 확인했으며 이 문서 작업에서는 런타임 재현·코드 수정을 수행하지 않았다. [Microsoft TryGetInt32 예외 명세](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonelement.trygetint32?view=net-10.0)
+`ReadRequiredInt`는 `ValueKind.Number`를 확인한 뒤 `TryGetInt32`를 호출한다. `version`, `score`, `limit` 모두 이 경로를 사용한다. 2026-09-09 회귀 검사에서 수정 전 문자열 숫자의 `internal_error`를 재현했고, 수정 후 `invalid_request` 응답과 저장소 불변을 실제 loopback으로 확인했다. Number 이외 타입에서 예외가 발생하는 API 특성은 [Microsoft TryGetInt32 명세](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonelement.trygetint32?view=net-10.0)를 따른다.
 
 ## 클라이언트별 동작 차이
 
@@ -112,14 +112,16 @@ TCP는 메시지 경계가 아닌 바이트 스트림을 제공한다. 한 번�
 | 요청 | submit 후 query, 각각 새 연결 | query 한 번 |
 | 시간 제한 | 각 요청마다 기본 3초 | Fetch 작업의 기본 3초 절대 deadline |
 | 재시도 | 지정된 일시 오류에 전체 submit/query 흐름을 최대 1회 재시도, 250ms 간격 | 없음 |
-| 응답 검사 | 버전·ok·길이·ID·점수 범위·정렬·제출값 이상 bestScore | 버전·ok·길이·정수 타입·ID·범위·정렬·중복 ID |
+| 응답 검사 | 버전·ok·길이·ID·점수 범위·정렬·제출값 이상 bestScore·누락 점수·중복 ID | 버전·ok·길이·정수 타입·ID·범위·정렬·중복 ID |
 | JSON 처리 | strict UTF-8 디코딩 후 JsonUtility | Unreal Json 모듈 |
 | 수명 | R 재시작·ArenaGame 파괴 시 취소 | 작업 완료 후 weak HUD 참조 확인 |
 | 표시 | Game Over HUD | Play 시작 후 조회 전용 HUD, Play 재시작으로 갱신 |
 
 Unity 재시도 대상은 `connection_failed`, `connection_io_error`, `request_timeout`, `incomplete_frame`이다. 두 단계와 재시도가 있으므로 전체 Game Over 네트워크 흐름을 “3초 이내 완료”라고 보장하지 않는다. Unreal deadline도 OS 스케줄링까지 보장하는 실시간 시스템의 상한은 아니다.
 
-Unity 응답 검사에는 중복 playerId 검사가 없다. 또한 `JsonUtility`는 필드의 존재 여부 자체를 모두 검사하는 스키마 검증기가 아니며, 현재 DTO의 누락된 숫자 필드는 기본값과 구분되지 않을 수 있다. 이 누락·중복 경계의 추가 회귀 검사는 미실행이다. Unreal도 미지정 속성·중복 JSON 속성 전체를 검사하는 엄격한 서버 파서와 동일하다고 주장하지 않는다. [Unity JsonUtility.FromJson](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/JsonUtility.FromJson.html) 참조는 Unity 6 계열의 API 의미 확인용이며 정확한 6000.5 실행 검증을 대신하지 않는다.
+Unity DTO는 `bestScore`와 entry `score`를 -1로 초기화해 누락을 정상 0과 구분한다. `HashSet<string>(StringComparer.Ordinal)`로 배열 전체의 중복 ID를 거부하며 대소문자만 다른 ID는 별개다. exact Unity 6000.5.1f1에서 누락 점수·인접/비인접 중복 거부와 정상 0·대소문자 구분 수용을 검증했다. [Unity JsonUtility.FromJson](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/JsonUtility.FromJson.html)의 초기값 설명을 실제 프로젝트 실행과 대조한 결과다.
+
+이 검사를 모든 JSON 자료형·필수 필드·중복 JSON 속성에 대한 완전한 schema 검사로 해석하지 않는다. Unreal도 미지정 속성·중복 JSON 속성 전체를 검사하는 엄격한 서버 파서와 동일하다고 주장하지 않는다.
 
 ## 잔여 위험과 원격 공개 게이트
 
@@ -130,10 +132,17 @@ Unity 응답 검사에는 중복 playerId 검사가 없다. 또한 `JsonUtility`
 | 도청·변조 | TLS 없음. loopback은 암호화나 인증이 아님 |
 | 장기 보관·복구 | 메모리 저장만 있음 |
 | 전체 정렬·단일 lock 비용 | 실제 부하 한계 미측정 |
-| 잘못된 입력의 오류 일관성 | 숫자 타입 예외 분류와 클라이언트 검증 차이가 남음 |
+| 응답 schema 검사 범위 | Unity·Unreal은 서버의 정확한 속성 집합 검사와 동일하지 않음 |
 
 TLS·인증/권한·replay 및 rate limiting·점수 정당성 검증·비밀 관리·보안 로그·부하/보안 검증을 설계하고 승인하기 전에는 bind 주소를 LAN이나 공개 인터페이스로 바꾸지 않는다. 현재 구현은 로컬 프로토콜 실험이며 운영 서비스의 보안 수준을 보장하지 않는다.
 
 ## 재현 가능한 검사
 
-실행 명령은 [실행 및 검증 가이드](DEMO_GUIDE.md)에만 관리한다. 서버 검증 실행 파일은 프레임 분할·길이 오류·요청 경계·저장소 용량·8-thread 갱신·loopback·timeout·동시 연결을 검사한다. 과거 결과와 새 실행 결과를 구분하며 보안 검사가 모든 공격을 다뤘다고 해석하지 않는다.
+실행 명령은 [실행 및 검증 가이드](DEMO_GUIDE.md)에만 관리한다. 서버 검증 실행 파일은 프레임 분할·길이 오류·요청 경계·숫자 타입/범위·거부 후 저장소 불변·저장소 용량·8-thread 갱신·loopback·timeout·동시 연결을 검사한다. 과거 결과와 새 실행 결과를 구분하며 보안 검사가 모든 공격을 다뤘다고 해석하지 않는다.
+
+## Version History
+
+| Version | Date | 변경 |
+|---|---|---|
+| 1.1.0 | 2026-09-09 | v1 정수 파서와 Unity 누락 점수·중복 ID 검증, 재현/수정 검사 근거 |
+| 1.0.0 | 2026-09-07 | 구현 기준 TCP 명세와 알려진 한계 정리 |

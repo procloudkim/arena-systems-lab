@@ -1,8 +1,8 @@
 # 실행 및 검증 가이드
 
-- 문서 버전: `1.0.0`
-- 코드·기록 확인일: 2026-09-07 KST
-- 적용 소스: `fa834cf`. 명령 인수 패턴의 기존 검증일은 2026-09-04~05이며 이번 문서 작업에서 엔진·서버를 재실행하지 않았다.
+- 문서 버전: `1.1.2`
+- 코드·기록 확인일: 2026-09-09 KST
+- 적용 소스: 기존 `fa834cf`와 [ADR 0014](adr/0014-v1-contract-hardening.md)의 v1 보강. 2026-09-09에 .NET no-restore build·verification, Unity EditMode·PlayMode·validator 인수 패턴을 재검증했다. Windows player·Unreal 재빌드와 사람 검사는 이번 실행에서 수행하지 않았다.
 - 최신 결과: [PROCESS](../PROCESS.md). 테스트 범위는 [요구사항](REQUIREMENTS.md), 통신 오류 의미는 [프로토콜](NETWORK_SECURITY.md)을 따른다.
 
 ## 읽기 순서와 환경
@@ -13,7 +13,7 @@
 |---|---|
 | Unity | ProjectVersion `6000.5.1f1`, Input System `1.19.0`, URP `17.5.0`, Test Framework `1.7.0` |
 | Windows 빌드 | Windows x86-64, 기존 Standalone Mono, Development |
-| .NET 서버 | `net10.0`, 검증 SDK `10.0.400`, 외부 NuGet 의존성 없음 |
+| .NET 서버 | `net10.0`, 최근 재검증 SDK `10.0.401`, 외부 NuGet 의존성 없음 |
 | Unreal observer | association `5.8`, 검증 Engine `5.8.0`, VS Native Game/C++·MSVC `14.50`·Windows SDK `10.0.26100` |
 
 환경 차이와 설치 승인은 [환경 감사](ENVIRONMENT_AUDIT.md) 및 [AGENTS](../AGENTS.md)를 따른다. 기존 로그는 해당 시점의 근거일 뿐 제3자 환경에서의 PASS를 보장하지 않는다.
@@ -33,6 +33,8 @@
 첫 restore는 서버 검증 프로젝트의 project reference를 통해 서버도 준비한다. `Server/NuGet.Config`는 외부 package source를 비운다. 필요한 SDK가 없으면 설치를 요청하고 중단한다.
 
 ```powershell
+$env:DOTNET_CLI_TELEMETRY_OPTOUT = "1"
+$env:DOTNET_GENERATE_ASPNET_CERTIFICATE = "false"
 & "<dotnet>" --version
 & "<dotnet>" restore Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configfile Server/NuGet.Config
 & "<dotnet>" build Server/ArenaSystemsLab.Server.Verification/ArenaSystemsLab.Server.Verification.csproj --configuration Release --no-restore
@@ -40,9 +42,13 @@
 & "<dotnet>" run --project Server/ArenaSystemsLab.Server/ArenaSystemsLab.Server.csproj --configuration Release --no-build --no-restore -- --port 7777
 ```
 
-기대 결과는 Release 빌드 오류·경고 0, 검증 8 passed / 0 failed, 서버의 `127.0.0.1:7777` listening 표시다. 마지막 명령은 서버를 계속 실행하므로 별도 창을 사용한다. 종료는 Ctrl+C다. 포트가 사용 중이면 다른 프로세스를 강제 종료하지 말고 소유자를 확인한다.
+기대 결과는 Release 빌드 오류·경고 0, 모든 검증 통과·실패 0, 서버의 `127.0.0.1:7777` listening 표시다. 비교할 최신 실행 개수·범위는 [PROCESS 검증표](../PROCESS.md#validation-ledger)에서 확인한다. 마지막 명령은 서버를 계속 실행하므로 별도 창을 사용한다. 종료는 Ctrl+C다. 포트가 사용 중이면 다른 프로세스를 강제 종료하지 말고 소유자를 확인한다.
+
+환경변수는 현재 PowerShell process에만 설정한다. DOTNET_CLI_TELEMETRY_OPTOUT은 도구 사용 정보 전송을 끄고, DOTNET_GENERATE_ASPNET_CERTIFICATE는 SDK 첫 실행의 HTTPS 개발 인증서 생성을 억제한다. 인증서 저장소를 변경·정리하는 명령이 아니다. [Microsoft 환경변수 명세](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-environment-variables). 2026-09-09 재검증은 기존 restore 결과를 재사용했으며 새 restore·package 설치는 실행하지 않았다.
 
 ## Unity 자동 검사와 Windows 빌드
+
+아래 네 줄은 각각 별도 실행이다. 필요한 명령을 한 줄씩 실행하고 Editor 종료·잠금 해제와 해당 결과 XML 또는 로그를 확인한 뒤 다음 명령을 실행한다. 네 줄을 한꺼번에 붙여 넣거나 프롬프트가 돌아온 것만으로 완료를 판단하지 않는다.
 
 ```powershell
 & "<UnityEditor>\Unity.exe" -batchmode -nographics -projectPath "<project-root>" -runTests -testPlatform EditMode -testFilter "ArenaSystemsLab.Tests.EditMode" -testResults "<project-root>\Logs\EditModeResults.xml" -logFile "<project-root>\Logs\EditModeTest.log"
@@ -77,18 +83,16 @@ Editor 메뉴는 `Tools > Arena Systems Lab > Validate Project`, `Build Windows 
 |---|---|---|
 | [HealthTests](../Assets/ArenaSystemsLab/Tests/EditMode/HealthTests.cs) | FR-06, 피해·사망·중복 이벤트·잘못된 피해 | 실제 화면과 물리 접촉 |
 | [EnemyStateMachineTests](../Assets/ArenaSystemsLab/Tests/EditMode/EnemyStateMachineTests.cs) | FR-05, 상태 전이·우선순위·종료 상태 | 이동·충돌 callback 전체 |
-| [LeaderboardClientTests](../Assets/ArenaSystemsLab/Tests/EditMode/LeaderboardClientTests.cs) | FR-09, 프레임·재시도·과대 응답·서버 없음 | 실제 .NET 서버와 화면, 누락 필드·중복 ID 전체 |
-| [SpatialHash2DTests](../Assets/ArenaSystemsLab/Tests/EditMode/SpatialHash2DTests.cs) | 공간 질의 정확성·비용 실험 | 게임 전체 최적화 효과 |
+| [LeaderboardClientTests](../Assets/ArenaSystemsLab/Tests/EditMode/LeaderboardClientTests.cs) | FR-09, 프레임·재시도·과대 응답·서버 없음·누락 점수·중복 ID·정상 0·대소문자 구분 | 실제 .NET 서버와 화면, 모든 JSON 자료형·중복 속성 |
+| [SpatialHash2DTests](../Assets/ArenaSystemsLab/Tests/EditMode/SpatialHash2DTests.cs) | query별 brute-force ID/개수 일치·반지름 0/경계·비용 실험 | 게임 전체 최적화 효과 |
 | [ArenaProjectValidatorTests](../Assets/ArenaSystemsLab/Tests/EditMode/ArenaProjectValidatorTests.cs) | FR-12, 설정 snapshot 검사 | 실제 빌드 전체 |
 | [ArenaProfileBaselineTests](../Assets/ArenaSystemsLab/Tests/PlayMode/ArenaProfileBaselineTests.cs) | 5초 자동 gameplay 측정 | 장시간 안정성·사람 조작 전체 |
-| [서버 검증 실행 파일](../Server/ArenaSystemsLab.Server.Verification/Program.cs) | FR-10, 프레임·경계·동시성·timeout | 모든 공격·운영 부하·숫자 ValueKind 오류 분류 |
+| [서버 검증 실행 파일](../Server/ArenaSystemsLab.Server.Verification/Program.cs) | FR-10, 프레임·숫자 ValueKind/범위·거부 후 저장소 불변·동시성·timeout | 모든 공격·운영 부하·DB 영속성 |
 | [Unreal automation](../Unreal/ArenaObserver/Source/ArenaObserver/ArenaLeaderboardProtocolTests.cpp) | FR-11, wire fixture·선택적 native socket | HUD 가독성·연속 cross-engine 시연 |
 
 수동 검사의 공통 실패 판정은 crash·freeze·반복 Error/Exception·기대 데이터 불일치다. 기존 오류인지 이번 변경인지 판별할 수 없으면 UNKNOWN으로 기록하고 PASS를 보류한다.
 
 ## 시연 준비 조건
-
-## 준비 조건
 
 - Unity Editor `6000.5.1f1` exact match
 - `Assets/Scenes/SampleScene.unity`가 Build Settings에서 활성화
@@ -110,7 +114,7 @@ Editor 메뉴는 `Tools > Arena Systems Lab > Validate Project`, `Build Windows 
 | 1:00~2:30 | `SampleScene` Play | 이동·조준·공격, spawn·chase, HP·score 증가 |
 | 2:30~3:00 | enemy와 접촉 후 Hierarchy/색상 확인 | Gray `Idle`, Red `Chase`, Orange `Attack`; death는 terminal state |
 | 3:00~3:40 | player 사망 후 leaderboard와 `R` 확인 | score 제출·상위 5개 조회 후 새 round 시작 |
-| 3:40~4:30 | Test Runner와 `PERFORMANCE_BASELINE.md` | EditMode 20/20, PlayMode 1/1, 측정 전 최적화를 채택하지 않은 판단 |
+| 3:40~4:30 | Test Runner와 `PERFORMANCE_BASELINE.md` | [PROCESS의 EditMode·PlayMode 결과](../PROCESS.md#validation-ledger), 측정 전 최적화를 채택하지 않은 판단 |
 | 4:30~5:00 | Windows build 근거 확인 | 독립 player build와 launch 기록 |
 
 ## Unity leaderboard 수동 체크리스트
@@ -122,7 +126,7 @@ Editor 메뉴는 `Tools > Arena Systems Lab > Validate Project`, `Build Windows 
 | 1 | port 7777 server가 없는 상태로 Play 후 사망 | Game Over와 final score가 표시되고 잠시 뒤 leaderboard가 `unavailable`로 바뀜 | freeze, crash, 반복 Console error |
 | 2 | `R` 입력 | server 실패와 무관하게 HP 100·score 0인 새 round 시작 | 요청 취소나 restart 실패 |
 | 3 | 위 PowerShell 명령으로 server 실행 | `127.0.0.1:7777`, protocol v1 listening message | 다른 interface bind, 즉시 종료 |
-| 4 | 다시 Play하여 적을 처치한 뒤 사망 | `Leaderboard: connected`, 최고 점수 순위 표시. 새 서버에서 이 ID만 제출했다면 `UnityPlayer` 한 줄 표시 | score 불일치, 응답 미표시 |
+| 4 | 새 서버에서 적을 처치하지 않고 사망한 뒤, 재시작해 적을 처치하고 다시 사망 | 첫 제출은 정상 0점으로 연결되고 이후 최고 점수가 갱신됨. 이 ID만 제출했다면 `UnityPlayer` 한 줄 표시 | 0점을 오류로 처리, score 불일치, 응답 미표시 |
 | 5 | 한 번 더 플레이해 더 높은 score 제출 | 같은 `UnityPlayer` entry가 최고 score로 갱신 | duplicate entry 또는 낮은 score로 감소 |
 | 6 | Unity Console과 server log 확인 | Unity Error/Exception 없음, server는 고정 상태 log만 출력 | payload/player ID/stack trace 노출 또는 error |
 | 7 | Play 종료 후 server에서 `Ctrl+C` | server가 정상 종료되고 Unity도 PlayMode를 빠져나옴 | 종료 불가 또는 남은 process |
@@ -154,6 +158,14 @@ Editor 메뉴는 `Tools > Arena Systems Lab > Validate Project`, `Build Windows 
 | 6 | player HP를 0으로 만듦 | Game Over가 표시되고 spawn·입력이 중지됨 | round가 계속 진행되거나 exception 발생 |
 | 7 | `R` 입력 | HP 100, score 0인 새 round 시작 | 이전 round object가 남거나 restart 실패 |
 | 8 | player 종료 후 log/Console 확인 | 이번 변경에서 발생한 Error/Exception 없음 | compiler error, managed exception, crash |
+
+## v1 보강 검증 기록 — 2026-09-09
+
+- 수정 전 추가 회귀 검사: server 8 PASS / 2 FAIL, Unity EditMode 26 PASS / 4 FAIL. 기존 숫자 타입·누락 점수·중복 ID 문제를 재현했다.
+- 수정 후: .NET Release 경고·오류 0, server 10/10, exact Unity EditMode 30/30, PlayMode 1/1, validator PASS.
+- Unity XML·log: ignored `Logs/ContractHardening-*20260909.*`. 수정 전후 파일 이름을 분리해 실패 근거를 보존했다.
+- 배치 로그: 컴파일 오류 없음. 변경하지 않은 ArenaGame의 기존 API 사용에 CS0618 경고가 출력됐다. 변경 전부터 존재한 Unity 라이선스 갱신 진단과 validator 종료 시 외부 설정 요청 실패도 있으며 로그 전체가 오류 문자열 0건이라는 뜻은 아니다.
+- 이번 화면·Console 수동 검증, Windows player·Unreal 재빌드, MySQL·v2·SVN: NOT RUN. 기존 수동 PASS를 이번 변경의 PASS로 사용하지 않는다.
 
 ## 기존 검증 기록 — 2026-09-04~05
 
@@ -191,3 +203,12 @@ Unreal 화면 검증의 `ObserverFixture 42`는 새 in-memory server session에 
 5. 마지막 화면에 test 결과, performance baseline, Windows executable을 차례로 보여 준다.
 
 영상·GIF와 같은 서버 세션의 Unity → Unreal 연속 시연 기록은 아직 없다. 녹화 시 같은 서버를 유지한 채 Unity에서 새 점수를 제출하고 Unreal Play를 재시작해 동일 값을 확인한다.
+
+## Version History
+
+| Version | Date | 변경 |
+|---|---|---|
+| 1.1.2 | 2026-09-09 | 최신 테스트 개수를 PROCESS 참조로 통합. 명령·합격 조건·날짜별 검증 기록 보존 |
+| 1.1.1 | 2026-09-09 | 중복 준비 제목 제거, Unity 명령별 종료 확인과 SDK 환경변수 역할 명확화. 명령 변경·재실행 없음 |
+| 1.1.0 | 2026-09-09 | v1 회귀 범위·실측 결과·SDK 실행 조건·정상 0점 수동 검사 추가 |
+| 1.0.0 | 2026-09-07 | 기존 환경·명령·검증·수동 시연 책임 통합 |

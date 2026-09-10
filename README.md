@@ -57,6 +57,7 @@
 현재 상태와 다음 작업은 [PROCESS](PROCESS.md), 작업 규칙은 [AGENTS](AGENTS.md)가 기준이다.
 
 - [구현 계획](docs/IMPLEMENTATION_PLAN.md)
+- [기술 완결성 설계서 — 구현 예정](docs/TECHNICAL_COMPLETION_DESIGN.md)
 - [환경 감사 기록](docs/ENVIRONMENT_AUDIT.md)
 - [성능 측정 기준선](docs/PERFORMANCE_BASELINE.md)
 - [게임 개발 용어 백과사전](docs/GAME_DEV_GLOSSARY.md)

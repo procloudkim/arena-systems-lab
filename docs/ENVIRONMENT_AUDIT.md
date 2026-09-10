@@ -438,3 +438,89 @@ Automation startup의 Engine `UnifiedErrorTests.cpp`가 의도적으로 출력�
 | `gh repo edit --description <technical-summary>` 후 재조회 | 현재 구현 요약으로 소개 정리 | 성공, PUBLIC·빈 homepage·main 유지. 문구 인수는 요약 표기 |
 
 새로운 compile·빌드·게임 수동 PASS를 추가하지 않는다. 기존 log와 generated binary는 계속 ignored 상태이며 이번 문서 변경에 포함하지 않는다.
+
+## 2026-09-09 기술 완결성 작업 재감사
+
+이 절은 새 작업의 시점별 근거다. 위 2026-09-07 문서 작업 결과를 소급 변경하지 않는다. 장치 경로는 자리표시자로 치환했다.
+
+| 항목 | 관측 | 상태·영향 |
+|---|---|---|
+| Git | f896940 main, 미커밋 변경 없음 | READY |
+| Unity source | 6000.5.1f1 / 0d9463e84828 | READY |
+| Unity Hub 목록 | 다른 patch 등록, exact version 등록 없음 | 목록만으로 부재 판정 불가 |
+| 기존 설치 경로 | exact Editor executable과 ProductVersion 일치 | READY, 재사용 |
+| Editor process·UnityLockfile | 실행 전 없음 | batch 검사 가능 |
+| Windows .NET SDK | 10.0.401 | 과거 10.0.400과 차이, 실제 build·8/8 검사로 재검증 |
+| Unity baseline | EditMode 20/20, process exit 0 | PASS, CompletionBaseline-20260909.xml |
+| 의존성 확장 | MySQL·connector·SVN 설치 및 외부 쓰기 미승인 | 계획의 별도 승인 gate 유지 |
+
+| 실제 명령 종류 | 목적 | 결과 |
+|---|---|---|
+| git status/log, rg, sed, tail | repo 상태·명세·소스·기존 engine 경로 | 조회 성공. 존재하지 않는 tools/.github 조회는 exit 2 |
+| PowerShell Hub JSON·Test-Path·VersionInfo·Get-Process | exact Editor와 잠금 확인 | 성공. 첫 CIM filter 인용 오류는 재조회로 해결 |
+| `<dotnet> --version` | SDK 실측 | 10.0.401 |
+| `<dotnet> build <verification.csproj> --configuration Release --no-restore` | 변경 전 build | exit 0, warnings/errors 0 |
+| `<dotnet> run --project <verification.csproj> --configuration Release --no-build --no-restore` | 변경 전 server 검사 | exit 0, 8/8 |
+| exact Unity batch EditMode, 별도 testResults/logFile | 변경 전 Unity 검사 | exit 0, 20/20 |
+| git switch -c work/technical-completion-design | 문서 branch 분리 | 성공 |
+
+SDK 첫 build 출력에 HTTPS 개발 인증서 자동 생성 메시지가 있었다. 명시적 설치·신뢰 명령은 실행하지 않았으며 인증서 저장소를 읽거나 제거하지 않았다. 이는 도구 첫 실행 부작용이지 프로젝트에 HTTPS를 구현한 결과가 아니다. 이후 build에는 DOTNET_GENERATE_ASPNET_CERTIFICATE=false를 적용한다. Unity baseline 이후 tracked 파일의 자동 변경은 없었다.
+
+## 2026-09-09 v1 보강 실행 근거
+
+Gate는 `READY_WITH_GAPS`다. 승인된 설치 없이 기존 .NET과 exact Unity로 v1 코드를 검증했다. 현재 상태와 후속 승인은 PROCESS, 변경 이유는 [ADR 0014](adr/0014-v1-contract-hardening.md)를 따른다.
+
+| 실제 명령 / 인수 패턴 | 목적 | 종료 상태·관측 |
+|---|---|---|
+| git status/log/diff, rg, sed | 분기 기준·호출자·변경 경계 확인 | 설계 checkpoint 5b29e49, 해당 시점 clean |
+| git switch -c work/network-contract-hardening | 구현 작업 분리 | 성공 |
+| Get-Process, Test-Path, VersionInfo | 실행 전 Editor·lock·정확한 버전 확인 | 다른 Editor 없음, lock 없음, 6000.5.1f1 revision 일치 |
+| `<dotnet> build <verification.csproj> --configuration Release --no-restore` | 수정 전·후 검증 executable build | 두 실행 exit 0, warnings/errors 0 |
+| `<dotnet> run --project <verification.csproj> --configuration Release --no-build --no-restore` | 회귀 재현 → 수정 확인 | 전 exit 1, 8/10; 후 exit 0, 10/10 |
+| exact Unity batch EditMode | 회귀 재현 → 수정 확인 | 전 exit 2, 26/30; 후 exit 0, 30/30 |
+| exact Unity batch PlayMode | 기존 gameplay 자동 회귀 | exit 0, 1/1 |
+| exact Unity executeMethod ArenaProjectValidator.ValidateFromCommandLine | 실제 프로젝트 설정 검증 | exit 0, validation passed |
+| XML·log 읽기, 최종 process/lock 조회 | 종료 코드와 결과 교차 확인 | XML 성공 결과 일치, 최종 Editor·lock 없음 |
+| Node 표준 API 문서 검사, git diff --check | 링크·JSON·ADR·glossary·정보/변경 경계 | PASS, 문서 28개·링크 199개·JSON 9개·ADR 14개·용어 85개, 오류 0 |
+| git add/commit/push, git ls-remote --heads origin | 명시적 파일만 기록·원격 대조 | 구현 c6fec8c push·SHA 일치. main은 f896940 유지 |
+
+명령 전체 템플릿은 [DEMO_GUIDE](DEMO_GUIDE.md), 결과는 ignored `Logs/ContractHardening-*20260909.*`에 있다. .NET은 process 범위의 DOTNET_CLI_TELEMETRY_OPTOUT=1, DOTNET_GENERATE_ASPNET_CERTIFICATE=false를 적용했다. 별도 restore·외부 package 추가·engine upgrade는 없다.
+
+Unity green 로그의 컴파일 오류는 0건이다. 재컴파일한 미변경 ArenaGame의 CS0618 API 경고, 변경 전부터 있던 라이선스 갱신 진단, validator 종료 시 외부 설정 요청 실패는 별도 환경·기존 소스 진단이다. 이력과 달리 새 GUI Console 검사는 하지 않았으므로 수동 Console은 UNKNOWN이다.
+
+PlayMode가 새 기본 SceneTemplateSettings.json을 생성했다. 내용이 기본값이고 이번 실행 전 없던 파일임을 Git 상태·내용으로 확인한 뒤 Editor 종료 후 제거했다. 기본 파일은 다시 생성 가능하며 기존 설정의 최종 변경은 없다. 현재 Windows player·Unreal·MySQL·v2·SVN 실행과 사람 화면 검증은 NOT RUN이다.
+
+## 2026-09-10 미완료 사유와 환경 재확인
+
+조사 시점은 2026-09-10 KST다. 저장소 코드·문서·Git ref, Windows 명령 탐색·일반 설치 경로·관련 설치 registry·MySQL service, 로컬 Docker context만 읽었다. 사용자 홈·드라이브 전체·credential은 탐색하지 않았다. 아래는 시점별 근거이며 현재 재개 지점은 [PROCESS](../PROCESS.md#work-queue)가 기준이다.
+
+| 항목 | 실제 관측 | 상태·해석 |
+|---|---|---|
+| Git 분기 전 | work/documentation-ssot 3ce607a, clean, 원격 SHA 일치 | READY. main f896940과 비교해 작업 branch에만 6개 commit, 문서 마감 branch 생성 전 수치 |
+| 서버 저장소·계약 | LeaderboardStore는 Dictionary, WireProtocol.Version은 1, server csproj는 net10.0·PackageReference 없음 | MySQL·v2 미구현 확인, 기술적 불가능의 근거는 아님 |
+| MySQL 명령·일반 설치 | mysql.exe·mysqld.exe 미탐지, 일반 MySQL 설치 경로·관련 registry·service 0건 | 해당 조사 범위 미탐지. 비표준·포터블 설치 UNKNOWN |
+| SVN 명령·일반 설치 | svn.exe·svnadmin.exe 미탐지, TortoiseSVN·SlikSvn·VisualSVN Server 일반 경로와 관련 registry 0건 | 해당 조사 범위 미탐지. 비표준·포터블 설치 UNKNOWN |
+| Docker daemon | 기본 context가 로컬 endpoint임을 확인한 뒤 Server.Version 29.7.2 응답 | READY. 초기 daemon 미응답 기록을 현재 상태로 재사용하지 않음 |
+| MySQL image | mysql:* 필터 조회 0건 | 해당 태그 image MISSING. 커스텀 image·별도 DB 접속 가능성 UNKNOWN |
+| Unity·Unreal·Windows·DB 실행 | 이번 조사에서 실행하지 않음 | NOT RUN. 이전 PASS는 날짜가 고정된 기록 |
+| 신규 사람 확인 | 이번 변경에 대한 새 PASS 응답 없음 | 수동 검증 NOT RUN 유지, Console 현재 결과 UNKNOWN |
+
+### 외부 명세와 프로젝트 판단 구분
+
+| 확인한 주장 | 판정·조치 | 근거 |
+|---|---|---|
+| 현재 net10.0 서버에 사용할 MySQL connector가 존재한다 | 확인. 후보 2.6.2의 net10.0 대상·MIT·간접 의존성 명세가 존재함. 로컬 설치·실행 검증과는 별개 | [NuGet 배포 명세](https://www.nuget.org/packages/MySqlConnector/2.6.2) |
+| SVN 실습에는 원격 서버나 실제 팀원이 반드시 필요하다 | 반증. 필요조건을 과대평가한 주장으로, 로컬 repository와 file 접근으로 개인 실습 가능. 외부 작업 공간 승인 의무는 유지 | [Apache SVN 로컬 repository 안내](https://subversion.apache.org/quick-start#setting-up-a-local-repository) |
+| GitHub Release로 태그와 배포 파일을 연결할 수 있다 | 확인. 선택 가능한 배포 방법이며 이번 작업에서 release·tag·binary 업로드는 하지 않음 | [GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases) |
+| 모든 미완료 작업이 설치 승인 때문에 중단됐다 | 저장소 근거로 정정. 미결 계약 정리·현재 v1 사람 검사·재빌드는 DB 설치와 구분하며, v2 일괄 전환은 채택한 설계 선택 | [설계와 승인 경계](TECHNICAL_COMPLETION_DESIGN.md#6-실행-순서와-승인-gate), [실행 가이드](DEMO_GUIDE.md) |
+
+| 실행한 명령·도구 | 목적 | 관측 결과 |
+|---|---|---|
+| git status/log, git ls-remote --symref origin HEAD 및 지정 branch ref, git rev-list --left-right --count main...HEAD | 분기 전 작업·원격 상태 | exit 0, 위 SHA·clean·0/6 확인 |
+| rg, sed, tail | 코드·문서·승인·수동 절차 대조 | 조회 성공. 긴 출력 일부가 잘려 필요한 원문을 좁혀 재조회 |
+| PowerShell Get-Command·Test-Path·Get-Service·설치 registry 필터 | MySQL/SVN 일반 설치 탐색 | exit 0, 위 미탐지 범위 확인. 개인 경로 인수는 이 기록에서 생략 |
+| docker context inspect, docker version --format, docker image ls --filter reference=mysql:* | 로컬 daemon·image 확인 | exit 0, daemon 29.7.2·image 0건 |
+| 공식 문서 웹 조회 | 외부 기술 주장 확인·반증 | 위 세 출처 확인, 패키지·image 다운로드 없음 |
+| Node 표준 API 정적 검사, git diff --check | 문서 링크·앵커·JSON·ADR·과거 기록·변경/정보 경계 | exit 0, Markdown 28개·링크 234개·앵커 29개·JSON 9개·ADR 14개, 과거 기록 3개 보존·문서 4개만 변경 |
+
+별도 승인 없는 설치·daemon 시작·container 생성·DB 변경·engine 실행·main 통합은 하지 않았다. 최신 Windows/Unreal build, 자동 게임 검사, 수동 화면·Console, MySQL·v2·SVN 실습은 이번 문서 작업의 실행 결과가 아니다.

@@ -95,6 +95,7 @@ Unity와 C#으로 플레이 가능한 시스템을 만들고 객체지향 설계
 - 작업·구조 의사결정: `docs/adr/`
 - 최종 필수 기술 baseline: `docs/adr/0006-technology-baseline.md`
 - milestone과 완료 근거 matrix: `docs/IMPLEMENTATION_PLAN.md`
+- 향후 기술 완결성 설계: `docs/TECHNICAL_COMPLETION_DESIGN.md`, `docs/adr/0013-technical-completion-design.md` (현재 구현 상태는 PROCESS 참조)
 - 생성물 제외 정책: `.gitignore`
 
 ## 6. Dependency policy
