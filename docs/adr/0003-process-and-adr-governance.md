@@ -47,3 +47,9 @@ ssotize 감사 후 사용자 승인으로 구현 계획의 현재 상태와 실�
 사용자 요청으로 미완료 사유·완료 조건·사람 검증 안내를 정리했다. 환경 감사에 날짜가 고정된 관측과 외부 명세 대조를 추가하고 PROCESS의 현재 상태만 갱신했다. 과거 daemon 미응답과 사람 PASS는 소급 변경하지 않았다.
 
 기존 checklist·설계·승인 표를 재사용하며 새 정책·runtime·dependency 변경은 없다. 당일 종료와 최종 DONE을 구분하고 신규 사람 PASS가 없는 상태를 유지한다. 검사·구현 SHA·원격 근거는 [PROCESS checkpoint](../../PROCESS.md#checkpoints), 범위와 미검증 사항은 [AI 기록](../AI_USAGE.md#2026-09-10-사실-확인과-문서-마감)을 따른다.
+
+### 2026-09-11 승인된 main 통합
+
+v1 사람 검증과 정상 종료 확인 후 사용자가 main 통합을 승인했다. local/remote main f896940과 작업 branch 4c5126f의 일치·clean, main만의 추가 commit 0개·작업 branch의 12개 commit을 확인했다. 기존 이력을 보존하는 merge c2c28a0으로 통합하고 main push·원격 SHA 일치를 확인했다.
+
+통합 commit의 전체 Git tree는 검증된 작업 branch와 같고 Assets·Server·Packages·ProjectSettings·Unreal은 자동 검증 당시 c6fec8c와 동일하다. 기존 EditMode 30/30·PlayMode 1/1 XML과 validator 성공 표식을 재확인했으며 엔진 검사를 새로 실행하지 않았다. 원본 branch와 과거 검증 기록을 보존하고 PROCESS의 통합 상태만 최신화했다. 새로운 정책·기능·의존성 승인·태그 배포는 없으며 [통합 checkpoint](../../PROCESS.md#checkpoints)에 merge와 인계 근거를 연결한다.

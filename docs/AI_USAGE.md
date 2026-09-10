@@ -644,3 +644,16 @@ compile·EditMode·PlayMode·server verification·Windows/Unreal build·MySQL·S
 기존 읽기 전용 문서 검사의 비교 기준을 991f40e, 종료 상태를 PASS로 갱신해 재사용했다. Markdown 28개·내부 링크 240개·앵커 33개·JSON 예제 9개·ADR 14개·과거 기록 2개 보존·문서 3개 변경 경계·미실행 상태·정보 경계·diff 검사 PASS, exit 0이다.
 
 종료 기록 commit d8634a9를 같은 작업 branch에 push하고 원격 SHA 일치·clean을 확인했다. main은 f896940을 유지했다. 후속 CP-20260911-02는 해당 SHA와 종료 PASS를 연결하며 다음 재개 지점을 별도 승인된 main 통합 판단으로 바꾼다. 전체 기술 범위의 최종 DONE 선언은 아니다.
+
+## 2026-09-11 승인된 main 통합
+
+사용자가 직전 main 통합 대기에 승인했다. 이를 MySQL·SVN 설치·추가 구현·릴리스 태그 승인으로 확대하지 않았다. re0-release를 확인했지만 스킬 패키지 배포 전용 절차여서 적용하지 않고 AGENTS·ADR 0001·0003의 기존 통합 절차를 따랐다.
+
+- 사전 확인: Git clean, local/remote main f896940·작업 branch 4c5126f 일치, 차이 0/12 commit·20개 파일. runtime 수정 2개·테스트 파일 3개의 diff와 문서 범위를 검토했다. merge 전에 해당 Unity process·lock·port 7777은 없었다.
+- 검증 근거: Assets·Server·Packages·ProjectSettings·Unreal이 c6fec8c와 동일하다. `Logs/ContractHardening-Green-20260909.xml`의 30/30, PlayMode XML의 1/1, validator log의 성공 표식을 읽기 전용 재확인했다. 이는 2026-09-09 실행 결과이며 새 실행이 아니다. 2026-09-11 사람 PASS·서버 Release build·정상 종료는 앞선 당일 기록을 따른다.
+- 통합: `git switch main`, `git merge --no-ff work/v1-manual-validation`으로 c2c28a0 생성. 두 parent의 이력을 보존했고 merge tree와 4c5126f의 tree가 일치했다. `git push origin main` 후 remote SHA 일치·clean을 확인했다. pull·rebase·reset·force push·branch 삭제는 하지 않았다.
+- 문서: PROCESS의 통합 상태·다음 작업·CP-20260911-03, ADR 0003의 적용 기록과 이 문서만 추가 수정한다. 기존 checkpoint 검증 결과와 ADR·AI의 대기 이력은 보존한다. 새 ADR·버전·glossary 항목은 만들지 않는다.
+
+문서 검사와 소스 동일성 검사는 PASS다. compile·EditMode·PlayMode·server verification·Windows/Unreal build·새 사람 실행은 이번 통합에서 NOT RUN이다. package·ProjectSettings·Scene·Prefab·Unreal 변경 없이 기존에 검증된 소스를 통합하며 MySQL·v2·SVN·최신 Windows build는 남은 작업이다.
+
+인계 문서 검사: Markdown 28개·내부 링크 242개·앵커 33개·JSON 예제 9개·ADR 14개, merge 이후 문서 3개 변경 경계·과거 기록 2개 append-only·기존 checkpoint 18개의 검증 열 보존·소스 동일성 PASS. 추적된 GitHub workflow 파일은 없어 CI 실행 성공을 주장하지 않는다. 통합 commit을 먼저 push한 후 CP-20260911-03과 인계 기록을 후속 commit으로 남기는 ADR 0003 절차를 적용했다.
