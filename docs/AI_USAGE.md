@@ -632,3 +632,13 @@ compile·EditMode·PlayMode·server verification·Windows/Unreal build·MySQL·S
 사용자의 resume 요청 후 미커밋 문서 3개와 기준선 SHA가 유지됨을 확인했다. Unity·해당 서버·loopback port·lock은 여전히 존재해 정상 종료는 대기로 유지했다. 원격 main은 f896940, 이전 마감 branch는 5242a5c였으며 새 검증 branch의 원격 ref는 아직 없었다. 중단된 검증 기록을 보존하고 commit·push부터 이어간다.
 
 검증 기록 commit 68d8da7을 work/v1-manual-validation에 push하고 원격 SHA 일치·clean을 확인했다. main f896940은 유지했다. 후속 CP-20260911-01에 해당 SHA·사람 PASS·자동 테스트 재실행과 정상 종료 대기를 기록했다. 코드·package·설정·Scene은 변경하지 않았고 정상 종료를 기다리는 동안 강제 종료·lock 삭제·추가 Editor 실행은 하지 않았다.
+
+### 2026-09-11 정상 종료와 인계
+
+기준선은 work/v1-manual-validation의 991f40e, Git clean이다. 첫 종료 보고에서는 해당 서버와 port 7777이 사라졌지만 Unity Editor 창과 lock이 남아 있어 재확인을 요청했다. 사용자가 다시 종료 완료를 보고한 뒤 `Get-CimInstance`·`Get-NetTCPConnection`·`Test-Path`로 해당 Unity·서버 process 0개, port 7777 listener 0개, `Temp/UnityLockfile` 없음을 확인했다. 종료 확인 명령 exit 0이며 사용자 보고와 관측을 함께 근거로 정상 종료 PASS를 기록한다.
+
+`git status --short --branch`는 clean, `sha256sum`으로 대조한 package 2개·ProjectVersion·ProjectSettings·EditorSettings·SampleScene의 해시 6개는 실행 전과 일치했다. 이번 변경은 PROCESS의 종료 상태·다음 통합 판단과 기존 ADR 0014·AI 기록의 근거 추가뿐이다. 기존 종료 대기 이력은 보존하며 새 branch·ADR·glossary 항목은 만들지 않았다.
+
+엔진·서버 재실행, compile·EditMode·PlayMode·server verification·Windows/Unreal build는 이번 종료 확인에서 NOT RUN이다. 강제 종료·lock 삭제·package·설정·Scene 수정과 main 통합은 수행하지 않았다. v1 수동 검증 마감은 MySQL·v2·SVN·최신 Windows build의 최종 완료를 뜻하지 않는다.
+
+기존 읽기 전용 문서 검사의 비교 기준을 991f40e, 종료 상태를 PASS로 갱신해 재사용했다. Markdown 28개·내부 링크 240개·앵커 33개·JSON 예제 9개·ADR 14개·과거 기록 2개 보존·문서 3개 변경 경계·미실행 상태·정보 경계·diff 검사 PASS, exit 0이다.

@@ -52,3 +52,9 @@ Unity 로그의 CS0618은 변경하지 않은 ArenaGame의 API 사용 경고다.
 | 정상 종료 | NOT RUN | Unity·서버 정상 종료 사용자 확인과 process·port·lock 해제 검사 대기 |
 
 서버의 `127.0.0.1:7777` 수신을 확인했다. PASS는 AI의 화면 관찰이나 자동 검사 결과로 바꾸어 기록하지 않는다. EditMode·PlayMode·server verification·Windows/Unreal 재빌드·MySQL·v2·SVN은 이번에 실행하지 않았다. 기존 결정의 검증 근거 추가이므로 새 ADR은 만들지 않으며 main 통합은 별도 승인 사항이다. 이후 상태와 commit은 [PROCESS](../../PROCESS.md#checkpoints)를 따른다.
+
+### 2026-09-11 정상 종료 확인
+
+첫 종료 보고에서는 서버·port 7777은 해제됐으나 해당 Unity Editor와 lock이 남아 있어 마감을 보류했다. 사용자의 재확인 후 읽기 전용 조회에서 해당 Unity·서버 process 0개, port 7777 listener 0개, `Temp/UnityLockfile` 없음을 확인해 정상 종료를 PASS로 기록했다. 문서 편집 전 Git은 clean이며 package 2개·ProjectVersion·ProjectSettings·EditorSettings·SampleScene의 SHA-256 6개는 실행 전과 같았다.
+
+위 표의 NOT RUN은 종료 전 시점의 기록으로 보존한다. 강제 종료·lock 삭제·엔진 재실행·main 통합 없이 종료 근거만 추가했다. 현재 검증 상태와 후속 통합 판단은 PROCESS를 따른다.
