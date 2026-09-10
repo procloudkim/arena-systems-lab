@@ -6,8 +6,8 @@
 - Gate: `READY_WITH_GAPS`
 - Default branch: `main`
 - Expected handoff state: 작업 branch와 원격 ref를 확인하고 handoff 시 clean 유지
-- Active work: v1 보강 변경의 오프라인·서버 연결·Console 사람 검증 PASS 기록, 정상 종료 확인 대기
-- Next task: Unity와 서버 정상 종료 후 process·port·lock·파일 변경 확인, 검증 기록 push와 별도 승인된 main 통합 판단. MySQL·SVN은 별도 승인
+- Active work: v1 보강 변경의 오프라인·서버 연결·Console 사람 검증 PASS 기록·원격 반영, 정상 종료 확인 대기
+- Next task: Unity와 서버 정상 종료 후 process·port·lock·파일 변경 확인, 종료 결과 기록과 별도 승인된 main 통합 판단. MySQL·SVN은 별도 승인
 
 검증 기록의 commit·원격 확인 근거는 [Checkpoints](#checkpoints)에 기록한다. 2026-09-11 사용자가 현재 소스의 기본 플레이·server 없음·restart·정상 0점·최고 점수 갱신·중복 없음·Console 오류 없음을 확인했다. 이는 사람 검증 결과이며 자동 테스트 재실행·정상 종료·main 통합 또는 최종 DONE을 뜻하지 않는다.
 
@@ -68,7 +68,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 | 검증 | 결과 | 최근 근거 |
 |---|---|---|
-| 2026-09-11 수동 검증 기록 정적 검사 | PASS | Markdown 28개·내부 링크 239개·앵커 33개·JSON 예제 9개·ADR 14개, 과거 기록 2개 보존·문서 3개 변경 경계·미실행 상태·정보 경계·diff 검사 |
+| 2026-09-11 수동 검증 기록 정적 검사 | PASS | 검증 기록 commit 68d8da7 기준 Markdown 28개·내부 링크 239개·앵커 33개·JSON 예제 9개·ADR 14개, 과거 기록 2개 보존·문서 3개 변경 경계·미실행 상태·정보 경계·diff 검사 |
 | 2026-09-10 미완료 사유·환경 사실 확인 | RECORDED | [감사 기록](docs/ENVIRONMENT_AUDIT.md#2026-09-10-미완료-사유와-환경-재확인), 소스·원격 ref·제한된 로컬 도구 조회와 공식 문서 대조 |
 | 2026-09-10 마감 문서 정적 검사 | PASS | 구현 commit a1bfc39 기준 Markdown 28개·내부 링크 234개·앵커 29개·JSON 예제 9개·ADR 14개, 과거 기록 3개 append-only·문서 4개 변경 경계·6단계 인계·NOT RUN 보존. runtime 재실행 없음 |
 | 2026-09-09 변경 전 Unity baseline | PASS | exact 6000.5.1f1, EditMode 20/20, CompletionBaseline-20260909.xml |
@@ -118,7 +118,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 
 ## Work Queue
 
-1. **현재 v1 검증 마감:** [leaderboard checklist](docs/DEMO_GUIDE.md#unity-leaderboard-수동-체크리스트)의 플레이·서버 연결·Console은 2026-09-11 사람 PASS. Unity·서버 정상 종료 확인 후 process·port·lock·보호 파일 변경을 검사하고 기록 push·별도 승인된 main 통합 판단
+1. **현재 v1 검증 마감:** [leaderboard checklist](docs/DEMO_GUIDE.md#unity-leaderboard-수동-체크리스트)의 플레이·서버 연결·Console은 2026-09-11 사람 PASS. Unity·서버 정상 종료 확인 후 process·port·lock·보호 파일 변경을 검사하고 종료 결과 기록·별도 승인된 main 통합 판단
 2. **설계·승인:** [기술 완결성 설계](docs/TECHNICAL_COMPLETION_DESIGN.md)의 부분 성공 처리·오류 검사 순서·DB 취소 예산 범위를 확정. MySQL image·connector 직접/간접 dependency와 SVN 도구·격리 경로의 구체적인 승인 확보
 3. **MySQL·v2 구현:** 승인 후 단일 DB store·이력·최고 점수·runId 중복 방지·schema 적용/복구와 Unity·서버·Unreal 전환
 4. **SVN 실습:** 승인된 Git 외부 공간의 두 working copy에서 branch·충돌 해결·merge와 revision 근거 확보
@@ -164,6 +164,7 @@ Day 2 FSM은 적의 물리 접촉 여부와 게임·사망 상태를 입력으�
 | `CP-20260909-02` | v1 경계·공간 검색 회귀 보강 | `work/network-contract-hardening` | `c6fec8c` | [ADR 0014](docs/adr/0014-v1-contract-hardening.md) | 수정 전 실패 재현, server 10/10·EditMode 30/30·PlayMode 1/1·validator·문서 검사 PASS | Branch pushed, remote SHA 일치; 사람 검증 NOT RUN, main f896940 유지 |
 | `CP-20260909-03` | 승인된 문서 SSOT 통합과 sip 보완 보존 | `work/documentation-ssot` | `3f71d69` | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | 문서·링크·보존 12항목·staged diff 검사 PASS; runtime NOT RUN | Branch pushed, remote SHA 일치; main f896940 유지, v1 사람 검증 대기 |
 | `CP-20260910-01` | 미완료 사유 사실 확인과 문서 마감 | `work/session-closeout` | `a1bfc39` | [ADR 0003](docs/adr/0003-process-and-adr-governance.md) | 문서 정적·과거 기록 보존·문서 4개 변경 경계 검사 PASS; runtime·신규 사람 검증 NOT RUN | 구현 branch push·원격 SHA 일치 확인; main f896940 유지, 다음은 exact Unity의 v1 사람 검증 |
+| `CP-20260911-01` | v1 오프라인·서버 연결 사람 검증 기록 | `work/v1-manual-validation` | `68d8da7` | [ADR 0014](docs/adr/0014-v1-contract-hardening.md) | 기본 플레이·server 없음·재시작·0점·최고 점수 갱신·중복 없음·Console 사람 PASS, 서버 Release·문서 검사 PASS; 자동 테스트 재실행·정상 종료 NOT RUN | 검증 기록 push·원격 SHA 일치 확인; main f896940 유지, 다음은 Unity·서버 정상 종료 확인 |
 
 ## ADR Index and Naming
 

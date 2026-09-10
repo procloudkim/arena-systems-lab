@@ -630,3 +630,5 @@ compile·EditMode·PlayMode·server verification·Windows/Unreal build·MySQL·S
 문서 정적 검사 PASS: Markdown 28개·내부 링크 239개·앵커 33개·JSON 예제 9개·ADR 14개, 과거 기록 2개 보존·문서 3개 변경 경계·미실행 상태·정보 경계·diff 검사. 첫 검사 호출은 JavaScript 문자열 인용 오류로 실행 전에 거부됐고, 수정 후 sandbox의 Git 하위 process EPERM으로 중단됐다. 승인된 재실행에서 exit 0으로 확인했으며 문서 오류나 runtime 실패로 분류하지 않았다.
 
 사용자의 resume 요청 후 미커밋 문서 3개와 기준선 SHA가 유지됨을 확인했다. Unity·해당 서버·loopback port·lock은 여전히 존재해 정상 종료는 대기로 유지했다. 원격 main은 f896940, 이전 마감 branch는 5242a5c였으며 새 검증 branch의 원격 ref는 아직 없었다. 중단된 검증 기록을 보존하고 commit·push부터 이어간다.
+
+검증 기록 commit 68d8da7을 work/v1-manual-validation에 push하고 원격 SHA 일치·clean을 확인했다. main f896940은 유지했다. 후속 CP-20260911-01에 해당 SHA·사람 PASS·자동 테스트 재실행과 정상 종료 대기를 기록했다. 코드·package·설정·Scene은 변경하지 않았고 정상 종료를 기다리는 동안 강제 종료·lock 삭제·추가 Editor 실행은 하지 않았다.
